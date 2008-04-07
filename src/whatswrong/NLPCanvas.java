@@ -12,6 +12,7 @@ import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 
 import net.sf.epsgraphics.EpsGraphics;
 import net.sf.epsgraphics.ColorMode;
@@ -195,15 +196,24 @@ public class NLPCanvas extends JPanel {
 
 
   public void exportToEPS(File file) throws IOException {
-    EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
+
+    EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(), 0, 0,
             tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+
 
     Collection<DependencyEdge> edges = filterDependencies();
     Collection<TokenVertex> tokens = filterTokens();
 
-    dependencyLayout.layout(edges, tokenLayout, g);
-    g.translate(0, dependencyImage.getHeight());
+    tokenLayout.layout(tokens, dummy);
+    dependencyLayout.layout(edges, tokenLayout, dummy);
+
+    EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
+            tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+    
+    g.translate(0, dependencyLayout.getHeight());
     tokenLayout.layout(tokens, g);
+    g.translate(0, -dependencyLayout.getHeight());
+    dependencyLayout.layout(edges, tokenLayout, g);
     g.flush();
     g.close();
     //To change body of created methods use File | Settings | File Templates.

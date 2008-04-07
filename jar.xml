@@ -2,7 +2,7 @@
 
 <project name="Demo" default="CreateExecutableJarFileWithExternalLibrary">
 	<target name="CreateExecutableJarFileWithExternalLibrary">
-		<jar destfile="whatswrong.jar">
+		<jar destfile="whatswrong-0.0.1.jar">
 			<zipfileset dir="classes/production" prefix="" />
 			<zipfileset src="lib/epsgraphics-1.1.jar" />
       <zipfileset src="lib/lucene-core-2.3.1.jar" />

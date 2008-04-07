@@ -61,6 +61,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
       super(title, window.isVisible());
       addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
+          //window.pack();
           window.setVisible(!window.isVisible());
         }
       });
