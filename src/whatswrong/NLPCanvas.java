@@ -13,6 +13,10 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
+
+import net.sf.epsgraphics.EpsGraphics;
+import net.sf.epsgraphics.ColorMode;
 
 /**
  * @author Sebastian Riedel
@@ -193,8 +197,8 @@ public class NLPCanvas extends JPanel {
 
 
   public void exportToEPS(File file) throws IOException {
-    EpsGraphics2D g = new EpsGraphics2D("Title", file, 0, 0,
-            tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight());
+    EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
+            tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
 
     Collection<DependencyEdge> edges = filterDependencies();
     Collection<TokenVertex> tokens = filterTokens();

@@ -4,7 +4,7 @@
 	<target name="CreateExecutableJarFileWithExternalLibrary">
 		<jar destfile="whatswrong.jar">
 			<zipfileset dir="classes/production" prefix="" />
-			<zipfileset src="lib/jlibeps.jar" />
+			<zipfileset src="lib/epsgraphics-1.1.jar" />
       <zipfileset src="lib/lucene-core-2.3.1.jar" />
       <zipfileset src="lib/lucene-highlighter-2.3.1.jar" />      
       <manifest>
