@@ -202,7 +202,7 @@ public class NLPCanvas extends JPanel {
     Collection<TokenVertex> tokens = filterTokens();
 
     dependencyLayout.layout(edges, tokenLayout, g);
-    //g.translate(0, dependencyImage.getHeight());
+    g.translate(0, dependencyImage.getHeight());
     tokenLayout.layout(tokens, g);
     g.flush();
     g.close();
