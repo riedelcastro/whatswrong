@@ -41,6 +41,16 @@ public class NLPCanvas extends JPanel {
   private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
   private boolean antiAliasing = true;
 
+  public interface Listener {
+    void instanceChanged();
+    void redrawn();
+  }
+
+  private ArrayList<Listener> listeners = new ArrayList<Listener>();
+
+  public void addListener(Listener listener){
+    listeners.add(listener);
+  }
 
   public NLPCanvas() {
     setPreferredSize(new Dimension(300, 300));
@@ -83,6 +93,14 @@ public class NLPCanvas extends JPanel {
     }
   }
 
+  private void fireInstanceChanged() {
+    for (Listener l : listeners) l.instanceChanged();
+  }
+
+  private void fireRedrawn() {
+      for (Listener l : listeners) l.redrawn();
+    }
+
   public DependencyTypeFilter getDependencyTypeFilter() {
     return dependencyTypeFilter;
   }
@@ -107,7 +125,8 @@ public class NLPCanvas extends JPanel {
     dependencies.clear();
     dependencies.addAll(nlpInstance.getDependencies());
     usedTypes.clear();
-    for (DependencyEdge edge : dependencies) usedTypes.add(edge.getType());
+    for (DependencyEdge edge : dependencies)
+      usedTypes.add(edge.getType());
     tokens.clear();
     tokens.addAll(nlpInstance.getTokens());
     usedProperties.clear();
@@ -115,6 +134,7 @@ public class NLPCanvas extends JPanel {
       usedProperties.addAll(token.getPropertyTypes());
     }
     dependencyLayout.clearSelection();
+    fireInstanceChanged();
     //updateNLPGraphics();
   }
 
@@ -159,6 +179,7 @@ public class NLPCanvas extends JPanel {
     invalidate();
     //invalidate();
     fireChanged();
+    fireRedrawn();
   }
 
   private Collection<TokenVertex> filterTokens() {
@@ -189,6 +210,8 @@ public class NLPCanvas extends JPanel {
 
   public void paintComponent(Graphics graphics) {
     Graphics2D g2d = (Graphics2D) graphics;
+    //g2d.setColor(Color.WHITE);
+    //g2d.fillRect(0,0,getWidth(),getHeight());
     int y = getHeight() - dependencyImage.getHeight() - tokenImage.getHeight();
     g2d.drawImage(dependencyImage, 0, y, this);
     g2d.drawImage(tokenImage, 0, y + dependencyImage.getHeight(), this);

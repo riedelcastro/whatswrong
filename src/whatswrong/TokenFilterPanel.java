@@ -61,11 +61,11 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     properties = new HashSet<TokenProperty>(sorted);
     int index = 0;
     listModel.clear();
-    DefaultListSelectionModel selectionModel = new DefaultListSelectionModel();
     listModel = new DefaultListModel();
+    DefaultListSelectionModel selectionModel = new DefaultListSelectionModel();
     for (TokenProperty p : sorted) {
       listModel.addElement(p);
-      if (!this.canvas.getTokenPropertyFilter().getForbiTokenProperties().contains(p)
+      if (!this.canvas.getTokenPropertyFilter().getForbiddenTokenProperties().contains(p)
               && !list.isSelectedIndex(index))
         selectionModel.addSelectionInterval(index, index);
       ++index;

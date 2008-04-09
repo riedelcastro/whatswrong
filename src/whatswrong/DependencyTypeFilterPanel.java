@@ -2,29 +2,60 @@ package whatswrong;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * @author Sebastian Riedel
  */
-public class DependencyTypeFilterPanel extends ControllerPanel implements ChangeListener {
+public class DependencyTypeFilterPanel extends ControllerPanel
+  implements NLPCanvas.Listener, DependencyTypeFilter.Listener {
   private NLPCanvas nlpCanvas;
   private String title;
+  private JList types;
+  private DefaultListModel listModel;
 
 
-  public DependencyTypeFilterPanel(String title, NLPCanvas nlpCanvas) {
-    nlpCanvas.addChangeListenger(this);
-    setLayout(new GridBagLayout());
+  public DependencyTypeFilterPanel(String title, final NLPCanvas nlpCanvas) {
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    nlpCanvas.addListener(this);
+    //setLayout(new GridBagLayout());
     //setBorder(new TitledBorder(new EtchedBorder(), title));
     this.title = title;
     this.nlpCanvas = nlpCanvas;
-    setPreferredSize(new Dimension(200,80));
-    updateTypes();
+    //setPreferredSize(new Dimension(200,80));
+    listModel = new DefaultListModel();
+    //listModel.addElement("Blah");
+    types = new JList(listModel);
+    types.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    updateTypesList();    
+    types.addListSelectionListener(new ListSelectionListener() {
+      public void valueChanged(ListSelectionEvent e) {
+        DependencyTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        if (e.getFirstIndex() == -1 || e.getLastIndex() >= types.getModel().getSize())
+          return;
+        for (int index = e.getFirstIndex(); index < e.getLastIndex() + 1; ++index) {
+          if (types.isSelectedIndex(index)) {
+            filter.removeForbiddenType(types.getModel().getElementAt(index).toString());
+          } else {
+            filter.addForbiddenType(types.getModel().getElementAt(index).toString());
+          }
+        }
+        nlpCanvas.updateNLPGraphics();
+
+      }
+    });
+    //types.
+    JScrollPane pane = new JScrollPane(types);
+    add(pane);
+    pane.setPreferredSize(new Dimension(150, 100));
+    //pane.setMinimumSize(new Dimension(pane.getMinimumSize().width, 100));
+
+    updateTypesList();
   }
 
   private void separateTypes(Set<String> usedTypes, HashSet<String> prefixTypes, HashSet<String> postfixTypes) {
@@ -45,46 +76,49 @@ public class DependencyTypeFilterPanel extends ControllerPanel implements Change
     return title;
   }
 
-  public void addSupportedDependencyType(final String type) {
-    addType(type, true);
-    repaint();
-  }
-
-  private void addType(final String type, boolean prefix) {
-    final JCheckBox checkBox = new JCheckBox(type, !nlpCanvas.getDependencyTypeFilter().forbids(type));
-    checkBox.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if (checkBox.isSelected()) nlpCanvas.getDependencyTypeFilter().removeForbiddenType(type);
-        else nlpCanvas.getDependencyTypeFilter().addForbiddenType(type);
-        nlpCanvas.updateNLPGraphics();
-      }
-    });
-    GridBagConstraints c = new GridBagConstraints();
-    c.weightx = 1.0;
-    c.anchor = GridBagConstraints.WEST;
-    //c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = prefix ? 1 : 2;
-    add(checkBox,c);
-  }
-
 
   public void stateChanged(ChangeEvent e) {
-    updateTypes();
+    updateTypesList();
     repaint();
   }
 
-  private void updateTypes() {
-    removeAll();
-    GridBagConstraints c = new GridBagConstraints();
-    c.weightx = 1.0;    
-    c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Type:"),c);
+
+  private void updateTypesList() {
+
     HashSet<String> prefixTypes = new HashSet<String>();
     HashSet<String> postfixTypes = new HashSet<String>();
     separateTypes(nlpCanvas.getUsedTypes(), prefixTypes, postfixTypes);
-    for (String type : prefixTypes)
-      addType(type,true);
-    for (String type : postfixTypes)
-      addType(type,false);
+    ArrayList<String> allTypes = new ArrayList<String>();
+    allTypes.addAll(prefixTypes);
+    allTypes.addAll(postfixTypes);
+
+    ListSelectionModel selectionModel = types.getSelectionModel();
+    listModel.clear();
+//    for (Object item : listModel.toArray())
+//      if (!allTypes.contains(item.toString()))
+//        listModel.removeElement(item);
+    int index = 0;
+    for (String type : allTypes) {
+      if (!listModel.contains(type)){
+        listModel.addElement(type);
+        if (!nlpCanvas.getDependencyTypeFilter().forbids(type))
+          selectionModel.addSelectionInterval(index,index);
+      }
+      ++index;
+    }
+  }
+
+
+  public void instanceChanged() {
+    updateTypesList();
+    repaint();
+  }
+
+  public void redrawn() {
+
+  }
+
+  public void changed(String type) {
+    
   }
 }

@@ -23,6 +23,8 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +54,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   private JList results;
   private JTextField search;
   private NLPDiff diff = new NLPDiff();
+  private JPanel spinnerPanel;
+  private JLabel ofHowMany;
 
   public void corpusAdded(List<NLPInstance> corpus, CorpusLoader src) {
     if (src == gold) {
@@ -102,8 +106,9 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
   public synchronized void corpusSelected(List<NLPInstance> corpus, CorpusLoader src) {
-    System.out.println("Corpus Selected");
     updateCanvas();
+    results.setModel(new DefaultListModel());
+
   }
 
   private static class Result {
@@ -134,6 +139,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     numberModel.setMinimum(0);
     numberModel.setMaximum(100);
     spinner = new JSpinner(numberModel);
+    //spinner.getEditor().set
     spinner.setEnabled(false);
     JSpinner.NumberEditor numberEditor = new JSpinner.NumberEditor(spinner);
     spinner.setEditor(numberEditor);
@@ -143,7 +149,25 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       }
     });
 
-    //add(new JSeparator(), new SimpleGridBagConstraints(0,1,2,1));
+    final JFormattedTextField editorTextField = numberEditor.getTextField();
+    editorTextField.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          spinner.setValue(Integer.valueOf(editorTextField.getText()));
+        } catch (NumberFormatException ex) {
+          spinner.setValue(editorTextField.getValue());
+        }
+      }
+    });
+
+
+    spinnerPanel = new JPanel();
+    spinnerPanel.setLayout(new BoxLayout(spinnerPanel, BoxLayout.X_AXIS));
+    spinnerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+    spinnerPanel.add(spinner);
+    ofHowMany = new JLabel(" of 1");
+    spinnerPanel.add(ofHowMany);
+
     search = new JTextField(10);
     search.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -170,29 +194,15 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         int selectedIndex = results.getSelectedIndex();
         if (selectedIndex != -1) {
           int nr = ((Result) results.getSelectedValue()).nr;
-          //spinner.setValue(nr);
+          spinner.setValue(nr);
           repaint();
-          if (guess.getSelected() == null)
-            CorpusNavigator.this.canvas.setNLPInstance(gold.getSelected().get(nr));
-          else
-            CorpusNavigator.this.canvas.setNLPInstance(getDiffCorpus(gold.getSelected(), guess.getSelected()).get(nr));
-          CorpusNavigator.this.canvas.updateNLPGraphics();
-//          new Thread() {
-//            public void run() {
-//              CorpusNavigator.this.canvas.updateNLPGraphics();
-//            }
-//          }.start();
         }
       }
     });
 
 
-    add(new JLabel("Nr:"), new SimpleGridBagConstraints(0, true));
-    add(spinner, new SimpleGridBagConstraints(0, false, false));
-    add(new JSeparator(), new SimpleGridBagConstraints(0, 1, 2, 1));
-    //add(new JLabel("Search:"), new SimpleGridBagConstraints(2, true));
-    add(searchPanel, new SimpleGridBagConstraints(0, 2, 2, 1));
-    add(new JScrollPane(results), new SimpleGridBagConstraints(0, 3, 2, 1));
+    add(searchPanel, new SimpleGridBagConstraints(0, 0, 2, 1));
+    add(new JScrollPane(results), new SimpleGridBagConstraints(0, 1, 2, 1));
 
     //setPreferredSize((new Dimension(100, (int) getPreferredSize().getHeight())));
     analyzer = new SimpleAnalyzer();
@@ -200,7 +210,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     //analyzer.
   }
 
-  private void searchCorpus() {
+
+  public JPanel getSpinnerPanel
+    () {
+    return spinnerPanel;
+  }
+
+  private void searchCorpus
+    () {
     if (search.getText().trim().equals("")) return;
     try {
       indexSearcher = guess.getSelected() != null ?
@@ -234,7 +251,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
-  private synchronized IndexSearcher getIndex(List<NLPInstance> corpus) {
+  private synchronized IndexSearcher getIndex
+    (List<NLPInstance> corpus) {
     IndexSearcher index = indices.get(corpus);
     if (index == null) {
       index = createIndex(corpus);
@@ -243,7 +261,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     return index;
   }
 
-  private IndexSearcher createIndex(List<NLPInstance> corpus) {
+  private IndexSearcher createIndex
+    (List<NLPInstance> corpus) {
     try {
       System.err.println("Creating Index");
       RAMDirectory directory = new RAMDirectory();
@@ -316,7 +335,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
   }
 
-  private void updateCanvas() {
+  private void updateCanvas
+    () {
     if (gold.getSelected() != null) {
       searchButton.setEnabled(true);
       search.setEnabled(true);
@@ -327,6 +347,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         int index = Math.min((Integer) spinner.getValue(), maxIndex);
         spinner.setValue(index);
         numberModel.setMaximum(maxIndex);
+        ofHowMany.setText(" of " + maxIndex);
 
         indexSearcher = getIndex(gold.getSelected());
         canvas.setNLPInstance(gold.getSelected().get(index));
@@ -336,6 +357,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         numberModel.setMaximum(maxIndex);
         int index = Math.min((Integer) spinner.getValue(), maxIndex);
         spinner.setValue(index);
+        ofHowMany.setText(" of " + maxIndex);
         NLPInstance instance = getDiffCorpus(gold.getSelected(), guess.getSelected()).get(index);
         canvas.getDependencyLayout().setColor("FN", Color.BLUE);
         canvas.getDependencyLayout().setColor("FP", Color.RED);
@@ -347,8 +369,10 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       searchButton.setEnabled(false);
       search.setEnabled(false);
       spinner.setEnabled(false);
+      spinner.setValue(0);
       searchButton.setEnabled(false);
       results.setEnabled(false);
+      ofHowMany.setText(" of 1");
 
 
       NLPInstance example = new NLPInstance();

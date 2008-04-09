@@ -21,7 +21,7 @@ public class TokenPropertyFilter implements TokenFilter {
     forbiddenProperties.remove(new TokenProperty(name));
   }
 
-  public Set<TokenProperty> getForbiTokenProperties(){
+  public Set<TokenProperty> getForbiddenTokenProperties(){
     return Collections.unmodifiableSet(forbiddenProperties);
   }
 
