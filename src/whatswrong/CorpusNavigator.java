@@ -326,6 +326,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         iwriter.addDocument(doc);
         nr++;
       }
+      System.err.println();
       iwriter.optimize();
       iwriter.close();
       return new IndexSearcher(directory);
