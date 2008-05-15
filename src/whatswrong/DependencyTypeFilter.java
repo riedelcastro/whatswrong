@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class DependencyTypeFilter implements DependencyFilter {
 
-  private HashSet<String> forbiddenTypes = new HashSet<String>();
+  private HashSet<String> allowedTypes = new HashSet<String>();
 
   public interface Listener {
     void changed(String type);
@@ -15,50 +15,50 @@ public class DependencyTypeFilter implements DependencyFilter {
 
   private ArrayList<Listener> listeners = new ArrayList<Listener>();
 
-  public void addListener(Listener listener){
+  public void addListener(Listener listener) {
     listeners.add(listener);
   }
 
 
-  public Set<String> getForbiddenTypes() {
-    return Collections.unmodifiableSet(forbiddenTypes);
+  public Set<String> getAllowedTypes() {
+    return Collections.unmodifiableSet(allowedTypes);
   }
 
-  public DependencyTypeFilter(String ... forbiddenTypes){
-    for (String type : forbiddenTypes) this.forbiddenTypes.add(type);
+  public DependencyTypeFilter(String... allowedTypes) {
+    for (String type : allowedTypes) this.allowedTypes.add(type);
   }
 
-  private void fireChanged(String type){
+  private void fireChanged(String type) {
     for (Listener l : listeners) l.changed(type);
   }
 
-  public void addForbiddenType(String type){
-    forbiddenTypes.add(type);
+  public void addAllowedType(String type) {
+    allowedTypes.add(type);
     fireChanged(type);
   }
 
-  public void removeForbiddenType(String type){
-    forbiddenTypes.remove(type);
+  public void removeAllowedType(String type) {
+    allowedTypes.remove(type);
     fireChanged(type);
   }
 
-  public DependencyTypeFilter(Set<String> forbiddenTypes) {
-    this.forbiddenTypes.addAll(forbiddenTypes);
+  public DependencyTypeFilter(Set<String> allowedTypes) {
+    this.allowedTypes.addAll(allowedTypes);
   }
 
   public Collection<DependencyEdge> filter(Collection<DependencyEdge> original) {
+    if (allowedTypes.size() == 0) return original;
     ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
-    main:
-    for (DependencyEdge edge : original){
-      for (String type : forbiddenTypes)
-        if (edge.getType().contains(type)) continue main;
-      result.add(edge);
+    for (DependencyEdge edge : original) {
+      for (String type : allowedTypes)
+        if (edge.getTypePrefix().contains(type) || edge.getTypePostfix().contains(type))
+          result.add(edge);
     }
     return result;
 
   }
 
-  public boolean forbids(String type) {
-    return forbiddenTypes.contains(type);
+  public boolean allows(String type) {
+    return allowedTypes.isEmpty() || allowedTypes.contains(type);
   }
 }

@@ -40,9 +40,9 @@ public class DependencyTypeFilterPanel extends ControllerPanel
           return;
         for (int index = e.getFirstIndex(); index < e.getLastIndex() + 1; ++index) {
           if (types.isSelectedIndex(index)) {
-            filter.removeForbiddenType(types.getModel().getElementAt(index).toString());
+            filter.addAllowedType(types.getModel().getElementAt(index).toString());
           } else {
-            filter.addForbiddenType(types.getModel().getElementAt(index).toString());
+            filter.removeAllowedType(types.getModel().getElementAt(index).toString());
           }
         }
         nlpCanvas.updateNLPGraphics();
@@ -92,7 +92,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     allTypes.addAll(prefixTypes);
     allTypes.addAll(postfixTypes);
 
-    ListSelectionModel selectionModel = types.getSelectionModel();
+    ListSelectionModel selectionModel = new DefaultListSelectionModel(); //types.getSelectionModel();
     listModel.clear();
 //    for (Object item : listModel.toArray())
 //      if (!allTypes.contains(item.toString()))
@@ -101,11 +101,12 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     for (String type : allTypes) {
       if (!listModel.contains(type)){
         listModel.addElement(type);
-        if (!nlpCanvas.getDependencyTypeFilter().forbids(type))
+        if (nlpCanvas.getDependencyTypeFilter().allows(type))
           selectionModel.addSelectionInterval(index,index);
       }
       ++index;
     }
+    types.setSelectionModel(selectionModel);
   }
 
 

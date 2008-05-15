@@ -22,7 +22,7 @@ public class DependencyEdge {
 
   public String getTypePostfix(){
     int index = type.indexOf(':');
-    return index == -1 ? null : type.substring(index+1);    
+    return index == -1 ? "" : type.substring(index+1);    
   }
 
   public int getMinIndex(){
