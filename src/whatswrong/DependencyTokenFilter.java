@@ -94,7 +94,7 @@ public class DependencyTokenFilter implements DependencyFilter {
             for (Path path1 : previous.getPaths(from, over))
               for (Path path2 : first.getPaths(over, to)) {
                 if (!path1.containsAll(path2) &&
-                        path1.iterator().next().getTypePrefix().equals(path2.iterator().next().getTypePrefix())) {
+                  path1.iterator().next().getTypePrefix().equals(path2.iterator().next().getTypePrefix())) {
                   Path path = new Path();
                   path.addAll(path1);
                   path.addAll(path2);
@@ -129,7 +129,7 @@ public class DependencyTokenFilter implements DependencyFilter {
     } else {
       ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
       main:
-      for (DependencyEdge edge : original)
+      for (DependencyEdge edge : original) {
         for (String allowed : allowedProperties) {
           for (String property : edge.getFrom().getProperties())
             if (property.contains(allowed)) {
@@ -142,6 +142,7 @@ public class DependencyTokenFilter implements DependencyFilter {
               continue main;
             }
         }
+      }
       return result;
     }
 

@@ -27,9 +27,11 @@ public class NLPInstance {
   }
 
   public void merge(NLPInstance nlp){
-    addDependencies(nlp.dependencies);
     for (int i = 0; i < Math.min(tokens.size(), nlp.tokens.size()); ++i){
       tokens.get(i).merge(nlp.tokens.get(i));
+    }
+    for (DependencyEdge edge: nlp.dependencies){
+      addDependency(edge.getFrom().getIndex(), edge.getTo().getIndex(), edge.getLabel(), edge.getType());
     }
   }
 

@@ -43,12 +43,13 @@ public class NLPCanvas extends JPanel {
 
   public interface Listener {
     void instanceChanged();
+
     void redrawn();
   }
 
   private ArrayList<Listener> listeners = new ArrayList<Listener>();
 
-  public void addListener(Listener listener){
+  public void addListener(Listener listener) {
     listeners.add(listener);
   }
 
@@ -98,8 +99,8 @@ public class NLPCanvas extends JPanel {
   }
 
   private void fireRedrawn() {
-      for (Listener l : listeners) l.redrawn();
-    }
+    for (Listener l : listeners) l.redrawn();
+  }
 
   public DependencyTypeFilter getDependencyTypeFilter() {
     return dependencyTypeFilter;
@@ -156,7 +157,7 @@ public class NLPCanvas extends JPanel {
     //calculate size    
     tokenLayout.layout(tokens, gTokens);
     tokenImage = new BufferedImage(tokenLayout.getWidth(), tokenLayout.getHeight(),
-            BufferedImage.TYPE_4BYTE_ABGR);
+      BufferedImage.TYPE_4BYTE_ABGR);
     gTokens = tokenImage.createGraphics();
     tokenLayout.layout(tokens, gTokens);
 
@@ -164,7 +165,7 @@ public class NLPCanvas extends JPanel {
     Graphics2D gDependencies = dependencyImage.createGraphics();
     dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
     dependencyImage = new BufferedImage(dependencyLayout.getWidth(), dependencyLayout.getHeight(),
-            BufferedImage.TYPE_4BYTE_ABGR);
+      BufferedImage.TYPE_4BYTE_ABGR);
     gDependencies = dependencyImage.createGraphics();
     if (antiAliasing)
       gDependencies.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -188,8 +189,8 @@ public class NLPCanvas extends JPanel {
 
   private Collection<DependencyEdge> filterDependencies() {
     return dependencyTokenFilter.filter(
-            dependencyLabelFilter.filter(
-                    dependencyTypeFilter.filter(this.dependencies)));
+      dependencyLabelFilter.filter(
+        dependencyTypeFilter.filter(this.dependencies)));
   }
 
 
@@ -221,7 +222,7 @@ public class NLPCanvas extends JPanel {
   public void exportToEPS(File file) throws IOException {
 
     EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(), 0, 0,
-            tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+      tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
 
 
     Collection<DependencyEdge> edges = filterDependencies();
@@ -231,8 +232,8 @@ public class NLPCanvas extends JPanel {
     dependencyLayout.layout(edges, tokenLayout, dummy);
 
     EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
-            tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
-    
+      tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+
     g.translate(0, dependencyLayout.getHeight());
     tokenLayout.layout(tokens, g);
     g.translate(0, -dependencyLayout.getHeight());

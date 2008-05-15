@@ -13,6 +13,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
+  public final static String VERSION = "0.0.3";
 
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -224,7 +225,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     //statusbar
     JPanel statusBar = new JPanel();
-    JLabel status = new JLabel("What's Wrong With My NLP version 0.0.2");
+    JLabel status = new JLabel("What's Wrong With My NLP version " + VERSION);
     status.setForeground(Color.LIGHT_GRAY);
     statusBar.setLayout(new GridBagLayout());
     statusBar.setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 10));

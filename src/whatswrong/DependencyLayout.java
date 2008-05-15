@@ -172,6 +172,10 @@ public class DependencyLayout {
     //calculate maxHeight and maxWidth
     maxWidth = tokenLayout.getWidth();
     maxHeight = (depth.getMaximum() + 1) * heightPerLevel + 3;
+    //in case there are no edges that cover other edges (depth == 0) we need
+    //to increase the height slightly because loops on the same token
+    //have height of 1.5 levels
+    if (depth.getMaximum() == 0 && allLoops.size() > 0) maxHeight += heightPerLevel / 2;
 
     //build map from vertex to incoming/outgoing edges
     HashMultiMapList<TokenVertex, DependencyEdge> vertex2edges = new HashMultiMapList<TokenVertex, DependencyEdge>();

@@ -42,7 +42,8 @@ public class CoNLL2008 implements CoNLLProcessor {
     }
     for (List<String> row : rows) {
       //dependency
-      instance.addDependency(Integer.parseInt(row.get(8)), Integer.parseInt(row.get(0)), row.get(9), "dep");
+      if (!row.get(8).equals("_"))
+        instance.addDependency(Integer.parseInt(row.get(8)), Integer.parseInt(row.get(0)), row.get(9), "dep");
       //role
       for (int col = 11; col < row.size(); ++col) {
         String label = row.get(col);
