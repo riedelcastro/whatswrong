@@ -153,7 +153,7 @@ public class NLPCanvas extends JPanel {
   }
 
   private NLPInstance filterInstance() {
-    return dependencyTokenFilter.filter(dependencyTokenFilter.filter(dependencyTypeFilter.filter(
+    return dependencyTokenFilter.filter(dependencyLabelFilter.filter(dependencyTypeFilter.filter(
       tokenFilter.filter(new NLPInstance(tokens, dependencies)))));
   }
 

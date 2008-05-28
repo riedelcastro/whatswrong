@@ -87,6 +87,15 @@ public class DependencyFilterPanel extends ControllerPanel {
     c.anchor = GridBagConstraints.WEST;
     add(usePaths,c);
 
+    final JCheckBox collaps = new JCheckBox("Collaps");
+    collaps.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent event) {
+        nlpCanvas.getDependencyTokenFilter().setCollaps(collaps.isSelected());
+        nlpCanvas.updateNLPGraphics();
+      }
+    });
+    add(collaps, new SimpleGridBagConstraints(3,false));
+
     final JButton onlySelected = new JButton("Hide Unselected");
     //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
     onlySelected.addActionListener(new ActionListener() {
@@ -98,7 +107,7 @@ public class DependencyFilterPanel extends ControllerPanel {
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(onlySelected, new SimpleGridBagConstraints(3,false));
+    add(onlySelected, new SimpleGridBagConstraints(4,false));
 
 
 

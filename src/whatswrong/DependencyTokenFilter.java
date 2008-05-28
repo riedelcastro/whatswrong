@@ -9,11 +9,19 @@ public class DependencyTokenFilter extends DependencyFilter {
 
   private HashSet<String> allowedProperties = new HashSet<String>();
   private boolean usePaths = false;
+  private boolean collaps = false;
 
   public DependencyTokenFilter(String... allowedProperties) {
     for (String type : allowedProperties) this.allowedProperties.add(type);
   }
 
+  public boolean isCollaps() {
+    return collaps;
+  }
+
+  public void setCollaps(boolean collaps) {
+    this.collaps = collaps;
+  }
 
   public boolean isUsePaths() {
     return usePaths;
@@ -151,4 +159,38 @@ public class DependencyTokenFilter extends DependencyFilter {
   public boolean allows(String type) {
     return allowedProperties.contains(type);
   }
+
+  public NLPInstance filter(NLPInstance original) {
+    Collection<DependencyEdge> edges = filterEdges(original.getDependencies());
+    if (!collaps)
+      return new NLPInstance(original.getTokens(), edges);
+    else {
+      HashSet<TokenVertex> tokens = new HashSet<TokenVertex>();
+      for (DependencyEdge e: edges){
+        tokens.add(e.getFrom());
+        tokens.add(e.getTo());
+      }
+      ArrayList<TokenVertex> sorted = new ArrayList<TokenVertex>(tokens);
+      Collections.sort(sorted,new Comparator<TokenVertex>() {
+        public int compare(TokenVertex tokenVertex, TokenVertex tokenVertex1) {
+          return tokenVertex.getIndex() - tokenVertex1.getIndex();
+        }
+      });
+      ArrayList<TokenVertex> updatedTokens = new ArrayList<TokenVertex>();
+      HashMap<TokenVertex,TokenVertex> old2new = new HashMap<TokenVertex, TokenVertex>();
+      for (TokenVertex t : sorted) {
+        TokenVertex newToken = new TokenVertex(updatedTokens.size());
+        newToken.merge(t);
+        old2new.put(t,newToken);
+        updatedTokens.add(newToken);
+      }
+
+      HashSet<DependencyEdge> updatedEdges = new HashSet<DependencyEdge>();
+      for (DependencyEdge e: edges){
+        updatedEdges.add(new DependencyEdge(old2new.get(e.getFrom()),old2new.get(e.getTo()),e.getLabel(), e.getType()));
+      }
+      return new NLPInstance(updatedTokens, updatedEdges);
+    }
+  }
+
 }
