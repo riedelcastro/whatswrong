@@ -5,6 +5,11 @@ import java.util.Collection;
 /**
  * @author Sebastian Riedel
  */
-public interface DependencyFilter {
-  Collection<DependencyEdge> filter(Collection<DependencyEdge> original);
+public abstract class DependencyFilter implements NLPInstanceFilter {
+
+  public abstract Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original);
+
+  public NLPInstance filter(NLPInstance original) {
+    return new NLPInstance(original.getTokens(), filterEdges(original.getDependencies()));
+  }
 }

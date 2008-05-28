@@ -51,6 +51,11 @@ public class TokenLayout {
   }
 
   public void layout(Collection<TokenVertex> tokens, Graphics2D g2d) {
+    if (tokens.size() == 0){
+      height = 1;
+      width = 1;
+      return;
+    }
     textLayouts.clear();
     int lastx = 0;
     height = 0;

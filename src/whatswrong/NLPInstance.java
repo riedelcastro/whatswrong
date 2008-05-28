@@ -10,6 +10,14 @@ public class NLPInstance {
   private List<DependencyEdge> dependencies = new ArrayList<DependencyEdge>();
   private List<TokenVertex> tokens = new ArrayList<TokenVertex>();
 
+  public NLPInstance() {
+  }
+
+  public NLPInstance(Collection<TokenVertex> tokens, Collection<DependencyEdge> dependencies) {
+    this.tokens.addAll(tokens);
+    this.dependencies.addAll(dependencies);
+  }
+
   public void addDependency(int from, int to, String label, String type){
     dependencies.add(new DependencyEdge(tokens.get(from),tokens.get(to),label,type));
   }

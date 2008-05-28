@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class TokenPropertyFilter implements TokenFilter {
+public class TokenPropertyFilter extends TokenFilter {
 
   private HashSet<TokenProperty> forbiddenProperties = new HashSet<TokenProperty>();
 
@@ -25,7 +25,7 @@ public class TokenPropertyFilter implements TokenFilter {
     return Collections.unmodifiableSet(forbiddenProperties);
   }
 
-  public Collection<TokenVertex> filter(Collection<TokenVertex> original) {
+  public Collection<TokenVertex> filterTokens(Collection<TokenVertex> original) {
     ArrayList<TokenVertex> result = new ArrayList<TokenVertex>(original.size());
     for (TokenVertex vertex : original) {
       TokenVertex copy = new TokenVertex(vertex.getIndex());

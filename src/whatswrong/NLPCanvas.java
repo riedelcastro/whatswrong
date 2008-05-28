@@ -1,21 +1,21 @@
 package whatswrong;
 
 
+import net.sf.epsgraphics.ColorMode;
+import net.sf.epsgraphics.EpsGraphics;
+
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
-
-import net.sf.epsgraphics.EpsGraphics;
-import net.sf.epsgraphics.ColorMode;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author Sebastian Riedel
@@ -34,12 +34,13 @@ public class NLPCanvas extends JPanel {
   private DependencyTypeFilter dependencyTypeFilter = new DependencyTypeFilter();
   private DependencyLabelFilter dependencyLabelFilter = new DependencyLabelFilter();
   private DependencyTokenFilter dependencyTokenFilter = new DependencyTokenFilter();
-  private TokenPropertyFilter tokenPropertyFilter = new TokenPropertyFilter();
+  private TokenFilter tokenFilter = new TokenFilter();
   private Set<String> usedTypes = new HashSet<String>();
   private Set<TokenProperty> usedProperties = new java.util.HashSet<TokenProperty>();
 
   private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
   private boolean antiAliasing = true;
+  private NLPInstance nlpInstance;
 
   public interface Listener {
     void instanceChanged();
@@ -117,8 +118,8 @@ public class NLPCanvas extends JPanel {
   }
 
 
-  public TokenPropertyFilter getTokenPropertyFilter() {
-    return tokenPropertyFilter;
+  public TokenFilter getTokenFilter() {
+    return tokenFilter;
   }
 
 
@@ -151,9 +152,15 @@ public class NLPCanvas extends JPanel {
     dependencyLayout.setColor(type, color);
   }
 
+  private NLPInstance filterInstance() {
+    return dependencyTokenFilter.filter(dependencyTokenFilter.filter(dependencyTypeFilter.filter(
+      tokenFilter.filter(new NLPInstance(tokens, dependencies)))));
+  }
+
   public void updateNLPGraphics() {
     Graphics2D gTokens = tokenImage.createGraphics();
-    Collection<TokenVertex> tokens = filterTokens();
+    NLPInstance filtered = filterInstance();
+    Collection<TokenVertex> tokens = new ArrayList<TokenVertex>(filtered.getTokens());
     //calculate size    
     tokenLayout.layout(tokens, gTokens);
     tokenImage = new BufferedImage(tokenLayout.getWidth(), tokenLayout.getHeight(),
@@ -161,7 +168,7 @@ public class NLPCanvas extends JPanel {
     gTokens = tokenImage.createGraphics();
     tokenLayout.layout(tokens, gTokens);
 
-    Collection<DependencyEdge> dependencies = filterDependencies();
+    Collection<DependencyEdge> dependencies = new ArrayList<DependencyEdge>(filtered.getDependencies());
     Graphics2D gDependencies = dependencyImage.createGraphics();
     dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
     dependencyImage = new BufferedImage(dependencyLayout.getWidth(), dependencyLayout.getHeight(),
@@ -184,13 +191,13 @@ public class NLPCanvas extends JPanel {
   }
 
   private Collection<TokenVertex> filterTokens() {
-    return tokenPropertyFilter.filter(this.tokens);
+    return tokenFilter.filterTokens(this.tokens);
   }
 
   private Collection<DependencyEdge> filterDependencies() {
-    return dependencyTokenFilter.filter(
-      dependencyLabelFilter.filter(
-        dependencyTypeFilter.filter(this.dependencies)));
+    return dependencyTokenFilter.filterEdges(
+      dependencyLabelFilter.filterEdges(
+        dependencyTypeFilter.filterEdges(this.dependencies)));
   }
 
 

@@ -13,7 +13,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.0.3";
+  public final static String VERSION = "0.0.4";
 
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");

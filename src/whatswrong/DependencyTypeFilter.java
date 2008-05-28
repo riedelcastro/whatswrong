@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyTypeFilter implements DependencyFilter {
+public class DependencyTypeFilter extends DependencyFilter {
 
   private HashSet<String> allowedTypes = new HashSet<String>();
 
@@ -46,7 +46,7 @@ public class DependencyTypeFilter implements DependencyFilter {
     this.allowedTypes.addAll(allowedTypes);
   }
 
-  public Collection<DependencyEdge> filter(Collection<DependencyEdge> original) {
+  public Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original) {
     if (allowedTypes.size() == 0) return original;
     ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
     for (DependencyEdge edge : original) {

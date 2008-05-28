@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyTokenFilter implements DependencyFilter {
+public class DependencyTokenFilter extends DependencyFilter {
 
   private HashSet<String> allowedProperties = new HashSet<String>();
   private boolean usePaths = false;
@@ -114,7 +114,7 @@ public class DependencyTokenFilter implements DependencyFilter {
     return result;
   }
 
-  public Collection<DependencyEdge> filter(Collection<DependencyEdge> original) {
+  public Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original) {
     if (allowedProperties.size() == 0) return original;
     if (usePaths) {
       Paths paths = calculatePaths(original);

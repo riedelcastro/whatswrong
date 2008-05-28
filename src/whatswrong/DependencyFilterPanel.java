@@ -78,7 +78,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     c.weightx = 0.0;
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Extra:"),c);
+    add(new JLabel("Options:"),c);
 
     c.gridx = 1;
     c.gridy = 2;
