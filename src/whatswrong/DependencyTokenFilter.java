@@ -180,7 +180,7 @@ public class DependencyTokenFilter extends DependencyFilter {
       HashMap<TokenVertex, TokenVertex> old2new = new HashMap<TokenVertex, TokenVertex>();
       for (TokenVertex t : sorted) {
         TokenVertex newToken = new TokenVertex(updatedTokens.size());
-        newToken.merge(t);
+        newToken.merge(original.getTokens().get(t.getIndex()));
         old2new.put(t, newToken);
         updatedTokens.add(newToken);
       }

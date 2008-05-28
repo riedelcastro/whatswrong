@@ -86,7 +86,7 @@ public class TokenFilter implements NLPInstanceFilter {
 
     } else {
       List<TokenVertex> filteredTokens = filterTokens(original.getTokens());
-      return new NLPInstance(filteredTokens, updateVertices(original.getDependencies(), filteredTokens));
+      return new NLPInstance(filteredTokens, original.getDependencies());
     }
   }
 
