@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import static java.awt.GridBagConstraints.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
+import java.util.Properties;
 
 /**
  * @author Sebastian Riedel
@@ -14,10 +15,28 @@ public class WhatsWrongWithMyNLP extends JPanel {
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
   public final static String VERSION = "0.0.4";
+  private final static Properties properties = new Properties();
+
+  public static Properties getProperties(){
+    return properties;
+  }
 
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
 
+    try {
+      File file = new File(System.getProperty("user.home") + "/.whatswrong");
+      if (file.exists()) {
+        properties.load(new FileInputStream(file));
+      } else {
+        properties.setProperty("whatswrong.golddir",System.getProperty("user.dir"));
+        properties.setProperty("whatswrong.guessdir",System.getProperty("user.dir"));        
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public WhatsWrongWithMyNLP() {
@@ -101,7 +120,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
       // Set System L&F
 //      UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
       UIManager.setLookAndFeel(system ?
-        UIManager.getSystemLookAndFeelClassName():
+        UIManager.getSystemLookAndFeelClassName() :
         UIManager.getCrossPlatformLookAndFeelClassName());
     } catch (Exception e) {
       e.printStackTrace();
@@ -121,8 +140,10 @@ public class WhatsWrongWithMyNLP extends JPanel {
     int canvasY = 50;
     int canvasBottom = canvasHeight + canvasY;
 
-    CorpusLoader gold = new CorpusLoader("Select Gold");
-    CorpusLoader guess = new CorpusLoader("Select Guess");
+    final CorpusLoader gold = new CorpusLoader("Select Gold");
+    final CorpusLoader guess = new CorpusLoader("Select Guess");
+    gold.setDirectory(properties.getProperty("whatswrong.golddir"));
+    guess.setDirectory(properties.getProperty("whatswrong.guessdir"));
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -239,6 +260,21 @@ public class WhatsWrongWithMyNLP extends JPanel {
     canvasFrame.requestFocus();
     //canvasFrame.requestFocusInWindow();
 
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      public void run() {
+        properties.setProperty("whatswrong.golddir", gold.getDirectory());
+        properties.setProperty("whatswrong.guessdir", guess.getDirectory());
+
+        try {
+          properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
+            "Whats wrong with you NLP properties");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }));
+
+    
   }
 
 }

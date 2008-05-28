@@ -32,6 +32,7 @@ public class CorpusLoader extends JPanel {
 
   private ArrayList<Listener> changeListeners = new ArrayList<Listener>();
   private JButton remove;
+  private JFileChooser fileChooser;
 
 
   public static interface Listener {
@@ -61,6 +62,8 @@ public class CorpusLoader extends JPanel {
       listener.corpusSelected(corpus,this);
     }
   }
+
+
 
 
   public List<NLPInstance> getSelected() {
@@ -123,6 +126,14 @@ public class CorpusLoader extends JPanel {
     formats.put(format.getName(), format);
   }
 
+  public void setDirectory(String dir){
+    fileChooser.setCurrentDirectory(new File(dir));  
+  }
+
+  public String getDirectory(){
+    return fileChooser.getCurrentDirectory().getPath();
+  }
+
   public CorpusLoader(String title) {
     setLayout(new GridBagLayout());
     setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -167,7 +178,7 @@ public class CorpusLoader extends JPanel {
     add(pane, c);
 
     //add files
-    final JFileChooser fileChooser = new JFileChooser();
+    fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Load Corpus");
     final LoadAccessory accessory = new LoadAccessory();
     fileChooser.setAccessory(accessory);
