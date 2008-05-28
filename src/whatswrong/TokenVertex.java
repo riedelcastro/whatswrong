@@ -69,12 +69,11 @@ public class TokenVertex {
     return false;
   }
 
-  public boolean propertiesContain(Collection<String> substrings){
+  public boolean propertiesContain(Collection<String> substrings, boolean wholeWord){
     for (String property : tokenProperties.values())
       for (String substring: substrings)
-      if (property.contains(substring)) return true;
+      if (wholeWord ? property.equals(substring) : property.contains(substring)) return true;
     return false;
-
   }
 
   public boolean equals(Object o) {

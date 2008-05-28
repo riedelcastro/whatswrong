@@ -43,7 +43,7 @@ public class TokenFilter implements NLPInstanceFilter {
     return Collections.unmodifiableSet(forbiddenProperties);
   }
 
-  public Collection<TokenVertex> filterTokens(Collection<TokenVertex> original) {
+  public List<TokenVertex> filterTokens(Collection<TokenVertex> original) {
     ArrayList<TokenVertex> result = new ArrayList<TokenVertex>(original.size());
     for (TokenVertex vertex : original) {
       TokenVertex copy = new TokenVertex(vertex.getIndex());
@@ -84,7 +84,19 @@ public class TokenFilter implements NLPInstanceFilter {
       }
       return new NLPInstance(filterTokens(tokens), edges);
 
-    } else
-      return new NLPInstance(filterTokens(original.getTokens()), original.getDependencies());
+    } else {
+      List<TokenVertex> filteredTokens = filterTokens(original.getTokens());
+      return new NLPInstance(filteredTokens, updateVertices(original.getDependencies(), filteredTokens));
+    }
   }
+
+  private Collection<DependencyEdge> updateVertices(Collection<DependencyEdge> edges, List<TokenVertex> tokens){
+    HashSet<DependencyEdge> result = new HashSet<DependencyEdge>();
+    for (DependencyEdge e: edges)
+      result.add(new DependencyEdge(tokens.get(e.getFrom().getIndex()),
+        tokens.get(e.getTo().getIndex()),e.getLabel(), e.getType()));
+
+    return result;
+  }
+
 }

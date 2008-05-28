@@ -96,6 +96,15 @@ public class DependencyFilterPanel extends ControllerPanel {
     });
     add(collaps, new SimpleGridBagConstraints(3,false));
 
+    final JCheckBox wholeWords = new JCheckBox("Whole Words");
+    wholeWords.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent event) {
+        nlpCanvas.getDependencyTokenFilter().setWholeWords(wholeWords.isSelected());
+        nlpCanvas.updateNLPGraphics();
+      }
+    });
+    add(wholeWords, new SimpleGridBagConstraints(4,false));
+
     final JButton onlySelected = new JButton("Hide Unselected");
     //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
     onlySelected.addActionListener(new ActionListener() {
@@ -107,7 +116,7 @@ public class DependencyFilterPanel extends ControllerPanel {
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(onlySelected, new SimpleGridBagConstraints(4,false));
+    add(onlySelected, new SimpleGridBagConstraints(5,false));
 
 
 

@@ -30,6 +30,8 @@ public class NLPInstance {
     this.tokens.addAll(tokens);
   }
 
+ 
+
   public void addDependencies(Collection<DependencyEdge> dependencies){
     this.dependencies.addAll(dependencies);
   }

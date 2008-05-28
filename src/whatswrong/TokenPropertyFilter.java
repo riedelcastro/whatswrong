@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class TokenPropertyFilter extends TokenFilter {
+public class TokenPropertyFilter implements NLPInstanceFilter {
 
   private HashSet<TokenProperty> forbiddenProperties = new HashSet<TokenProperty>();
 
@@ -25,7 +25,7 @@ public class TokenPropertyFilter extends TokenFilter {
     return Collections.unmodifiableSet(forbiddenProperties);
   }
 
-  public Collection<TokenVertex> filterTokens(Collection<TokenVertex> original) {
+  public List<TokenVertex> filterTokens(Collection<TokenVertex> original) {
     ArrayList<TokenVertex> result = new ArrayList<TokenVertex>(original.size());
     for (TokenVertex vertex : original) {
       TokenVertex copy = new TokenVertex(vertex.getIndex());
@@ -36,5 +36,15 @@ public class TokenPropertyFilter extends TokenFilter {
       result.add(copy);
     }
     return result;
+  }
+
+  public NLPInstance filter(NLPInstance original) {
+    if (forbiddenProperties.size() == 0) return original;
+    List<TokenVertex> tokens = filterTokens(original.getTokens());
+    HashSet<DependencyEdge> edges = new HashSet<DependencyEdge>();
+    for (DependencyEdge e: original.getDependencies())
+      edges.add(new DependencyEdge(tokens.get(e.getFrom().getIndex()),
+        tokens.get(e.getTo().getIndex()),e.getLabel(), e.getType()));
+    return new NLPInstance(tokens, edges);
   }
 }
