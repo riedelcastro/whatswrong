@@ -63,7 +63,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     allowed.addKeyListener(new KeyAdapter() {
       public void keyReleased(KeyEvent event) {
         canvas.getTokenFilter().clearAllowedStrings();
-        String[] split = allowed.getText().split("[,]");
+        String[] split = allowed.getText().trim().split("[,]");
         for (String property : split)
           canvas.getTokenFilter().addAllowedString(property);
         canvas.updateNLPGraphics();

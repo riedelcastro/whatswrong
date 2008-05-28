@@ -3,6 +3,7 @@ package whatswrong;
 import javautils.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
@@ -205,7 +206,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     add(new JScrollPane(results), new SimpleGridBagConstraints(0, 1, 2, 1));
 
     //setPreferredSize((new Dimension(100, (int) getPreferredSize().getHeight())));
-    analyzer = new SimpleAnalyzer();
+    analyzer = new WhitespaceAnalyzer();
     updateCanvas();
     //analyzer.
   }
