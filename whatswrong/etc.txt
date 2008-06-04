@@ -1,0 +1,1 @@
+svn log -r 17:HEAD > CHANGES

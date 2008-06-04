@@ -42,11 +42,6 @@ public class DependencyTypeFilterPanel extends ControllerPanel
           if (types.isSelectedIndex(index)) {
             filter.addAllowedType(types.getModel().getElementAt(index).toString());
           } else {
-            //if allowed types were empty we need to add all other types
-            if (filter.getAllowedTypes().size() == 0){
-              for (int other = 0; other < types.getModel().getSize(); ++other)
-                if (other != index) filter.addAllowedType(types.getModel().getElementAt(other).toString());
-            }
             filter.removeAllowedType(types.getModel().getElementAt(index).toString());
           }
         }

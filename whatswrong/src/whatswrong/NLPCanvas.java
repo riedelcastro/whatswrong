@@ -231,10 +231,9 @@ public class NLPCanvas extends JPanel {
     EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(), 0, 0,
       tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
 
-    NLPInstance filtered = filterInstance();
 
-    Collection<DependencyEdge> edges = filtered.getDependencies();
-    Collection<TokenVertex> tokens = filtered.getTokens();
+    Collection<DependencyEdge> edges = filterDependencies();
+    Collection<TokenVertex> tokens = filterTokens();
 
     tokenLayout.layout(tokens, dummy);
     dependencyLayout.layout(edges, tokenLayout, dummy);

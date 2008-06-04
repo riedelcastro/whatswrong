@@ -46,65 +46,6 @@
 
   <!-- Module javautils -->
 
-  <dirname property="module.javautils.basedir" file="${ant.file}"/>
-
-
-  <property name="compiler.args.javautils" value="${compiler.args}"/>
-
-  <property name="javautils.output.dir" value="${module.javautils.basedir}/classes/production"/>
-  <property name="javautils.testoutput.dir" value="${module.javautils.basedir}/classes/test"/>
-
-  <path id="javautils.module.bootclasspath">
-    <!-- Paths to be included in compilation bootclasspath -->
-  </path>
-
-  <path id="javautils.module.classpath"/>
-
-
-  <patternset id="excluded.from.module.javautils">
-    <patternset refid="ignored.files"/>
-  </patternset>
-
-  <patternset id="excluded.from.compilation.javautils">
-    <patternset refid="excluded.from.module.javautils"/>
-  </patternset>
-
-  <path id="javautils.module.sourcepath">
-    <dirset dir="${module.javautils.basedir}/../javautils">
-      <include name="src"/>
-    </dirset>
-  </path>
-
-
-  <target name="compile.module.javautils" depends="compile.module.javautils.production,compile.module.javautils.tests"
-          description="Compile module javautils"/>
-
-  <target name="compile.module.javautils.production" description="Compile module javautils; production classes">
-    <mkdir dir="${javautils.output.dir}"/>
-    <javac destdir="${javautils.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
-           memorymaximumsize="${compiler.max.memory}" fork="true">
-      <compilerarg line="${compiler.args.javautils}"/>
-      <bootclasspath refid="javautils.module.bootclasspath"/>
-      <classpath refid="javautils.module.classpath"/>
-      <src refid="javautils.module.sourcepath"/>
-      <patternset refid="excluded.from.compilation.javautils"/>
-    </javac>
-
-    <copy todir="${javautils.output.dir}">
-      <fileset dir="${module.javautils.basedir}/../javautils/src">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-    </copy>
-  </target>
-
-  <target name="compile.module.javautils.tests" depends="compile.module.javautils.production"
-          description="compile module javautils; test classes" unless="skip.tests"/>
-
-  <target name="clean.module.javautils" description="cleanup module">
-    <delete dir="${javautils.output.dir}"/>
-    <delete dir="${javautils.testoutput.dir}"/>
-  </target>
 
 
   <!-- Module whatswrong -->
@@ -122,6 +63,7 @@
   </path>
 
   <path id="whatswrong.module.classpath">
+    <pathelement location="${module.whatswrong.basedir}/lib/javautils.jar"/>
     <pathelement location="${module.whatswrong.basedir}/lib/lucene-core-2.3.1.jar"/>
     <pathelement location="${module.whatswrong.basedir}/lib/lucene-highlighter-2.3.1.jar"/>
     <pathelement location="${module.whatswrong.basedir}/lib/epsgraphics-1.1.jar"/>
@@ -147,7 +89,7 @@
           depends="compile.module.whatswrong.production,compile.module.whatswrong.tests"
           description="Compile module whatswrong"/>
 
-  <target name="compile.module.whatswrong.production" depends="compile.module.javautils"
+  <target name="compile.module.whatswrong.production" 
           description="Compile module whatswrong; production classes">
     <mkdir dir="${whatswrong.output.dir}"/>
     <javac destdir="${whatswrong.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
@@ -180,7 +122,7 @@
   </target>
 
   <target name="jar" depends="all">
-    <jar destfile="${name}-${version}.jar">
+    <jar destfile="${jarfile}">
       <zipfileset dir="classes/production" prefix=""/>
       <zipfileset src="lib/epsgraphics-1.1.jar"/>
       <zipfileset src="lib/lucene-core-2.3.1.jar"/>
@@ -219,9 +161,9 @@
     </zip>
   </target>
 
-  <target name="clean" depends="clean.module.javautils, clean.module.whatswrong" description="cleanup all"/>
+  <target name="clean" depends="clean.module.whatswrong" description="cleanup all"/>
 
-  <target name="all" depends="init, clean, compile.module.javautils, compile.module.whatswrong"
+  <target name="all" depends="init, clean, compile.module.whatswrong"
           description="build all"/>
 
 

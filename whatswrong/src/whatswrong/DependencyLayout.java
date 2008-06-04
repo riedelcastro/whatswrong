@@ -203,15 +203,16 @@ public class DependencyLayout {
       });
       //now put points along the token vertex wrt to ordering
       List<DependencyEdge> loopsOnVertex = loops.get(token);
-      double width = (tokenLayout.getBounds(token).getWidth() + vertexExtraSpace) / (connections.size() + 1.0 + loopsOnVertex.size() * 2);
-      double x = (tokenLayout.getBounds(token).getMinX() - (vertexExtraSpace / 2.0)) + width;
+      int width = (int) ((tokenLayout.getBounds(token).getWidth() + vertexExtraSpace) /
+              (connections.size() + 1 + loopsOnVertex.size() * 2));
+      int x = (int) (tokenLayout.getBounds(token).getMinX() - vertexExtraSpace / 2 + width);
       for (DependencyEdge loop : loopsOnVertex) {
-        Point point = new Point((int)x, baseline + maxHeight);
+        Point point = new Point(x, baseline + maxHeight);
         from.put(loop, point);
         x += width;
       }
       for (DependencyEdge edge : connections) {
-        Point point = new Point((int)x, baseline + maxHeight);
+        Point point = new Point(x, baseline + maxHeight);
         if (edge.getFrom().equals(token))
           from.put(edge, point);
         else
@@ -220,7 +221,7 @@ public class DependencyLayout {
 
       }
       for (DependencyEdge loop : loopsOnVertex) {
-        Point point = new Point((int)x, baseline + maxHeight);
+        Point point = new Point(x, baseline + maxHeight);
         to.put(loop, point);
         x += width;
       }
