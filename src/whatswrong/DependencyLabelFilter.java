@@ -32,10 +32,10 @@ public class DependencyLabelFilter extends DependencyFilter {
     allowedLabels.clear();
   }
 
-  public Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original) {
+  public Collection<Edge> filterEdges(Collection<Edge> original) {
     if (allowedLabels.size() == 0) return original;
-    ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
-    for (DependencyEdge edge : original)
+    ArrayList<Edge> result = new ArrayList<Edge>(original.size());
+    for (Edge edge : original)
       for (String allowed : allowedLabels)
         if (edge.getLabel().contains(allowed)) {
           result.add(edge);

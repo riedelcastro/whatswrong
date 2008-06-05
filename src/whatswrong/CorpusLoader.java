@@ -173,8 +173,8 @@ public class CorpusLoader extends JPanel {
     });
     files.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane pane = new JScrollPane(files);
-    pane.setPreferredSize(new Dimension(150, 50));
-    pane.setMinimumSize(new Dimension(150, 50));
+    pane.setPreferredSize(new Dimension(150, 100));
+    //pane.setMinimumSize(new Dimension(150, 50));
     add(pane, c);
 
     //add files
@@ -224,8 +224,8 @@ public class CorpusLoader extends JPanel {
     });
     add(remove, c);
 
-    setSize(new Dimension(150, 200));
-    setMinimumSize(new Dimension(150, 200));
+    //setSize(new Dimension(50, 200));
+    //setMinimumSize(new Dimension(150, 10));
   }
 
 

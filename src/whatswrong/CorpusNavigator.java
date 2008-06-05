@@ -2,7 +2,6 @@ package whatswrong;
 
 import javautils.Pair;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -24,8 +23,6 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,7 +200,9 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
 
     add(searchPanel, new SimpleGridBagConstraints(0, 0, 2, 1));
-    add(new JScrollPane(results), new SimpleGridBagConstraints(0, 1, 2, 1));
+    JScrollPane resultsPane = new JScrollPane(results);
+    resultsPane.setMinimumSize(new Dimension(100,10));
+    add(resultsPane, new SimpleGridBagConstraints(0, 1, 2, 2));
 
     //setPreferredSize((new Dimension(100, (int) getPreferredSize().getHeight())));
     analyzer = new WhitespaceAnalyzer();
@@ -293,7 +292,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         //edges
         HashMap<String, StringBuffer> edges = new HashMap<String, StringBuffer>();
         StringBuffer types = new StringBuffer();
-        for (DependencyEdge e : instance.getDependencies()) {
+        for (Edge e : instance.getEdges()) {
           String prefix = e.getTypePrefix();
           StringBuffer prefixBuffer = edges.get(prefix);
           types.append(prefix).append(" ");
@@ -361,6 +360,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         spinner.setValue(index);
         ofHowMany.setText(" of " + maxIndex);
         NLPInstance instance = getDiffCorpus(gold.getSelected(), guess.getSelected()).get(index);
+        canvas.getSpanLayout().setColor("FN", Color.BLUE);
+        canvas.getSpanLayout().setColor("FP", Color.RED);
         canvas.getDependencyLayout().setColor("FN", Color.BLUE);
         canvas.getDependencyLayout().setColor("FP", Color.RED);
         canvas.setNLPInstance(instance);
@@ -390,11 +391,20 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       example.addDependency(4, 2, "DET", "dep");
       example.addDependency(4, 3, "MOD", "dep");
       example.addDependency(1, 4, "A1", "role");
+      example.addSpan(1, 1, "add.1", "sense");
       canvas.getDependencyLayout().setStroke("role", new BasicStroke(1.0f,
         BasicStroke.CAP_BUTT,
         BasicStroke.JOIN_BEVEL, 10,
         new float[]{2.0f}, 0));
       canvas.setNLPInstance(example);
+
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("dep");
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("role");
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("sense");
+      canvas.getDependencyTypeFilter().addAllowedPostfixType("FP");
+      canvas.getDependencyTypeFilter().addAllowedPostfixType("FN");
+      canvas.getDependencyTypeFilter().addAllowedPostfixType("Match");
+
       canvas.updateNLPGraphics();
 
     }

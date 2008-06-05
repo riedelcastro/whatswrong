@@ -7,7 +7,8 @@ import java.util.*;
  */
 public class DependencyTypeFilter extends DependencyFilter {
 
-  private HashSet<String> allowedTypes = new HashSet<String>();
+  private HashSet<String> allowedPrefixTypes = new HashSet<String>();
+  private HashSet<String> allowedPostfixTypes = new HashSet<String>();
 
   public interface Listener {
     void changed(String type);
@@ -20,45 +21,74 @@ public class DependencyTypeFilter extends DependencyFilter {
   }
 
 
-  public Set<String> getAllowedTypes() {
-    return Collections.unmodifiableSet(allowedTypes);
+  public Set<String> getAllowedPrefixTypes() {
+    return Collections.unmodifiableSet(allowedPrefixTypes);
   }
 
-  public DependencyTypeFilter(String... allowedTypes) {
-    for (String type : allowedTypes) this.allowedTypes.add(type);
+  public Set<String> getAllowedPostfixTypes() {
+    return Collections.unmodifiableSet(allowedPostfixTypes);
+  }
+
+  public DependencyTypeFilter(String... allowedPrefixTypes) {
+    for (String type : allowedPrefixTypes) this.allowedPrefixTypes.add(type);
   }
 
   private void fireChanged(String type) {
     for (Listener l : listeners) l.changed(type);
   }
 
-  public void addAllowedType(String type) {
-    allowedTypes.add(type);
+  public void addAllowedPrefixType(String type) {
+    allowedPrefixTypes.add(type);
     fireChanged(type);
   }
 
-  public void removeAllowedType(String type) {
-    allowedTypes.remove(type);
+  public void addAllowedPostfixType(String type) {
+    allowedPostfixTypes.add(type);
     fireChanged(type);
   }
 
-  public DependencyTypeFilter(Set<String> allowedTypes) {
-    this.allowedTypes.addAll(allowedTypes);
+  public void removeAllowedPrefixType(String type) {
+    allowedPrefixTypes.remove(type);
+    fireChanged(type);
   }
 
-  public Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original) {
-    if (allowedTypes.size() == 0) return original;
-    ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
-    for (DependencyEdge edge : original) {
-      for (String type : allowedTypes)
-        if (edge.getTypePrefix().contains(type) || edge.getTypePostfix().contains(type))
-          result.add(edge);
+  public void removeAllowedPostfixType(String type) {
+    allowedPostfixTypes.remove(type);
+    fireChanged(type);
+  }
+
+  public DependencyTypeFilter(Set<String> allowedPrefixTypes) {
+    this.allowedPrefixTypes.addAll(allowedPrefixTypes);
+  }
+
+  public Collection<Edge> filterEdges(Collection<Edge> original) {
+    ArrayList<Edge> result = new ArrayList<Edge>(original.size());
+    for (Edge edge : original) {
+      boolean prefixAllowed = edge.getTypePrefix().equals("");
+      boolean postfixAllowed = edge.getTypePostfix().equals("");
+
+      if (!prefixAllowed) for (String type : allowedPrefixTypes)
+        if (edge.getTypePrefix().contains(type)) {
+          prefixAllowed = true;
+          break;
+        }
+      if (!postfixAllowed)for (String type : allowedPostfixTypes)
+        if (edge.getTypePostfix().contains(type)) {
+          postfixAllowed = true;
+          break;
+        }
+      if (prefixAllowed && postfixAllowed)
+        result.add(edge);
     }
     return result;
 
   }
 
-  public boolean allows(String type) {
-    return allowedTypes.isEmpty() || allowedTypes.contains(type);
+  public boolean allowsPrefix(String type) {
+    return allowedPrefixTypes.contains(type);
+  }
+
+  public boolean allowsPostfix(String type) {
+    return allowedPostfixTypes.contains(type);
   }
 }

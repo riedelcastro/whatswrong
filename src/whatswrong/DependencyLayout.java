@@ -17,7 +17,7 @@ import java.util.List;
  * @author Sebastian Riedel
  */
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-public class DependencyLayout {
+public class DependencyLayout implements EdgeLayout {
 
   private int baseline = -1;
   private int heightPerLevel = 15;
@@ -28,11 +28,11 @@ public class DependencyLayout {
   private HashMap<String, Color> colors = new HashMap<String, Color>();
   private HashMap<String, BasicStroke> strokes = new HashMap<String, BasicStroke>();
   private BasicStroke defaultStroke = new BasicStroke();
-  private HashMap<DependencyEdge, Point> from;
-  private HashMap<DependencyEdge, Point> to;
-  private HashMap<Shape,DependencyEdge> shapes = new HashMap<Shape, DependencyEdge>();
-  private HashSet<DependencyEdge> selected = new HashSet<DependencyEdge>();
-  private HashSet<DependencyEdge> visible = new HashSet<DependencyEdge>();
+  private HashMap<Edge, Point> from;
+  private HashMap<Edge, Point> to;
+  private HashMap<Shape, Edge> shapes = new HashMap<Shape, Edge>();
+  private HashSet<Edge> selected = new HashSet<Edge>();
+  private HashSet<Edge> visible = new HashSet<Edge>();
 
 
   private int maxHeight;
@@ -46,7 +46,7 @@ public class DependencyLayout {
     strokes.put(type, stroke);
   }
 
-  public BasicStroke getStroke(DependencyEdge edge){
+  public BasicStroke getStroke(Edge edge){
     BasicStroke stroke = getStroke(edge.getType());
     return (selected.contains(edge)) ?
             new BasicStroke(stroke.getLineWidth()+ 1.5f, stroke.getEndCap(), stroke.getLineJoin(),
@@ -68,11 +68,11 @@ public class DependencyLayout {
     return Color.BLACK;
   }
 
-  public void addToSelection(DependencyEdge edge){
+  public void addToSelection(Edge edge){
     selected.add(edge);
   }
 
-  public void removeFromSelection(DependencyEdge edge){
+  public void removeFromSelection(Edge edge){
     selected.remove(edge);
   }
 
@@ -80,7 +80,7 @@ public class DependencyLayout {
     selected.clear();
   }
 
-  public void onlyShow(Collection<DependencyEdge> edges){
+  public void onlyShow(Collection<Edge> edges){
     this.visible.clear();
     this.visible.addAll(edges);
   }
@@ -89,26 +89,26 @@ public class DependencyLayout {
     visible.clear();
   }
 
-  public void toggleSelection(DependencyEdge edge){
+  public void toggleSelection(Edge edge){
     if (selected.contains(edge)) selected.remove(edge);
     else selected.add(edge);
   }
 
 
-  public Set<DependencyEdge> getSelected() {
+  public Set<Edge> getSelected() {
     return Collections.unmodifiableSet(selected);
   }
 
-  public void select(DependencyEdge edge){
+  public void select(Edge edge){
     selected.clear();
     selected.add(edge);
   }
 
 
-  public DependencyEdge getEdgeAt(Point2D p, int radius){
+  public Edge getEdgeAt(Point2D p, int radius){
     Rectangle2D cursor = new Rectangle.Double(p.getX()-radius/2,p.getY()-radius/2,radius,radius);
     double maxY = Integer.MIN_VALUE;
-    DependencyEdge result = null;
+    Edge result = null;
     for (Shape s : shapes.keySet()){
       if (s.intersects(cursor) && s.getBounds().getY() > maxY) {
         result = shapes.get(s);
@@ -118,19 +118,20 @@ public class DependencyLayout {
     return result;
   }
 
-  public void layout(Collection<DependencyEdge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
+  public void layout(Collection<Edge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
+
     if (visible.size() > 0){
-      edges = new HashSet<DependencyEdge>(edges);
+      edges = new HashSet<Edge>(edges);
       edges.retainAll(visible);
     }
 
     //find out height of each edge
     shapes.clear();
 
-    HashMultiMapList<TokenVertex, DependencyEdge> loops = new HashMultiMapList<TokenVertex, DependencyEdge>();
-    HashSet<DependencyEdge> allLoops = new HashSet<DependencyEdge>();
+    HashMultiMapList<TokenVertex, Edge> loops = new HashMultiMapList<TokenVertex, Edge>();
+    HashSet<Edge> allLoops = new HashSet<Edge>();
     HashSet<TokenVertex> tokens = new HashSet<TokenVertex>();
-    for (DependencyEdge edge : edges) {
+    for (Edge edge : edges) {
       tokens.add(edge.getFrom());
       tokens.add(edge.getTo());
       if (edge.getFrom() == edge.getTo()) {
@@ -140,24 +141,24 @@ public class DependencyLayout {
     }
     edges.removeAll(allLoops);
 
-    Counter<DependencyEdge> depth = new Counter<DependencyEdge>();
-    Counter<DependencyEdge> offset = new Counter<DependencyEdge>();
-    HashMultiMapList<DependencyEdge, DependencyEdge>
-            dominates = new HashMultiMapList<DependencyEdge, DependencyEdge>();
+    Counter<Edge> depth = new Counter<Edge>();
+    Counter<Edge> offset = new Counter<Edge>();
+    HashMultiMapList<Edge, Edge>
+            dominates = new HashMultiMapList<Edge, Edge>();
 
-    for (DependencyEdge over : edges)
-      for (DependencyEdge under : edges) {
-        if (over != under && (over.strictlyCovers(under) ||
-                over.covers(under) && over.lexicographicOrder(under) > 0)) {
+    for (Edge over : edges)
+      for (Edge under : edges) {
+        if (over != under && (over.covers(under) || over.coversSemi(under) ||
+                over.coversExactly(under) && over.lexicographicOrder(under) > 0)) {
           dominates.add(over, under);
         }
       }
 
-    for (DependencyEdge edge : edges)
+    for (Edge edge : edges)
       calculateDepth(dominates, depth, edge);
 
-    for (DependencyEdge left : edges)
-      for (DependencyEdge right : edges) {
+    for (Edge left : edges)
+      for (Edge right : edges) {
         if (left != right && left.crosses(right) &&
                 depth.get(left) == depth.get(right)) {
           if (offset.get(left) == 0 && offset.get(right) == 0)
@@ -178,18 +179,18 @@ public class DependencyLayout {
     if (depth.getMaximum() == 0 && allLoops.size() > 0) maxHeight += heightPerLevel / 2;
 
     //build map from vertex to incoming/outgoing edges
-    HashMultiMapList<TokenVertex, DependencyEdge> vertex2edges = new HashMultiMapList<TokenVertex, DependencyEdge>();
-    for (DependencyEdge edge : edges) {
+    HashMultiMapList<TokenVertex, Edge> vertex2edges = new HashMultiMapList<TokenVertex, Edge>();
+    for (Edge edge : edges) {
       vertex2edges.add(edge.getFrom(), edge);
       vertex2edges.add(edge.getTo(), edge);
     }
     //assign starting and end points of edges by sorting the edges per vertex
-    from = new HashMap<DependencyEdge, Point>();
-    to = new HashMap<DependencyEdge, Point>();
+    from = new HashMap<Edge, Point>();
+    to = new HashMap<Edge, Point>();
     for (final TokenVertex token : tokens) {
-      List<DependencyEdge> connections = vertex2edges.get(token);
-      Collections.sort(connections, new Comparator<DependencyEdge>() {
-        public int compare(DependencyEdge edge1, DependencyEdge edge2) {
+      List<Edge> connections = vertex2edges.get(token);
+      Collections.sort(connections, new Comparator<Edge>() {
+        public int compare(Edge edge1, Edge edge2) {
           //if they point in different directions order is defined by left to right
           if (edge1.leftOf(token) && edge2.rightOf(token)) return -1;
           if (edge2.leftOf(token) && edge1.rightOf(token)) return 1;
@@ -202,17 +203,16 @@ public class DependencyLayout {
         }
       });
       //now put points along the token vertex wrt to ordering
-      List<DependencyEdge> loopsOnVertex = loops.get(token);
-      int width = (int) ((tokenLayout.getBounds(token).getWidth() + vertexExtraSpace) /
-              (connections.size() + 1 + loopsOnVertex.size() * 2));
-      int x = (int) (tokenLayout.getBounds(token).getMinX() - vertexExtraSpace / 2 + width);
-      for (DependencyEdge loop : loopsOnVertex) {
-        Point point = new Point(x, baseline + maxHeight);
+      List<Edge> loopsOnVertex = loops.get(token);
+      double width = (tokenLayout.getBounds(token).getWidth() + vertexExtraSpace) / (connections.size() + 1.0 + loopsOnVertex.size() * 2);
+      double x = (tokenLayout.getBounds(token).getMinX() - (vertexExtraSpace / 2.0)) + width;
+      for (Edge loop : loopsOnVertex) {
+        Point point = new Point((int)x, baseline + maxHeight);
         from.put(loop, point);
         x += width;
       }
-      for (DependencyEdge edge : connections) {
-        Point point = new Point(x, baseline + maxHeight);
+      for (Edge edge : connections) {
+        Point point = new Point((int)x, baseline + maxHeight);
         if (edge.getFrom().equals(token))
           from.put(edge, point);
         else
@@ -220,8 +220,8 @@ public class DependencyLayout {
         x += width;
 
       }
-      for (DependencyEdge loop : loopsOnVertex) {
-        Point point = new Point(x, baseline + maxHeight);
+      for (Edge loop : loopsOnVertex) {
+        Point point = new Point((int)x, baseline + maxHeight);
         to.put(loop, point);
         x += width;
       }
@@ -229,7 +229,7 @@ public class DependencyLayout {
 
     //draw each edge
     edges.addAll(allLoops);
-    for (DependencyEdge edge : edges) {
+    for (Edge edge : edges) {
       //set Color and remember old color
       Color old = g2d.getColor();
       g2d.setColor(getColor(edge.getType()));
@@ -262,7 +262,7 @@ public class DependencyLayout {
       FontRenderContext frc = g2d.getFontRenderContext();
       TextLayout layout = new TextLayout(edge.getLabel(), font, frc);
       int labelx = (int) (Math.min(p1.x, p3.x) + Math.abs(p1.x - p3.x) / 2 - layout.getBounds().getWidth() / 2);
-      int labely = (int) (height + layout.getBounds().getHeight()) + 1;
+      int labely = (int) (height + layout.getAscent()) ;
       layout.draw(g2d, labelx, labely);
       g2d.setColor(old);
       //Area area = new Area();
@@ -326,15 +326,15 @@ public class DependencyLayout {
   }
 
 
-  private int calculateDepth(HashMultiMapList<DependencyEdge, DependencyEdge> dominates,
-                             Counter<DependencyEdge> depth,
-                             DependencyEdge root) {
+  private int calculateDepth(HashMultiMapList<Edge, Edge> dominates,
+                             Counter<Edge> depth,
+                             Edge root) {
     if (depth.get(root) > 0) return depth.get(root);
     if (dominates.get(root).size() == 0) {
       return 0;
     }
     int max = 0;
-    for (DependencyEdge children : dominates.get(root)) {
+    for (Edge children : dominates.get(root)) {
       int current = calculateDepth(dominates, depth, children);
       if (current > max) max = current;
     }
@@ -343,11 +343,11 @@ public class DependencyLayout {
 
   }
 
-  public Point getFrom(DependencyEdge edge) {
+  public Point getFrom(Edge edge) {
     return from.get(edge);
   }
 
-  public Point getTo(DependencyEdge edge) {
+  public Point getTo(Edge edge) {
     return to.get(edge);
   }
 

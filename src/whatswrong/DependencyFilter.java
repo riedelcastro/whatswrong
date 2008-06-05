@@ -7,9 +7,9 @@ import java.util.Collection;
  */
 public abstract class DependencyFilter implements NLPInstanceFilter {
 
-  public abstract Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original);
+  public abstract Collection<Edge> filterEdges(Collection<Edge> original);
 
   public NLPInstance filter(NLPInstance original) {
-    return new NLPInstance(original.getTokens(), filterEdges(original.getDependencies()));
+    return new NLPInstance(original.getTokens(), filterEdges(original.getEdges()));
   }
 }

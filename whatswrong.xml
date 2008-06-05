@@ -195,12 +195,34 @@
     </jar>
   </target>
 
-  <target name="srcdist">
-    
+  <fileset id="whatswrong.releasefiles" dir="${module.whatswrong.basedir}">
+    <include name="src/**/*.java"/>
+    <include name="README"/>
+    <include name="LICENSE"/>
+    <include name="CHANGES"/>
+    <include name="build.xml"/>
+    <include name="whatswrong.properties"/>
+    <include name="lib/**"/>
+  </fileset>
+  
+  <target name="dist">
+    <delete dir="${fulltarget}"/>
+    <mkdir dir="${fulltarget}"/>
+    <copy todir="${fulltarget}">
+      <fileset refid="whatswrong.releasefiles"/>
+    </copy>
+    <tar destfile="${fulltargetgz}" basedir="${distdir}"
+         compression="gzip" includes="${target}/**">
+    </tar>
+    <zip destfile="${fulltargetzip}" basedir="${distdir}"
+         includes="${target}/**">
+    </zip>
   </target>
 
   <target name="clean" depends="clean.module.javautils, clean.module.whatswrong" description="cleanup all"/>
 
   <target name="all" depends="init, clean, compile.module.javautils, compile.module.whatswrong"
           description="build all"/>
+
+
 </project>

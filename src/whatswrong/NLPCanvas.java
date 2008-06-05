@@ -22,14 +22,16 @@ import java.util.*;
  */
 public class NLPCanvas extends JPanel {
 
+  private DependencyLayout spanLayout = new SpanLayout();
   private DependencyLayout dependencyLayout = new DependencyLayout();
   private TokenLayout tokenLayout = new TokenLayout();
 
   private ArrayList<TokenVertex> tokens = new ArrayList<TokenVertex>();
-  private LinkedList<DependencyEdge> dependencies = new LinkedList<DependencyEdge>();
+  private LinkedList<Edge> dependencies = new LinkedList<Edge>();
 
   private BufferedImage tokenImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
   private BufferedImage dependencyImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+  private BufferedImage spanImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
   private DependencyTypeFilter dependencyTypeFilter = new DependencyTypeFilter();
   private DependencyLabelFilter dependencyLabelFilter = new DependencyLabelFilter();
@@ -60,14 +62,14 @@ public class NLPCanvas extends JPanel {
     addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         Point point = e.getPoint();
-        point.translate(0, -(getHeight() - tokenLayout.getHeight() - dependencyLayout.getHeight()));
-        DependencyEdge edge = dependencyLayout.getEdgeAt(point, 5);
+        point.translate(0, -(getHeight() - tokenLayout.getHeight() - spanLayout.getHeight()));
+        Edge edge = spanLayout.getEdgeAt(point, 5);
         //System.out.println("edge = " + edge);
         if (edge != null) {
           if (e.isMetaDown())
-            dependencyLayout.toggleSelection(edge);
+            spanLayout.toggleSelection(edge);
           else
-            dependencyLayout.select(edge);
+            spanLayout.select(edge);
 
           updateNLPGraphics();
         }
@@ -125,9 +127,9 @@ public class NLPCanvas extends JPanel {
 
   public void setNLPInstance(NLPInstance nlpInstance) {
     dependencies.clear();
-    dependencies.addAll(nlpInstance.getDependencies());
+    dependencies.addAll(nlpInstance.getEdges());
     usedTypes.clear();
-    for (DependencyEdge edge : dependencies)
+    for (Edge edge : dependencies)
       usedTypes.add(edge.getType());
     tokens.clear();
     tokens.addAll(nlpInstance.getTokens());
@@ -135,7 +137,7 @@ public class NLPCanvas extends JPanel {
     for (TokenVertex token : tokens) {
       usedProperties.addAll(token.getPropertyTypes());
     }
-    dependencyLayout.clearSelection();
+    spanLayout.clearSelection();
     fireInstanceChanged();
     //updateNLPGraphics();
   }
@@ -149,7 +151,7 @@ public class NLPCanvas extends JPanel {
   }
 
   public void setColorForDependencyType(String type, Color color) {
-    dependencyLayout.setColor(type, color);
+    spanLayout.setColor(type, color);
   }
 
   private NLPInstance filterInstance() {
@@ -161,14 +163,16 @@ public class NLPCanvas extends JPanel {
     Graphics2D gTokens = tokenImage.createGraphics();
     NLPInstance filtered = filterInstance();
     Collection<TokenVertex> tokens = new ArrayList<TokenVertex>(filtered.getTokens());
-    //calculate size    
+
+    //layout tokens first    
     tokenLayout.layout(tokens, gTokens);
     tokenImage = new BufferedImage(tokenLayout.getWidth(), tokenLayout.getHeight(),
       BufferedImage.TYPE_4BYTE_ABGR);
     gTokens = tokenImage.createGraphics();
     tokenLayout.layout(tokens, gTokens);
 
-    Collection<DependencyEdge> dependencies = new ArrayList<DependencyEdge>(filtered.getDependencies());
+    //layout dependencies
+    Collection<Edge> dependencies = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.dependency));
     Graphics2D gDependencies = dependencyImage.createGraphics();
     dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
     dependencyImage = new BufferedImage(dependencyLayout.getWidth(), dependencyLayout.getHeight(),
@@ -178,8 +182,20 @@ public class NLPCanvas extends JPanel {
       gDependencies.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
 
-    int width = dependencyLayout.getWidth();
-    int height = dependencyLayout.getHeight() + tokenLayout.getHeight();
+    //layout spans
+    Collection<Edge> spans = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.span));
+    Graphics2D gSpans = spanImage.createGraphics();
+    spanLayout.layout(spans, tokenLayout, gSpans);
+    spanImage = new BufferedImage(spanLayout.getWidth(), spanLayout.getHeight(),
+      BufferedImage.TYPE_4BYTE_ABGR);
+    gSpans= spanImage.createGraphics();
+    if (antiAliasing)
+      gSpans.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    spanLayout.layout(spans, tokenLayout, gSpans);
+
+
+    int width = spanLayout.getWidth();
+    int height = dependencyLayout.getHeight() + tokenLayout.getHeight() + spanLayout.getHeight();
     setPreferredSize(new Dimension(width, height));
     setMinimumSize(new Dimension(width, height));
     setSize(new Dimension(width, getHeight()));
@@ -194,7 +210,7 @@ public class NLPCanvas extends JPanel {
     return tokenFilter.filterTokens(this.tokens);
   }
 
-  private Collection<DependencyEdge> filterDependencies() {
+  private Collection<Edge> filterDependencies() {
     return dependencyTokenFilter.filterEdges(
       dependencyLabelFilter.filterEdges(
         dependencyTypeFilter.filterEdges(this.dependencies)));
@@ -203,6 +219,10 @@ public class NLPCanvas extends JPanel {
 
   public TokenLayout getTokenLayout() {
     return tokenLayout;
+  }
+
+  public DependencyLayout getSpanLayout() {
+    return spanLayout;
   }
 
   public DependencyLayout getDependencyLayout() {
@@ -220,31 +240,33 @@ public class NLPCanvas extends JPanel {
     Graphics2D g2d = (Graphics2D) graphics;
     //g2d.setColor(Color.WHITE);
     //g2d.fillRect(0,0,getWidth(),getHeight());
-    int y = getHeight() - dependencyImage.getHeight() - tokenImage.getHeight();
+    int y = getHeight() - dependencyImage.getHeight() - tokenImage.getHeight() - spanImage.getHeight();
     g2d.drawImage(dependencyImage, 0, y, this);
     g2d.drawImage(tokenImage, 0, y + dependencyImage.getHeight(), this);
+    g2d.drawImage(spanImage, 0, y + tokenImage.getHeight() + dependencyImage.getHeight(), this);
   }
 
 
   public void exportToEPS(File file) throws IOException {
 
     EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(), 0, 0,
-      tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+      tokenLayout.getWidth(), spanLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
 
+    NLPInstance filtered = filterInstance();
 
-    Collection<DependencyEdge> edges = filterDependencies();
-    Collection<TokenVertex> tokens = filterTokens();
+    Collection<Edge> edges = filtered.getEdges();
+    Collection<TokenVertex> tokens = filtered.getTokens();
 
     tokenLayout.layout(tokens, dummy);
-    dependencyLayout.layout(edges, tokenLayout, dummy);
+    spanLayout.layout(edges, tokenLayout, dummy);
 
     EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
-      tokenLayout.getWidth(), dependencyLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+      tokenLayout.getWidth(), spanLayout.getHeight() + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
 
-    g.translate(0, dependencyLayout.getHeight());
+    g.translate(0, spanLayout.getHeight());
     tokenLayout.layout(tokens, g);
-    g.translate(0, -dependencyLayout.getHeight());
-    dependencyLayout.layout(edges, tokenLayout, g);
+    g.translate(0, -spanLayout.getHeight());
+    spanLayout.layout(edges, tokenLayout, g);
     g.flush();
     g.close();
     //To change body of created methods use File | Settings | File Templates.

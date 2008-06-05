@@ -106,6 +106,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     public ControllerDialog(Frame owner, String title, boolean resizable) throws HeadlessException {
       super(owner, title, false);
+      pack();
       setResizable(resizable);
     }
 
@@ -191,7 +192,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", false);
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -234,7 +235,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     window.add(new WindowMenuItem(appearance));
 
     //navigator
-    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", false);
+    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
     CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess);
     navigatorWindow.getContentPane().add(navigator);

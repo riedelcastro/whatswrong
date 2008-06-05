@@ -75,25 +75,25 @@ public class TokenFilter implements NLPInstanceFilter {
             }
       }
       //update edges and remove those that have vertices not in the new vertex set
-      ArrayList<DependencyEdge> edges = new ArrayList<DependencyEdge>();
-      for (DependencyEdge e : original.getDependencies()) {
+      ArrayList<Edge> edges = new ArrayList<Edge>();
+      for (Edge e : original.getEdges()) {
         TokenVertex newFrom = old2new.get(e.getFrom());
         TokenVertex newTo = old2new.get(e.getTo());
         if (newFrom == null || newTo == null) continue;
-        edges.add(new DependencyEdge(newFrom, newTo, e.getLabel(), e.getType()));
+        edges.add(new Edge(newFrom, newTo, e.getLabel(), e.getType(),e.getRenderType()));
       }
       return new NLPInstance(filterTokens(tokens), edges);
 
     } else {
       List<TokenVertex> filteredTokens = filterTokens(original.getTokens());
-      return new NLPInstance(filteredTokens, original.getDependencies());
+      return new NLPInstance(filteredTokens, original.getEdges());
     }
   }
 
-  private Collection<DependencyEdge> updateVertices(Collection<DependencyEdge> edges, List<TokenVertex> tokens){
-    HashSet<DependencyEdge> result = new HashSet<DependencyEdge>();
-    for (DependencyEdge e: edges)
-      result.add(new DependencyEdge(tokens.get(e.getFrom().getIndex()),
+  private Collection<Edge> updateVertices(Collection<Edge> edges, List<TokenVertex> tokens){
+    HashSet<Edge> result = new HashSet<Edge>();
+    for (Edge e: edges)
+      result.add(new Edge(tokens.get(e.getFrom().getIndex()),
         tokens.get(e.getTo().getIndex()),e.getLabel(), e.getType()));
 
     return result;

@@ -21,7 +21,7 @@ public class AppearancePanel extends JPanel {
     //c.fill = GridBagConstraints.HORIZONTAL;
     //setBorder(new TitledBorder(new EtchedBorder(),"Change Appearance"));
     setBorder(new EmptyBorder(5,5,5,5));
-    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL,0,50,nlpCanvas.getTokenLayout().getMargin());
+    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL,0,100,nlpCanvas.getTokenLayout().getMargin());
     marginSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         nlpCanvas.getTokenLayout().setMargin(marginSlider.getValue());
@@ -37,9 +37,10 @@ public class AppearancePanel extends JPanel {
     marginSlider.setToolTipText("Margin between tokens");
     marginSlider.setMaximumSize(new Dimension(20,50));
 
-    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL,10,50,nlpCanvas.getDependencyLayout().getHeightPerLevel());
+    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL,10,50,nlpCanvas.getSpanLayout().getHeightPerLevel());
     heightSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
+        nlpCanvas.getSpanLayout().setHeightPerLevel(heightSlider.getValue());
         nlpCanvas.getDependencyLayout().setHeightPerLevel(heightSlider.getValue());
         nlpCanvas.updateNLPGraphics();
         //scrollToBottom();
@@ -53,6 +54,25 @@ public class AppearancePanel extends JPanel {
     add(heightSlider,c);
     heightSlider.setToolTipText("Tree height");
     heightSlider.setMaximumSize(new Dimension(20,50));
+
+//    final JSlider widthSlider = new JSlider(JSlider.HORIZONTAL,10,100,nlpCanvas.getDependencyLayout().getHeightPerLevel());
+//    widthSlider.addChangeListener(new ChangeListener() {
+//      public void stateChanged(ChangeEvent e) {
+//        nlpCanvas.getDependencyLayout().setVertexExtraSpace(widthSlider.getValue());
+//        nlpCanvas.updateNLPGraphics();
+//        //scrollToBottom();
+//      }
+//    });
+//    c.gridx = 0;
+//    c.anchor = GridBagConstraints.EAST;
+//    add(new JLabel("Node:"),c);
+//    c.gridx = 1;
+//    c.anchor = GridBagConstraints.WEST;
+//    add(widthSlider,c);
+//    widthSlider.setToolTipText("Node width");
+//    widthSlider.setMaximumSize(new Dimension(20,50));
+
+
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridwidth = 2;
     c.gridx = 0;
@@ -64,9 +84,10 @@ public class AppearancePanel extends JPanel {
     add(new JLabel("Edges:"),c);
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox curved = new JCheckBox("Curved", nlpCanvas.getDependencyLayout().isCurve());
+    final JCheckBox curved = new JCheckBox("Curved", nlpCanvas.getSpanLayout().isCurve());
     curved.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
+        nlpCanvas.getSpanLayout().setCurve(curved.isSelected());
         nlpCanvas.getDependencyLayout().setCurve(curved.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
