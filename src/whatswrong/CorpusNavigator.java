@@ -401,9 +401,20 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       canvas.getDependencyTypeFilter().addAllowedPrefixType("dep");
       canvas.getDependencyTypeFilter().addAllowedPrefixType("role");
       canvas.getDependencyTypeFilter().addAllowedPrefixType("sense");
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("ner");
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("chunk");
+      canvas.getDependencyTypeFilter().addAllowedPrefixType("pos");
       canvas.getDependencyTypeFilter().addAllowedPostfixType("FP");
       canvas.getDependencyTypeFilter().addAllowedPostfixType("FN");
       canvas.getDependencyTypeFilter().addAllowedPostfixType("Match");
+
+      canvas.getSpanLayout().setTypeOrder("pos",0);
+      canvas.getSpanLayout().setTypeOrder("chunk (BIO)",1);
+      canvas.getSpanLayout().setTypeOrder("chunk",2);
+      canvas.getSpanLayout().setTypeOrder("ner (BIO)",2);
+      canvas.getSpanLayout().setTypeOrder("ner",3);
+      canvas.getSpanLayout().setTypeOrder("sense",4);
+      canvas.getSpanLayout().setTypeOrder("role",5);
 
       canvas.updateNLPGraphics();
 

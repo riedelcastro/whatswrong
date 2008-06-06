@@ -64,19 +64,10 @@ public class DependencyTypeFilter extends DependencyFilter {
   public Collection<Edge> filterEdges(Collection<Edge> original) {
     ArrayList<Edge> result = new ArrayList<Edge>(original.size());
     for (Edge edge : original) {
-      boolean prefixAllowed = edge.getTypePrefix().equals("");
-      boolean postfixAllowed = edge.getTypePostfix().equals("");
-
-      if (!prefixAllowed) for (String type : allowedPrefixTypes)
-        if (edge.getTypePrefix().contains(type)) {
-          prefixAllowed = true;
-          break;
-        }
-      if (!postfixAllowed)for (String type : allowedPostfixTypes)
-        if (edge.getTypePostfix().contains(type)) {
-          postfixAllowed = true;
-          break;
-        }
+      boolean prefixAllowed = edge.getTypePrefix().equals("") ||
+        allowedPrefixTypes.contains(edge.getTypePrefix());
+      boolean postfixAllowed = edge.getTypePostfix().equals("") ||
+        allowedPostfixTypes.contains(edge.getTypePostfix());
       if (prefixAllowed && postfixAllowed)
         result.add(edge);
     }

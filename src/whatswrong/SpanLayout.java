@@ -1,8 +1,8 @@
 package whatswrong;
 
 
-import javautils.HashMultiMapList;
 import javautils.Counter;
+import javautils.HashMultiMapList;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -17,7 +17,7 @@ import java.util.*;
  * @author Sebastian Riedel
  */
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-public class SpanLayout extends DependencyLayout implements EdgeLayout {
+public class SpanLayout implements EdgeLayout {
 
   private int baseline = -1;
   private int heightPerLevel = 15;
@@ -35,6 +35,7 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
   private HashSet<Edge> selected = new HashSet<Edge>();
   private HashSet<Edge> visible = new HashSet<Edge>();
 
+  private HashMap<String, Integer> orders = new HashMap<String, Integer>();
 
   private int maxHeight;
   private int maxWidth;
@@ -46,6 +47,15 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
 
   public void setStroke(String type, BasicStroke stroke) {
     strokes.put(type, stroke);
+  }
+
+  public void setTypeOrder(String type, int order) {
+    orders.put(type, order);
+  }
+
+  public int getOrder(String type) {
+    Integer order = orders.get(type);
+    return order == null ? Integer.MIN_VALUE : order;
   }
 
   public BasicStroke getStroke(Edge edge) {
@@ -120,6 +130,26 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
     return result;
   }
 
+  public Map<TokenVertex, Integer> estimateRequiredTokenWidths(
+    Collection<Edge> edges, Graphics2D g2d) {
+
+    HashMap<TokenVertex, Integer> result = new HashMap<TokenVertex, Integer>();
+    for (Edge edge : edges) {
+      if (edge.getFrom() == edge.getTo()) {
+        Font font = new Font(g2d.getFont().getName(), Font.PLAIN, 8);
+        FontRenderContext frc = g2d.getFontRenderContext();
+        TextLayout layout = new TextLayout(edge.getLabel(), font, frc);
+        Integer oldWidth = result.get(edge.getFrom());
+        int width = oldWidth == null ? (int) layout.getBounds().getWidth() :
+          (int) Math.max(layout.getBounds().getWidth(), oldWidth);
+        result.put(edge.getFrom(), (int) (width + totalTextMargin));
+      }
+    }
+
+
+    return result;
+  }
+
   public void layout(Collection<Edge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
     if (visible.size() > 0) {
       edges = new HashSet<Edge>(edges);
@@ -137,12 +167,17 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
 
     for (Edge over : edges)
       for (Edge under : edges) {
-        if (over != under && (
-          over.covers(under) || over.coversSemi(under) ||
-          over.coversExactly(under) && over.lexicographicOrder(under) > 0)||
-          over.overlaps(under) && over.getMinIndex() < under.getMinIndex() ) {
+        int orderOver = getOrder(over.getTypePrefix());
+        int orderUnder = getOrder(under.getTypePrefix());
+        if (orderOver > orderUnder ||
+          orderOver == orderUnder && (
+            over.covers(under) ||
+              over.coversSemi(under) ||
+              over.coversExactly(under) && over.lexicographicOrder(under) > 0 ||
+              over.overlaps(under) && over.getMinIndex() < under.getMinIndex()
+          ))
           dominates.add(over, under);
-        }
+
       }
 
     for (Edge edge : edges)
@@ -177,7 +212,6 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
       FontRenderContext frc = g2d.getFontRenderContext();
       TextLayout layout = new TextLayout(edge.getLabel(), font, frc);
 
-
       //draw lines
       Integer spanLevel = revert ? maxDepth - depth.get(edge) : depth.get(edge);
       int height = baseline + maxHeight - (spanLevel + 1) * heightPerLevel + offset.get(edge);
@@ -190,11 +224,11 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
       int minX = (int) Math.min(fromBounds.getMinX(), toBounds.getMinX());
       int maxX = (int) Math.max(fromBounds.getMaxX(), toBounds.getMaxX());
 
-      if (maxX - minX < layout.getBounds().getWidth() + totalTextMargin){
-        double middle = minX + (maxX - minX)/2.0;
+      if (maxX - minX < layout.getBounds().getWidth() + totalTextMargin) {
+        double middle = minX + (maxX - minX) / 2.0;
         double textWidth = layout.getBounds().getWidth() + totalTextMargin;
-        minX = (int)(middle - textWidth / 2.0);
-        maxX = (int)(middle + textWidth / 2.0);
+        minX = (int) (middle - textWidth / 2.0);
+        maxX = (int) (middle + textWidth / 2.0);
       }
 
       //connection
@@ -208,7 +242,7 @@ public class SpanLayout extends DependencyLayout implements EdgeLayout {
 
       //write label in the middle under
       int labelx = minX + (maxX - minX) / 2 - (int) layout.getBounds().getWidth() / 2;
-      int labely = (int) (height + heightPerLevel/2);
+      int labely = (int) (height + heightPerLevel / 2);
       layout.draw(g2d, labelx, labely);
       g2d.setColor(old);
       //Area area = new Area();

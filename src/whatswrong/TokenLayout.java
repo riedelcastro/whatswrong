@@ -7,6 +7,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Sebastian Riedel
@@ -50,7 +51,7 @@ public class TokenLayout {
     return margin;
   }
 
-  public void layout(Collection<TokenVertex> tokens, Graphics2D g2d) {
+  public void layout(Collection<TokenVertex> tokens, Map<TokenVertex,Integer> tokenWidths, Graphics2D g2d) {
     if (tokens.size() == 0){
       height = 1;
       width = 1;
@@ -78,6 +79,8 @@ public class TokenLayout {
           maxX = (int) layout.getBounds().getMaxX();
         textLayouts.put(new Pair<TokenVertex, Integer>(token, index++),layout);
       }
+      Integer requiredWidth = tokenWidths.get(token);
+      if (requiredWidth != null && maxX < requiredWidth) maxX = requiredWidth;
       bounds.put(token, new Rectangle(lastx,baseline,maxX, lasty - baseline));
       lastx+= maxX + margin;
       if (lasty - rowHeight > height) height = lasty - rowHeight;
