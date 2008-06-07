@@ -64,6 +64,10 @@ public class CoNLLFormat implements CorpusFormat {
     return accessory;
   }
 
+  public void setProgressBar(JProgressBar bar) {
+
+  }
+
   public java.util.List<NLPInstance> load(File file, int from, int to) throws IOException {
     CoNLLProcessor processor = (CoNLLProcessor) year.getSelectedItem();
     java.util.List<NLPInstance> result = loadCoNLL08(file, from, to, processor, false);

@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class TokenVertex {
+public class TokenVertex implements Comparable<TokenVertex> {
   private int index;
   private HashMap<TokenProperty,String> tokenProperties = new HashMap<TokenProperty, String>();
 
@@ -92,5 +92,13 @@ public class TokenVertex {
 
   public void merge(TokenVertex tokenVertex) {
     tokenProperties.putAll(tokenVertex.tokenProperties);
+  }
+
+  public int compareTo(TokenVertex o) {
+    return index - o.getIndex();
+  }
+
+  public String toString() {
+    return index + ":" + tokenProperties;
   }
 }

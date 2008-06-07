@@ -13,10 +13,12 @@ import java.io.IOException;
 
 public interface CorpusFormat {
 
-    String getName();
+  String getName();
 
-    JComponent getAccessory();
+  JComponent getAccessory();
 
-    List<NLPInstance> load(File file, int from, int to) throws IOException;
+  void setProgressBar(JProgressBar bar);
+
+  List<NLPInstance> load(File file, int from, int to) throws IOException;
 
 }
