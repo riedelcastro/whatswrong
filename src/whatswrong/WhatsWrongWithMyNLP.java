@@ -14,7 +14,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.0.4";
+  public final static String VERSION = "0.1.0";
   private final static Properties properties = new Properties();
 
   public static Properties getProperties(){
@@ -143,8 +143,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     final CorpusLoader gold = new CorpusLoader("Select Gold");
     final CorpusLoader guess = new CorpusLoader("Select Guess");
-    gold.setDirectory(properties.getProperty("whatswrong.golddir"));
-    guess.setDirectory(properties.getProperty("whatswrong.guessdir"));
+    gold.loadProperties(properties);
+    guess.loadProperties(properties);
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -192,7 +192,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);    
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -263,9 +263,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       public void run() {
-        properties.setProperty("whatswrong.golddir", gold.getDirectory());
-        properties.setProperty("whatswrong.guessdir", guess.getDirectory());
-
+        gold.saveProperties(properties);
+        guess.saveProperties(properties);
         try {
           properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
             "Whats wrong with you NLP properties");

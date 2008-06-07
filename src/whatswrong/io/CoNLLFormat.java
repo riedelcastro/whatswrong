@@ -22,6 +22,8 @@ public class CoNLLFormat implements CorpusFormat {
   private SortedMap<String, CoNLLProcessor> processors = new TreeMap<String, CoNLLProcessor>();
   private JComboBox year;
   private JCheckBox open;
+  private Monitor monitor;
+
 
   public CoNLLFormat() {
     addProcessor("2008", new CoNLL2008());
@@ -64,9 +66,21 @@ public class CoNLLFormat implements CorpusFormat {
     return accessory;
   }
 
-  public void setProgressBar(JProgressBar bar) {
+  public void setMonitor(Monitor monitor) {
+    this.monitor = monitor;
+  }
+
+  public void loadProperties(Properties properties, String prefix) {
+    String yearString = properties.getProperty(prefix + ".conll.year", "2008");
+    year.setSelectedItem(processors.get(yearString));
+   }
+
+
+  public void saveProperties(Properties properties, String prefix) {
+    properties.setProperty(prefix + ".conll.year", year.getSelectedItem().toString());
 
   }
+
 
   public java.util.List<NLPInstance> load(File file, int from, int to) throws IOException {
     CoNLLProcessor processor = (CoNLLProcessor) year.getSelectedItem();
@@ -91,6 +105,7 @@ public class CoNLLFormat implements CorpusFormat {
     for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
       line = line.trim();
       if (line.equals("")) {
+        monitor.progressed(instanceNr);
         if (instanceNr++ < from) continue;
         NLPInstance instance = open ? processor.createOpen(rows) : processor.create(rows);
         corpus.add(instance);

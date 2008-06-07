@@ -33,11 +33,15 @@ public class CorpusLoader extends JPanel {
   private JFileChooser fileChooser;
   private JProgressBar progressBar;
   private JDialog progressDialog;
+  private String id;
+  private LoadAccessory accessory;
 
 
   public static interface Listener {
     void corpusAdded(List<NLPInstance> corpus, CorpusLoader src);
+
     void corpusRemoved(List<NLPInstance> corpus, CorpusLoader src);
+
     void corpusSelected(List<NLPInstance> corpus, CorpusLoader src);
   }
 
@@ -47,23 +51,21 @@ public class CorpusLoader extends JPanel {
 
   private void fireAdded(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusAdded(corpus,this);
+      listener.corpusAdded(corpus, this);
     }
   }
 
   private void fireRemoved(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusRemoved(corpus,this);
+      listener.corpusRemoved(corpus, this);
     }
   }
 
   private void fireSelected(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusSelected(corpus,this);
+      listener.corpusSelected(corpus, this);
     }
   }
-
-
 
 
   public List<NLPInstance> getSelected() {
@@ -72,7 +74,7 @@ public class CorpusLoader extends JPanel {
 
 
   private class LoadAccessory extends JPanel {
-    private JComboBox filetypeComboBox;
+    JComboBox filetypeComboBox;
     private JSpinner start;
     private JSpinner end;
     private JComponent accessory;
@@ -87,7 +89,7 @@ public class CorpusLoader extends JPanel {
       filetypeComboBox = new JComboBox(new Vector<Object>(formats.values()));
       filetypeComboBox.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          ((CardLayout)accessoryCards.getLayout()).show(accessoryCards,filetypeComboBox.getSelectedItem().toString());
+          ((CardLayout) accessoryCards.getLayout()).show(accessoryCards, filetypeComboBox.getSelectedItem().toString());
         }
       });
       start = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
@@ -98,8 +100,8 @@ public class CorpusLoader extends JPanel {
 
       accessoryCards = new JPanel(new CardLayout());
       for (CorpusFormat f : formats.values())
-        accessoryCards.add(f.getAccessory(),f.toString());
-      ((CardLayout)accessoryCards.getLayout()).show(accessoryCards,filetypeComboBox.getSelectedItem().toString());
+        accessoryCards.add(f.getAccessory(), f.toString());
+      ((CardLayout) accessoryCards.getLayout()).show(accessoryCards, filetypeComboBox.getSelectedItem().toString());
 
       add(filetypeComboBox, new SimpleGridBagConstraints(y++, false));
       add(new JSeparator(), new SimpleGridBagConstraints(0, y++, 2, 1));
@@ -129,31 +131,43 @@ public class CorpusLoader extends JPanel {
     formats.put(format.getName(), format);
   }
 
-  public void setDirectory(String dir){
-    fileChooser.setCurrentDirectory(new File(dir));  
+  public void setDirectory(String dir) {
+    fileChooser.setCurrentDirectory(new File(dir));
   }
 
-  public String getDirectory(){
+  public String getDirectory() {
     return fileChooser.getCurrentDirectory().getPath();
   }
 
+  public void loadProperties(Properties properties){
+    setDirectory(properties.getProperty(property("dir"),""));
+    String formatString = properties.getProperty(property("format"), "CoNLL");
+    accessory.filetypeComboBox.setSelectedItem(formats.get(formatString));
+    for (CorpusFormat format : formats.values()) format.loadProperties(properties, id);
+  }
+
+  private String property(String name){
+    return id + "." + name;
+  }
+
+  public void saveProperties(Properties properties){
+    properties.setProperty(property("dir"),getDirectory());
+    properties.setProperty(property("format"),accessory.filetypeComboBox.getSelectedItem().toString());
+    for (CorpusFormat format : formats.values()) format.saveProperties(properties, id);
+  }
+
   public CorpusLoader(String title) {
+    this.id = title.replaceAll(" ","_").toLowerCase();
     setLayout(new GridBagLayout());
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
     //setBorder(new TitledBorder(new EtchedBorder(), title));
     GridBagConstraints c = new GridBagConstraints();
 
-    progressBar = new JProgressBar(0,1000);
-    progressDialog = new JDialog();
-    progressDialog.getContentPane().add(progressBar);
-    progressDialog.pack();
 
     conllProcessors.put(CoNLL2008.name, new CoNLL2008());
     CoNLLFormat coNLLFormat = new CoNLLFormat();
-    coNLLFormat.setProgressBar(progressBar);
     TheBeastFormat theBeastFormat = new TheBeastFormat();
-    theBeastFormat.setProgressBar(progressBar);
 
     addFormat(coNLLFormat);
     addFormat(theBeastFormat);
@@ -194,7 +208,7 @@ public class CorpusLoader extends JPanel {
     //add files
     fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Load Corpus");
-    final LoadAccessory accessory = new LoadAccessory();
+    accessory = new LoadAccessory();
     fileChooser.setAccessory(accessory);
     c.gridwidth = 1;
     c.gridx = 0;
@@ -206,22 +220,33 @@ public class CorpusLoader extends JPanel {
       public void actionPerformed(ActionEvent e) {
         int returnVal = fileChooser.showOpenDialog(CorpusLoader.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-          try {
-            progressBar.setMinimum(0);
-            progressBar.setMaximum(accessory.getEnd());
-            //progressDialog.setVisible(true);
-            List<NLPInstance> corpus = accessory.getFormat().load(fileChooser.getSelectedFile(),
-              accessory.getStart(), accessory.getEnd());
-            //progressDialog.setVisible(false);
-            corpora.add(corpus);
-            fileNames.addElement(fileChooser.getSelectedFile().getName());
-            files.setSelectedIndex(fileNames.size() - 1);
-            fireAdded(corpus);
-          } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-          } catch (IOException e1) {
-            e1.printStackTrace();
-          }
+          final ProgressMonitor monitor = new ProgressMonitor(CorpusLoader.this,
+            "Loading data", null, 0, accessory.getEnd()-1);
+          new Thread(new Runnable() {
+            public void run() {
+              try {
+                monitor.setProgress(0);
+                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                CorpusFormat format = accessory.getFormat();
+                format.setMonitor(new CorpusFormat.Monitor() {
+                  public void progressed(int index) {
+                    monitor.setProgress(index);
+                  }
+                });
+                List<NLPInstance> corpus = format.load(fileChooser.getSelectedFile(),
+                  accessory.getStart(), accessory.getEnd());
+                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                corpora.add(corpus);
+                fileNames.addElement(fileChooser.getSelectedFile().getName());
+                files.setSelectedIndex(fileNames.size() - 1);
+                fireAdded(corpus);
+              } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+              } catch (IOException e1) {
+                e1.printStackTrace();
+              }
+            }
+          }).start();
         }
       }
     });

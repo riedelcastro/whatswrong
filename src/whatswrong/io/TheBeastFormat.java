@@ -20,7 +20,7 @@ public class TheBeastFormat implements CorpusFormat {
   private JTextField deps;
   private JTextField tokens;
   private JTextField spans;
-  private JProgressBar bar;
+  private Monitor monitor;
 
   public TheBeastFormat() {
     accessory = new JPanel(new GridBagLayout());
@@ -42,6 +42,23 @@ public class TheBeastFormat implements CorpusFormat {
     return string.substring(1,string.length()-1);
   }
 
+
+  public void setMonitor(Monitor monitor) {
+     this.monitor = monitor;
+   }
+
+  public void loadProperties(Properties properties, String prefix) {
+    deps.setText(properties.getProperty(prefix + ".thebeast.deps",""));
+    spans.setText(properties.getProperty(prefix + ".thebeast.spans",""));
+    tokens.setText(properties.getProperty(prefix + ".thebeast.tokens",""));
+  }
+
+  public void saveProperties(Properties properties, String prefix) {
+    properties.setProperty(prefix + ".thebeast.deps",deps.getText());
+    properties.setProperty(prefix + ".thebeast.spans",spans.getText());
+    properties.setProperty(prefix + ".thebeast.tokens",tokens.getText());
+  }
+
   public String getName() {
     return "thebeast";
   }
@@ -54,9 +71,6 @@ public class TheBeastFormat implements CorpusFormat {
     return accessory;
   }
 
-  public void setProgressBar(JProgressBar bar) {
-    this.bar = bar;
-  }
 
   private Map<String, String> extractPredicatesFromString(String text) {
     HashMap<String, String> preds = new HashMap<String, String>();
@@ -94,7 +108,7 @@ public class TheBeastFormat implements CorpusFormat {
 
     for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
       if (line.startsWith(">>")) {
-        bar.setValue(instanceNr);
+        monitor.progressed(instanceNr);
         if (instanceNr++ > from && instanceNr > 1) {
           for (String pred : tokenPreds.values()) addTokens(rows.get(pred),pred,instance);
           instance.consistify();
