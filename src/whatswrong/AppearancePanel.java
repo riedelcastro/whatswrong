@@ -107,6 +107,18 @@ public class AppearancePanel extends JPanel {
     });
     add(anti,c);
 
+    c.fill = GridBagConstraints.NONE;
+    c.gridwidth = 1;
+    c.gridx = 1;
+    c.anchor = GridBagConstraints.WEST;
+    final JCheckBox lines = new JCheckBox("Separation Lines", nlpCanvas.getSpanLayout().isSeparationLines());
+    lines.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        nlpCanvas.getSpanLayout().setSeparationLines(lines.isSelected());
+        nlpCanvas.updateNLPGraphics();
+      }
+    });
+    add(lines,c);
 
     setMinimumSize(new Dimension(0,150));
     
