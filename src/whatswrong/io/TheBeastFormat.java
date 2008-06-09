@@ -159,7 +159,14 @@ public class TheBeastFormat implements CorpusFormat {
 
   private void addSpans(List<List<String>> rows, String type, NLPInstance instance){
     for (List<String> row : rows)
-      instance.addSpan(Integer.parseInt(row.get(0)),Integer.parseInt(row.get(1)),unquote(row.get(2)),type);
+      if (row.size() == 3)
+        instance.addSpan(Integer.parseInt(row.get(0)),Integer.parseInt(row.get(1)),unquote(row.get(2)),type);
+      else if (row.size() == 2){
+        int token = Integer.parseInt(row.get(0));
+        instance.addSpan(token,token,unquote(row.get(1)),type);        
+      }
   }
+
+
 
 }
