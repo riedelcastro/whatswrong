@@ -62,14 +62,15 @@ public class NLPCanvas extends JPanel {
     addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         Point point = e.getPoint();
-        point.translate(0, -(getHeight() - tokenLayout.getHeight() - spanLayout.getHeight()));
-        Edge edge = spanLayout.getEdgeAt(point, 5);
+        point.translate(0, -(getHeight() - tokenLayout.getHeight() -
+          dependencyLayout.getHeight() - spanLayout.getHeight()));
+        Edge edge = dependencyLayout.getEdgeAt(point, 5);
         //System.out.println("edge = " + edge);
         if (edge != null) {
           if (e.isMetaDown())
-            spanLayout.toggleSelection(edge);
+            dependencyLayout.toggleSelection(edge);
           else
-            spanLayout.select(edge);
+            dependencyLayout.select(edge);
 
           updateNLPGraphics();
         }

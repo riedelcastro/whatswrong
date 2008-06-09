@@ -206,7 +206,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(fileFrame);
 
     //filter frame
-    ControllerDialog filterWindow = new ControllerDialog("Dependency Filters", false);
+    ControllerDialog filterWindow = new ControllerDialog("Edge Filters", false);
     filterWindow.getContentPane().setLayout(new BoxLayout(filterWindow.getContentPane(), BoxLayout.Y_AXIS));
     filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas));
     filterWindow.getContentPane().add(new JSeparator());
