@@ -262,7 +262,7 @@ public class DependencyLayout implements EdgeLayout {
       FontRenderContext frc = g2d.getFontRenderContext();
       TextLayout layout = new TextLayout(edge.getLabel(), font, frc);
       int labelx = (int) (Math.min(p1.x, p3.x) + Math.abs(p1.x - p3.x) / 2 - layout.getBounds().getWidth() / 2);
-      int labely = (int) (height + layout.getAscent()) ;
+      int labely = (int) (height + layout.getAscent())  + 1;
       layout.draw(g2d, labelx, labely);
       g2d.setColor(old);
       //Area area = new Area();
