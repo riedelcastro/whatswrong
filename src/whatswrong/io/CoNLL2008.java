@@ -35,17 +35,14 @@ public class CoNLL2008 implements CoNLLProcessor {
         addProperty("PoS", row.get(3)).
         addProperty("Split Form", row.get(5)).
         addProperty("Split Lemma", row.get(6)).
-        addProperty("Split PoS", row.get(7));
-      if (!row.get(10).equals("_")){
-        int index = Integer.parseInt(row.get(0));
-        predicates.add(index);
-        instance.addSpan(index,index,row.get(10),"sense");
-      }
+        addProperty("Split PoS", row.get(7)).
+        addProperty("Predicate", row.get(10));
+      if (!row.get(10).equals("_"))
+        predicates.add(Integer.parseInt(row.get(0)));
     }
     for (List<String> row : rows) {
       //dependency
-      if (!row.get(8).equals("_"))
-        instance.addEdge(Integer.parseInt(row.get(8)), Integer.parseInt(row.get(0)), row.get(9), "dep");
+      instance.addDependency(Integer.parseInt(row.get(8)), Integer.parseInt(row.get(0)), row.get(9), "dep");
       //role
       for (int col = 11; col < row.size(); ++col) {
         String label = row.get(col);
@@ -53,7 +50,7 @@ public class CoNLL2008 implements CoNLLProcessor {
           Integer pred = predicates.get(col - 11);
           int arg = Integer.parseInt(row.get(0));
           //if (arg != pred)
-          instance.addEdge(pred, arg, label, "role");
+          instance.addDependency(pred, arg, label, "role");
         }
       }
     }
@@ -72,7 +69,7 @@ public class CoNLL2008 implements CoNLLProcessor {
     int index = 1;
     for (List<String> row : rows) {
       //dependency
-      instance.addEdge(Integer.parseInt(row.get(3)), index++, row.get(4), "malt");
+      instance.addDependency(Integer.parseInt(row.get(3)), index++, row.get(4), "malt");
     }
     return instance;
   }

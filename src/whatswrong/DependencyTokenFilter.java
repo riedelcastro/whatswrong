@@ -5,24 +5,15 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyTokenFilter extends DependencyFilter {
+public class DependencyTokenFilter implements DependencyFilter {
 
   private HashSet<String> allowedProperties = new HashSet<String>();
   private boolean usePaths = false;
-  private boolean collaps = false;
-  private boolean wholeWords = false;
 
   public DependencyTokenFilter(String... allowedProperties) {
     for (String type : allowedProperties) this.allowedProperties.add(type);
   }
 
-  public boolean isCollaps() {
-    return collaps;
-  }
-
-  public void setCollaps(boolean collaps) {
-    this.collaps = collaps;
-  }
 
   public boolean isUsePaths() {
     return usePaths;
@@ -48,7 +39,7 @@ public class DependencyTokenFilter extends DependencyFilter {
     allowedProperties.clear();
   }
 
-  private static class Path extends HashSet<Edge> {
+  private static class Path extends HashSet<DependencyEdge> {
 
   }
 
@@ -80,12 +71,12 @@ public class DependencyTokenFilter extends DependencyFilter {
 
   }
 
-  private Paths calculatePaths(Collection<Edge> edges) {
+  private Paths calculatePaths(Collection<DependencyEdge> edges) {
     List<Paths> pathsPerLength = new ArrayList<Paths>();
 
     Paths paths = new Paths();
     //initialize
-    for (Edge edge : edges) {
+    for (DependencyEdge edge : edges) {
       Path path = new Path();
       path.add(edge);
       paths.addPath(edge.getFrom(), edge.getTo(), path);
@@ -103,7 +94,7 @@ public class DependencyTokenFilter extends DependencyFilter {
             for (Path path1 : previous.getPaths(from, over))
               for (Path path2 : first.getPaths(over, to)) {
                 if (!path1.containsAll(path2) &&
-                  path1.iterator().next().getTypePrefix().equals(path2.iterator().next().getTypePrefix())) {
+                        path1.iterator().next().getTypePrefix().equals(path2.iterator().next().getTypePrefix())) {
                   Path path = new Path();
                   path.addAll(path1);
                   path.addAll(path2);
@@ -123,34 +114,34 @@ public class DependencyTokenFilter extends DependencyFilter {
     return result;
   }
 
-
-  public boolean isWholeWords() {
-    return wholeWords;
-  }
-
-  public void setWholeWords(boolean wholeWords) {
-    this.wholeWords = wholeWords;
-  }
-
-  public Collection<Edge> filterEdges(Collection<Edge> original) {
+  public Collection<DependencyEdge> filter(Collection<DependencyEdge> original) {
     if (allowedProperties.size() == 0) return original;
     if (usePaths) {
       Paths paths = calculatePaths(original);
-      HashSet<Edge> result = new HashSet<Edge>();
+      HashSet<DependencyEdge> result = new HashSet<DependencyEdge>();
       for (TokenVertex from : paths.keySet())
-        if (from.propertiesContain(allowedProperties, wholeWords))
+        if (from.propertiesContain(allowedProperties))
           for (TokenVertex to : paths.getTos(from))
-            if (to.propertiesContain(allowedProperties, wholeWords))
+            if (to.propertiesContain(allowedProperties))
               for (Path path : paths.getPaths(from, to))
                 result.addAll(path);
       return result;
     } else {
-      ArrayList<Edge> result = new ArrayList<Edge>(original.size());
-      for (Edge edge : original) {
-        if (edge.getFrom().propertiesContain(allowedProperties, wholeWords) ||
-          edge.getTo().propertiesContain(allowedProperties, wholeWords))
-          result.add(edge);
-      }
+      ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
+      main:
+      for (DependencyEdge edge : original)
+        for (String allowed : allowedProperties) {
+          for (String property : edge.getFrom().getProperties())
+            if (property.contains(allowed)) {
+              result.add(edge);
+              continue main;
+            }
+          for (String property : edge.getTo().getProperties())
+            if (property.contains(allowed)) {
+              result.add(edge);
+              continue main;
+            }
+        }
       return result;
     }
 
@@ -159,39 +150,4 @@ public class DependencyTokenFilter extends DependencyFilter {
   public boolean allows(String type) {
     return allowedProperties.contains(type);
   }
-
-  public NLPInstance filter(NLPInstance original) {
-    Collection<Edge> edges = filterEdges(original.getEdges());
-    if (!collaps)
-      return new NLPInstance(original.getTokens(), edges);
-    else {
-      HashSet<TokenVertex> tokens = new HashSet<TokenVertex>();
-      for (Edge e : edges) {
-        tokens.add(e.getFrom());
-        tokens.add(e.getTo());
-      }
-      ArrayList<TokenVertex> sorted = new ArrayList<TokenVertex>(tokens);
-      Collections.sort(sorted, new Comparator<TokenVertex>() {
-        public int compare(TokenVertex tokenVertex, TokenVertex tokenVertex1) {
-          return tokenVertex.getIndex() - tokenVertex1.getIndex();
-        }
-      });
-      ArrayList<TokenVertex> updatedTokens = new ArrayList<TokenVertex>();
-      HashMap<TokenVertex, TokenVertex> old2new = new HashMap<TokenVertex, TokenVertex>();
-      for (TokenVertex t : sorted) {
-        TokenVertex newToken = new TokenVertex(updatedTokens.size());
-        newToken.merge(original.getTokens().get(t.getIndex()));
-        old2new.put(t, newToken);
-        updatedTokens.add(newToken);
-      }
-
-      HashSet<Edge> updatedEdges = new HashSet<Edge>();
-      for (Edge e : edges) {
-        updatedEdges.add(new Edge(old2new.get(e.getFrom()), old2new.get(e.getTo()), e.getLabel(), e.getType(),
-          e.getRenderType()));
-      }
-      return new NLPInstance(updatedTokens, updatedEdges);
-    }
-  }
-
 }

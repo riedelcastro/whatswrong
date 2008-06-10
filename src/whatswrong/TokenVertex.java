@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class TokenVertex implements Comparable<TokenVertex> {
+public class TokenVertex {
   private int index;
   private HashMap<TokenProperty,String> tokenProperties = new HashMap<TokenProperty, String>();
 
@@ -69,11 +69,12 @@ public class TokenVertex implements Comparable<TokenVertex> {
     return false;
   }
 
-  public boolean propertiesContain(Collection<String> substrings, boolean wholeWord){
+  public boolean propertiesContain(Collection<String> substrings){
     for (String property : tokenProperties.values())
       for (String substring: substrings)
-      if (wholeWord ? property.equals(substring) : property.contains(substring)) return true;
+      if (property.contains(substring)) return true;
     return false;
+
   }
 
   public boolean equals(Object o) {
@@ -92,13 +93,5 @@ public class TokenVertex implements Comparable<TokenVertex> {
 
   public void merge(TokenVertex tokenVertex) {
     tokenProperties.putAll(tokenVertex.tokenProperties);
-  }
-
-  public int compareTo(TokenVertex o) {
-    return index - o.getIndex();
-  }
-
-  public String toString() {
-    return index + ":" + tokenProperties;
   }
 }

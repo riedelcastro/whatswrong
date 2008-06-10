@@ -4,8 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import static java.awt.GridBagConstraints.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.Properties;
+import java.io.IOException;
 
 /**
  * @author Sebastian Riedel
@@ -14,29 +13,10 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.1.0";
-  private final static Properties properties = new Properties();
-
-  public static Properties getProperties(){
-    return properties;
-  }
 
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
 
-    try {
-      File file = new File(System.getProperty("user.home") + "/.whatswrong");
-      if (file.exists()) {
-        properties.load(new FileInputStream(file));
-      } else {
-        properties.setProperty("whatswrong.golddir",System.getProperty("user.dir"));
-        properties.setProperty("whatswrong.guessdir",System.getProperty("user.dir"));        
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   public WhatsWrongWithMyNLP() {
@@ -106,7 +86,6 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     public ControllerDialog(Frame owner, String title, boolean resizable) throws HeadlessException {
       super(owner, title, false);
-      pack();
       setResizable(resizable);
     }
 
@@ -121,7 +100,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
       // Set System L&F
 //      UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
       UIManager.setLookAndFeel(system ?
-        UIManager.getSystemLookAndFeelClassName() :
+        UIManager.getSystemLookAndFeelClassName():
         UIManager.getCrossPlatformLookAndFeelClassName());
     } catch (Exception e) {
       e.printStackTrace();
@@ -141,10 +120,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
     int canvasY = 50;
     int canvasBottom = canvasHeight + canvasY;
 
-    final CorpusLoader gold = new CorpusLoader("Select Gold");
-    final CorpusLoader guess = new CorpusLoader("Select Guess");
-    gold.loadProperties(properties);
-    guess.loadProperties(properties);
+    CorpusLoader gold = new CorpusLoader("Select Gold");
+    CorpusLoader guess = new CorpusLoader("Select Guess");
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -192,7 +169,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);    
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection", false);
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -235,7 +212,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     window.add(new WindowMenuItem(appearance));
 
     //navigator
-    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
+    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", false);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
     CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess);
     navigatorWindow.getContentPane().add(navigator);
@@ -247,7 +224,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     //statusbar
     JPanel statusBar = new JPanel();
-    JLabel status = new JLabel("What's Wrong With My NLP version " + VERSION);
+    JLabel status = new JLabel("What's Wrong With My NLP version 0.0.2");
     status.setForeground(Color.LIGHT_GRAY);
     statusBar.setLayout(new GridBagLayout());
     statusBar.setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 10));
@@ -261,20 +238,6 @@ public class WhatsWrongWithMyNLP extends JPanel {
     canvasFrame.requestFocus();
     //canvasFrame.requestFocusInWindow();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      public void run() {
-        gold.saveProperties(properties);
-        guess.saveProperties(properties);
-        try {
-          properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
-            "Whats wrong with you NLP properties");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }));
-
-    
   }
 
 }
