@@ -14,7 +14,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.1.0";
+  public final static String VERSION = "0.0.4";
   private final static Properties properties = new Properties();
 
   public static Properties getProperties(){
@@ -106,7 +106,6 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     public ControllerDialog(Frame owner, String title, boolean resizable) throws HeadlessException {
       super(owner, title, false);
-      pack();
       setResizable(resizable);
     }
 
@@ -143,8 +142,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     final CorpusLoader gold = new CorpusLoader("Select Gold");
     final CorpusLoader guess = new CorpusLoader("Select Guess");
-    gold.loadProperties(properties);
-    guess.loadProperties(properties);
+    gold.setDirectory(properties.getProperty("whatswrong.golddir"));
+    guess.setDirectory(properties.getProperty("whatswrong.guessdir"));
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -192,7 +191,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);    
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection", false);
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -235,7 +234,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     window.add(new WindowMenuItem(appearance));
 
     //navigator
-    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
+    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", false);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
     CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess);
     navigatorWindow.getContentPane().add(navigator);
@@ -263,8 +262,9 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       public void run() {
-        gold.saveProperties(properties);
-        guess.saveProperties(properties);
+        properties.setProperty("whatswrong.golddir", gold.getDirectory());
+        properties.setProperty("whatswrong.guessdir", guess.getDirectory());
+
         try {
           properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
             "Whats wrong with you NLP properties");

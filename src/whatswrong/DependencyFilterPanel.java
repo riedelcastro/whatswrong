@@ -109,10 +109,10 @@ public class DependencyFilterPanel extends ControllerPanel {
     //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
     onlySelected.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
-          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
+        if (!nlpCanvas.getDependencyLayout().getSelected().isEmpty())
+          nlpCanvas.getDependencyLayout().onlyShow(nlpCanvas.getDependencyLayout().getSelected());
         else
-          nlpCanvas.getSpanLayout().showAll();
+          nlpCanvas.getDependencyLayout().showAll();
         nlpCanvas.updateNLPGraphics();
       }
     });

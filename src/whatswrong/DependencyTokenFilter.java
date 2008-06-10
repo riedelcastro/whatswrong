@@ -48,7 +48,7 @@ public class DependencyTokenFilter extends DependencyFilter {
     allowedProperties.clear();
   }
 
-  private static class Path extends HashSet<Edge> {
+  private static class Path extends HashSet<DependencyEdge> {
 
   }
 
@@ -80,12 +80,12 @@ public class DependencyTokenFilter extends DependencyFilter {
 
   }
 
-  private Paths calculatePaths(Collection<Edge> edges) {
+  private Paths calculatePaths(Collection<DependencyEdge> edges) {
     List<Paths> pathsPerLength = new ArrayList<Paths>();
 
     Paths paths = new Paths();
     //initialize
-    for (Edge edge : edges) {
+    for (DependencyEdge edge : edges) {
       Path path = new Path();
       path.add(edge);
       paths.addPath(edge.getFrom(), edge.getTo(), path);
@@ -132,11 +132,11 @@ public class DependencyTokenFilter extends DependencyFilter {
     this.wholeWords = wholeWords;
   }
 
-  public Collection<Edge> filterEdges(Collection<Edge> original) {
+  public Collection<DependencyEdge> filterEdges(Collection<DependencyEdge> original) {
     if (allowedProperties.size() == 0) return original;
     if (usePaths) {
       Paths paths = calculatePaths(original);
-      HashSet<Edge> result = new HashSet<Edge>();
+      HashSet<DependencyEdge> result = new HashSet<DependencyEdge>();
       for (TokenVertex from : paths.keySet())
         if (from.propertiesContain(allowedProperties, wholeWords))
           for (TokenVertex to : paths.getTos(from))
@@ -145,8 +145,8 @@ public class DependencyTokenFilter extends DependencyFilter {
                 result.addAll(path);
       return result;
     } else {
-      ArrayList<Edge> result = new ArrayList<Edge>(original.size());
-      for (Edge edge : original) {
+      ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
+      for (DependencyEdge edge : original) {
         if (edge.getFrom().propertiesContain(allowedProperties, wholeWords) ||
           edge.getTo().propertiesContain(allowedProperties, wholeWords))
           result.add(edge);
@@ -161,12 +161,12 @@ public class DependencyTokenFilter extends DependencyFilter {
   }
 
   public NLPInstance filter(NLPInstance original) {
-    Collection<Edge> edges = filterEdges(original.getEdges());
+    Collection<DependencyEdge> edges = filterEdges(original.getDependencies());
     if (!collaps)
       return new NLPInstance(original.getTokens(), edges);
     else {
       HashSet<TokenVertex> tokens = new HashSet<TokenVertex>();
-      for (Edge e : edges) {
+      for (DependencyEdge e : edges) {
         tokens.add(e.getFrom());
         tokens.add(e.getTo());
       }
@@ -185,10 +185,9 @@ public class DependencyTokenFilter extends DependencyFilter {
         updatedTokens.add(newToken);
       }
 
-      HashSet<Edge> updatedEdges = new HashSet<Edge>();
-      for (Edge e : edges) {
-        updatedEdges.add(new Edge(old2new.get(e.getFrom()), old2new.get(e.getTo()), e.getLabel(), e.getType(),
-          e.getRenderType()));
+      HashSet<DependencyEdge> updatedEdges = new HashSet<DependencyEdge>();
+      for (DependencyEdge e : edges) {
+        updatedEdges.add(new DependencyEdge(old2new.get(e.getFrom()), old2new.get(e.getTo()), e.getLabel(), e.getType()));
       }
       return new NLPInstance(updatedTokens, updatedEdges);
     }

@@ -1,19 +1,21 @@
 package whatswrong;
 
-import whatswrong.io.*;
+import whatswrong.io.CorpusFormat;
+import whatswrong.io.CoNLLProcessor;
+import whatswrong.io.CoNLL2008;
+import whatswrong.io.CoNLLFormat;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -31,17 +33,11 @@ public class CorpusLoader extends JPanel {
   private ArrayList<Listener> changeListeners = new ArrayList<Listener>();
   private JButton remove;
   private JFileChooser fileChooser;
-  private JProgressBar progressBar;
-  private JDialog progressDialog;
-  private String id;
-  private LoadAccessory accessory;
 
 
   public static interface Listener {
     void corpusAdded(List<NLPInstance> corpus, CorpusLoader src);
-
     void corpusRemoved(List<NLPInstance> corpus, CorpusLoader src);
-
     void corpusSelected(List<NLPInstance> corpus, CorpusLoader src);
   }
 
@@ -51,21 +47,23 @@ public class CorpusLoader extends JPanel {
 
   private void fireAdded(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusAdded(corpus, this);
+      listener.corpusAdded(corpus,this);
     }
   }
 
   private void fireRemoved(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusRemoved(corpus, this);
+      listener.corpusRemoved(corpus,this);
     }
   }
 
   private void fireSelected(List<NLPInstance> corpus) {
     for (Listener listener : changeListeners) {
-      listener.corpusSelected(corpus, this);
+      listener.corpusSelected(corpus,this);
     }
   }
+
+
 
 
   public List<NLPInstance> getSelected() {
@@ -74,11 +72,10 @@ public class CorpusLoader extends JPanel {
 
 
   private class LoadAccessory extends JPanel {
-    JComboBox filetypeComboBox;
+    private JComboBox filetypeComboBox;
     private JSpinner start;
     private JSpinner end;
     private JComponent accessory;
-    private JPanel accessoryCards;
 
     public LoadAccessory() {
       setLayout(new GridBagLayout());
@@ -89,7 +86,10 @@ public class CorpusLoader extends JPanel {
       filetypeComboBox = new JComboBox(new Vector<Object>(formats.values()));
       filetypeComboBox.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          ((CardLayout) accessoryCards.getLayout()).show(accessoryCards, filetypeComboBox.getSelectedItem().toString());
+          remove(accessory);
+          accessory = ((CorpusFormat) filetypeComboBox.getSelectedItem()).getAccessory();
+          add(accessory, new SimpleGridBagConstraints(0, 2, 2, 1));
+          repaint();
         }
       });
       start = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
@@ -98,14 +98,9 @@ public class CorpusLoader extends JPanel {
       end.setPreferredSize(new Dimension(100, (int) start.getPreferredSize().getHeight()));
       accessory = ((CorpusFormat) filetypeComboBox.getSelectedItem()).getAccessory();
 
-      accessoryCards = new JPanel(new CardLayout());
-      for (CorpusFormat f : formats.values())
-        accessoryCards.add(f.getAccessory(), f.toString());
-      ((CardLayout) accessoryCards.getLayout()).show(accessoryCards, filetypeComboBox.getSelectedItem().toString());
-
       add(filetypeComboBox, new SimpleGridBagConstraints(y++, false));
       add(new JSeparator(), new SimpleGridBagConstraints(0, y++, 2, 1));
-      add(accessoryCards, new SimpleGridBagConstraints(0, y++, 2, 1));
+      add(accessory, new SimpleGridBagConstraints(0, y++, 2, 1));
       add(new JSeparator(), new SimpleGridBagConstraints(0, y++, 2, 1));
       add(new JLabel("From:"), new SimpleGridBagConstraints(y, true));
       add(start, new SimpleGridBagConstraints(y++, false));
@@ -131,46 +126,23 @@ public class CorpusLoader extends JPanel {
     formats.put(format.getName(), format);
   }
 
-  public void setDirectory(String dir) {
-    fileChooser.setCurrentDirectory(new File(dir));
+  public void setDirectory(String dir){
+    fileChooser.setCurrentDirectory(new File(dir));  
   }
 
-  public String getDirectory() {
+  public String getDirectory(){
     return fileChooser.getCurrentDirectory().getPath();
   }
 
-  public void loadProperties(Properties properties){
-    setDirectory(properties.getProperty(property("dir"),""));
-    String formatString = properties.getProperty(property("format"), "CoNLL");
-    accessory.filetypeComboBox.setSelectedItem(formats.get(formatString));
-    for (CorpusFormat format : formats.values()) format.loadProperties(properties, id);
-  }
-
-  private String property(String name){
-    return id + "." + name;
-  }
-
-  public void saveProperties(Properties properties){
-    properties.setProperty(property("dir"),getDirectory());
-    properties.setProperty(property("format"),accessory.filetypeComboBox.getSelectedItem().toString());
-    for (CorpusFormat format : formats.values()) format.saveProperties(properties, id);
-  }
-
   public CorpusLoader(String title) {
-    this.id = title.replaceAll(" ","_").toLowerCase();
     setLayout(new GridBagLayout());
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
     //setBorder(new TitledBorder(new EtchedBorder(), title));
     GridBagConstraints c = new GridBagConstraints();
 
-
     conllProcessors.put(CoNLL2008.name, new CoNLL2008());
-    CoNLLFormat coNLLFormat = new CoNLLFormat();
-    TheBeastFormat theBeastFormat = new TheBeastFormat();
-
-    addFormat(coNLLFormat);
-    addFormat(theBeastFormat);
+    addFormat(new CoNLLFormat());
 
     corpora = new ArrayList<List<NLPInstance>>();
     c.gridx = 0;
@@ -201,14 +173,14 @@ public class CorpusLoader extends JPanel {
     });
     files.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane pane = new JScrollPane(files);
-    pane.setPreferredSize(new Dimension(150, 100));
-    //pane.setMinimumSize(new Dimension(150, 50));
+    pane.setPreferredSize(new Dimension(150, 50));
+    pane.setMinimumSize(new Dimension(150, 50));
     add(pane, c);
 
     //add files
     fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Load Corpus");
-    accessory = new LoadAccessory();
+    final LoadAccessory accessory = new LoadAccessory();
     fileChooser.setAccessory(accessory);
     c.gridwidth = 1;
     c.gridx = 0;
@@ -220,33 +192,18 @@ public class CorpusLoader extends JPanel {
       public void actionPerformed(ActionEvent e) {
         int returnVal = fileChooser.showOpenDialog(CorpusLoader.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-          final ProgressMonitor monitor = new ProgressMonitor(CorpusLoader.this,
-            "Loading data", null, 0, accessory.getEnd()-1);
-          new Thread(new Runnable() {
-            public void run() {
-              try {
-                monitor.setProgress(0);
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                CorpusFormat format = accessory.getFormat();
-                format.setMonitor(new CorpusFormat.Monitor() {
-                  public void progressed(int index) {
-                    monitor.setProgress(index);
-                  }
-                });
-                List<NLPInstance> corpus = format.load(fileChooser.getSelectedFile(),
-                  accessory.getStart(), accessory.getEnd());
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                corpora.add(corpus);
-                fileNames.addElement(fileChooser.getSelectedFile().getName());
-                files.setSelectedIndex(fileNames.size() - 1);
-                fireAdded(corpus);
-              } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-              } catch (IOException e1) {
-                e1.printStackTrace();
-              }
-            }
-          }).start();
+          try {
+            List<NLPInstance> corpus = accessory.getFormat().load(fileChooser.getSelectedFile(),
+              accessory.getStart(), accessory.getEnd());
+            corpora.add(corpus);
+            fileNames.addElement(fileChooser.getSelectedFile().getName());
+            files.setSelectedIndex(fileNames.size() - 1);
+            fireAdded(corpus);
+          } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
         }
       }
     });
@@ -267,8 +224,8 @@ public class CorpusLoader extends JPanel {
     });
     add(remove, c);
 
-    //setSize(new Dimension(50, 200));
-    //setMinimumSize(new Dimension(150, 10));
+    setSize(new Dimension(150, 200));
+    setMinimumSize(new Dimension(150, 200));
   }
 
 

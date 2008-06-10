@@ -7,111 +7,65 @@ import java.util.*;
  */
 public class NLPInstance {
 
-  private List<Edge> edges = new ArrayList<Edge>();
+  private List<DependencyEdge> dependencies = new ArrayList<DependencyEdge>();
   private List<TokenVertex> tokens = new ArrayList<TokenVertex>();
-  private HashMap<Integer, TokenVertex> map = new HashMap<Integer, TokenVertex>();
 
   public NLPInstance() {
   }
 
-  public NLPInstance(Collection<TokenVertex> tokens, Collection<Edge> edges) {
+  public NLPInstance(Collection<TokenVertex> tokens, Collection<DependencyEdge> dependencies) {
     this.tokens.addAll(tokens);
-    this.edges.addAll(edges);
+    this.dependencies.addAll(dependencies);
   }
 
-  public void addEdge(int from, int to, String label, String type) {
-    edges.add(new Edge(map.get(from), map.get(to), label, type));
+  public void addDependency(int from, int to, String label, String type){
+    dependencies.add(new DependencyEdge(tokens.get(from),tokens.get(to),label,type));
   }
 
-  public void addEdge(int from, int to, String label, String type, Edge.RenderType renderType) {
-    edges.add(new Edge(map.get(from), map.get(to), label, type, renderType));
+  public void addDependency(TokenVertex from, TokenVertex to, String label, String type){
+    addDependency(from.getIndex(),to.getIndex(),label,type);
   }
 
-  public void addSpan(int from, int to, String label, String type) {
-    edges.add(new Edge(map.get(from), map.get(to), label, type, Edge.RenderType.span));
-  }
-
-  public void addDependency(int from, int to, String label, String type) {
-    edges.add(new Edge(map.get(from), map.get(to), label, type, Edge.RenderType.dependency));
-  }
-
-  public void addEdge(TokenVertex from, TokenVertex to, String label, String type) {
-    addEdge(from.getIndex(), to.getIndex(), label, type);
-  }
-
-  public void addEdge(TokenVertex from, TokenVertex to, String label, String type, Edge.RenderType renderType) {
-    addEdge(from.getIndex(), to.getIndex(), label, type, renderType);
-  }
-
-  public void addTokens(Collection<TokenVertex> tokens) {
+  public void addTokens(Collection<TokenVertex> tokens){
     this.tokens.addAll(tokens);
-    for (TokenVertex t : tokens) map.put(t.getIndex(), t);
   }
 
+ 
 
-  public void addDependencies(Collection<Edge> dependencies) {
-    this.edges.addAll(dependencies);
+  public void addDependencies(Collection<DependencyEdge> dependencies){
+    this.dependencies.addAll(dependencies);
   }
 
-  public void merge(NLPInstance nlp) {
-    for (int i = 0; i < Math.min(tokens.size(), nlp.tokens.size()); ++i) {
+  public void merge(NLPInstance nlp){
+    for (int i = 0; i < Math.min(tokens.size(), nlp.tokens.size()); ++i){
       tokens.get(i).merge(nlp.tokens.get(i));
     }
-    for (Edge edge : nlp.edges) {
-      addEdge(edge.getFrom().getIndex(), edge.getTo().getIndex(),
-        edge.getLabel(), edge.getType(), edge.getRenderType());
+    for (DependencyEdge edge: nlp.dependencies){
+      addDependency(edge.getFrom().getIndex(), edge.getTo().getIndex(), edge.getLabel(), edge.getType());
     }
   }
 
-  public void addTokenWithProperties(String... properties) {
+  public void addTokenWithProperties(String ... properties){
     TokenVertex token = new TokenVertex(tokens.size());
     for (String property : properties) token.addProperty(property);
     tokens.add(token);
-    map.put(token.getIndex(), token);
   }
 
-  public TokenVertex addToken() {
+  public TokenVertex addToken(){
     TokenVertex vertex = new TokenVertex(tokens.size());
     tokens.add(vertex);
-    map.put(vertex.getIndex(), vertex);
     return vertex;
   }
 
-  public TokenVertex addToken(int index) {
-
-    TokenVertex vertex = map.get(index);
-    if (vertex == null) {
-      vertex = new TokenVertex(index);
-      map.put(index, vertex);
-    }
-    return vertex;
+  public List<DependencyEdge> getDependencies(){
+    return Collections.unmodifiableList(dependencies);
   }
 
-  public void consistify() {
-    tokens.addAll(map.values());
-    Collections.sort(tokens);
-  }
-
-
-  public List<Edge> getEdges() {
-    return Collections.unmodifiableList(edges);
-  }
-
-  public List<Edge> getEdges(Edge.RenderType renderType) {
-    ArrayList<Edge> result = new ArrayList<Edge>(edges.size());
-    for (Edge e : edges) if (e.getRenderType() == renderType) result.add(e);
-    return result;
-  }
-
-  public TokenVertex getToken(int index) {
-    return map.get(index);
-  }
-
-  public List<TokenVertex> getTokens() {
+  public List<TokenVertex> getTokens(){
     return Collections.unmodifiableList(tokens);
   }
 
-  public String toString() {
-    return tokens + "\n" + edges;
-  }
+
+
+
 }
