@@ -78,7 +78,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     c.weightx = 0.0;
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Options:"),c);
+    add(new JLabel("Extra:"),c);
 
     c.gridx = 1;
     c.gridy = 2;
@@ -87,36 +87,18 @@ public class DependencyFilterPanel extends ControllerPanel {
     c.anchor = GridBagConstraints.WEST;
     add(usePaths,c);
 
-    final JCheckBox collaps = new JCheckBox("Collaps");
-    collaps.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        nlpCanvas.getDependencyTokenFilter().setCollaps(collaps.isSelected());
-        nlpCanvas.updateNLPGraphics();
-      }
-    });
-    add(collaps, new SimpleGridBagConstraints(3,false));
-
-    final JCheckBox wholeWords = new JCheckBox("Whole Words");
-    wholeWords.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        nlpCanvas.getDependencyTokenFilter().setWholeWords(wholeWords.isSelected());
-        nlpCanvas.updateNLPGraphics();
-      }
-    });
-    add(wholeWords, new SimpleGridBagConstraints(4,false));
-
     final JButton onlySelected = new JButton("Hide Unselected");
     //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
     onlySelected.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
-          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
+        if (!nlpCanvas.getDependencyLayout().getSelected().isEmpty())
+          nlpCanvas.getDependencyLayout().onlyShow(nlpCanvas.getDependencyLayout().getSelected());
         else
-          nlpCanvas.getSpanLayout().showAll();
+          nlpCanvas.getDependencyLayout().showAll();
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(onlySelected, new SimpleGridBagConstraints(5,false));
+    add(onlySelected, new SimpleGridBagConstraints(3,false));
 
 
 

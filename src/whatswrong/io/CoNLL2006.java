@@ -4,6 +4,7 @@ import whatswrong.TokenProperty;
 import whatswrong.NLPInstance;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Sebastian Riedel
@@ -38,7 +39,7 @@ public class CoNLL2006 implements CoNLLProcessor {
             //dependency
             int mod = Integer.parseInt(row.get(0));
             try {
-                instance.addEdge(Integer.parseInt(row.get(6)), mod, row.get(7), "dep");
+                instance.addDependency(Integer.parseInt(row.get(6)), mod, row.get(7), "dep");
             } catch (Exception e) {
                 System.err.println("Can't parse dependency");
                 instance.getTokens().get(mod).addProperty("DepMissing","missing");
@@ -59,7 +60,7 @@ public class CoNLL2006 implements CoNLLProcessor {
         int index = 0;
         for (List<String> row : rows) {
             //dependency
-            instance.addEdge(Integer.parseInt(row.get(3)), index++, row.get(4), "nivre");
+            instance.addDependency(Integer.parseInt(row.get(3)), index++, row.get(4), "nivre");
         }
         return instance;
     }

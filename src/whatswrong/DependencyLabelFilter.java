@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyLabelFilter extends DependencyFilter {
+public class DependencyLabelFilter implements DependencyFilter {
 
   private HashSet<String> allowedLabels = new HashSet<String>();
 
@@ -32,10 +32,10 @@ public class DependencyLabelFilter extends DependencyFilter {
     allowedLabels.clear();
   }
 
-  public Collection<Edge> filterEdges(Collection<Edge> original) {
+  public Collection<DependencyEdge> filter(Collection<DependencyEdge> original) {
     if (allowedLabels.size() == 0) return original;
-    ArrayList<Edge> result = new ArrayList<Edge>(original.size());
-    for (Edge edge : original)
+    ArrayList<DependencyEdge> result = new ArrayList<DependencyEdge>(original.size());
+    for (DependencyEdge edge : original)
       for (String allowed : allowedLabels)
         if (edge.getLabel().contains(allowed)) {
           result.add(edge);

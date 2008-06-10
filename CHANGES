@@ -1,7 +1,0 @@
-Changes in 0.0.4:
-
-new features:
-- new feature: tokens can be removed from the graph using a filter that tests whether token properties contain (or equal) certain strings.
-- new feature: remove all tokens that don't have an edge
-- changed lucene analyzer to WhitespaceAnalyzer -> now searching for "role:R-AA" does break up the "R-AA" to find things with "A" in it.
-- gold and guess loader now remember their directory from previous session

@@ -1,17 +1,18 @@
 package whatswrong.io;
 
-import whatswrong.NLPInstance;
 import whatswrong.SimpleGridBagConstraints;
+import whatswrong.NLPInstance;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
+import java.awt.*;
+import java.awt.List;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  * @author Sebastian Riedel
@@ -22,16 +23,10 @@ public class CoNLLFormat implements CorpusFormat {
   private SortedMap<String, CoNLLProcessor> processors = new TreeMap<String, CoNLLProcessor>();
   private JComboBox year;
   private JCheckBox open;
-  private Monitor monitor;
-
 
   public CoNLLFormat() {
     addProcessor("2008", new CoNLL2008());
     addProcessor("2006", new CoNLL2006());
-    addProcessor("2004", new CoNLL2004());
-    addProcessor("2002", new CoNLL2002());
-    addProcessor("2003", new CoNLL2003());
-    addProcessor("2000", new CoNLL2000());
 
     accessory = new JPanel(new GridBagLayout());
     year = new JComboBox(new Vector<Object>(processors.values()));
@@ -66,22 +61,6 @@ public class CoNLLFormat implements CorpusFormat {
     return accessory;
   }
 
-  public void setMonitor(Monitor monitor) {
-    this.monitor = monitor;
-  }
-
-  public void loadProperties(Properties properties, String prefix) {
-    String yearString = properties.getProperty(prefix + ".conll.year", "2008");
-    year.setSelectedItem(processors.get(yearString));
-   }
-
-
-  public void saveProperties(Properties properties, String prefix) {
-    properties.setProperty(prefix + ".conll.year", year.getSelectedItem().toString());
-
-  }
-
-
   public java.util.List<NLPInstance> load(File file, int from, int to) throws IOException {
     CoNLLProcessor processor = (CoNLLProcessor) year.getSelectedItem();
     java.util.List<NLPInstance> result = loadCoNLL08(file, from, to, processor, false);
@@ -105,7 +84,6 @@ public class CoNLLFormat implements CorpusFormat {
     for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
       line = line.trim();
       if (line.equals("")) {
-        monitor.progressed(instanceNr);
         if (instanceNr++ < from) continue;
         NLPInstance instance = open ? processor.createOpen(rows) : processor.create(rows);
         corpus.add(instance);
@@ -122,101 +100,6 @@ public class CoNLLFormat implements CorpusFormat {
     if (rows.size() > 0) corpus.add(open ? processor.createOpen(rows) : processor.create(rows));
     return corpus;
 
-  }
-
-  public static void extractSpan03(java.util.List<? extends java.util.List<String>> rows,
-                                   int column,
-                                   String type,
-                                   NLPInstance instance) {
-    int index;
-    index = 0;
-    boolean inChunk = false;
-    int begin = 0;
-    String currentChunk = "";
-    for (java.util.List<String> row : rows) {
-      String chunk = row.get(column);
-      int minus = chunk.indexOf('-');
-      if (minus != -1) {
-        String bio = chunk.substring(0, minus);
-        String label = chunk.substring(minus + 1);
-        if (inChunk){
-          //start a new chunk and finish old one
-          if ("B".equals(bio) || "I".equals(bio) && !label.equals(currentChunk)){
-            instance.addSpan(begin, index - 1, currentChunk, type);
-            begin = index;
-            currentChunk = label;
-          } 
-        } else {
-          inChunk = true;
-          begin = index;
-          currentChunk = label;
-        }
-      } else {
-        if (inChunk) {
-          instance.addSpan(begin, index - 1, currentChunk, type);
-          inChunk = false;
-        }
-      }
-      ++index;
-    }
-    if (inChunk){
-      instance.addSpan(begin, index - 1, currentChunk, type);      
-    }
-  }
-
-
-  public static void extractSpan00(java.util.List<? extends java.util.List<String>> rows,
-                                   int column,
-                                   String type,
-                                   NLPInstance instance) {
-    int index;
-    index = 0;
-    boolean inChunk = false;
-    int begin = 0;
-    String currentChunk = "";
-    for (java.util.List<String> row : rows) {
-      String chunk = row.get(column);
-      int minus = chunk.indexOf('-');
-      if (minus != -1) {
-        String bio = chunk.substring(0, minus);
-        String label = chunk.substring(minus + 1);
-        if ("B".equals(bio)) {
-          if (inChunk) {
-            instance.addSpan(begin, index - 1, currentChunk, type);
-          }
-          begin = index;
-          currentChunk = label;
-          inChunk = true;
-        }
-      } else {
-        if (inChunk) {
-          instance.addSpan(begin, index - 1, currentChunk, type);
-          inChunk = false;
-        }
-      }
-      ++index;
-    }
-  }
-
-  public static void extractSpan05(java.util.List<? extends java.util.List<String>> rows,
-                                   int column,
-                                   String type,
-                                   String prefix,
-                                   NLPInstance instance) {
-    int index = 0;
-    int begin = 0;
-    String currentChunk = "";
-    for (java.util.List<String> row : rows) {
-      String chunk = row.get(column);
-      if (chunk.startsWith("(")){
-        currentChunk = chunk.substring(1,chunk.indexOf("*"));
-        begin = index;
-      }
-      if (chunk.endsWith(")")){
-        instance.addSpan(begin, index, prefix + currentChunk, type);        
-      }
-      ++index;
-    }
   }
 
 }
