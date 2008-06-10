@@ -1,33 +1,31 @@
 package whatswrong;
 
-import javautils.Pair;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.WhitespaceAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.queryParser.QueryParser;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.swing.event.ListSelectionEvent;
 import java.util.HashSet;
 import java.util.List;
+import java.util.HashMap;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 
 /**
  * @author Sebastian Riedel
@@ -38,75 +36,23 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   private NLPCanvas canvas;
   private JSpinner spinner;
   private SpinnerNumberModel numberModel;
-  private HashMap<List<NLPInstance>, IndexSearcher>
-    indices = new HashMap<List<NLPInstance>, IndexSearcher>();
-  private HashMap<Pair<List<NLPInstance>, List<NLPInstance>>, List<NLPInstance>>
-    diffCorpora = new HashMap<Pair<List<NLPInstance>, List<NLPInstance>>, List<NLPInstance>>();
+  private HashMap<List<NLPInstance>, IndexSearcher> indices = new HashMap<List<NLPInstance>, IndexSearcher>();
   //private HashMap<List<NLPInstance>>
-  private HashSet<List<NLPInstance>>
-    goldCorpora = new HashSet<List<NLPInstance>>(),
-    guessCorpora = new HashSet<List<NLPInstance>>();
   private IndexSearcher indexSearcher;
   private Analyzer analyzer;
   private JButton searchButton;
   private JList results;
   private JTextField search;
-  private NLPDiff diff = new NLPDiff();
-  private JPanel spinnerPanel;
-  private JLabel ofHowMany;
 
   public void corpusAdded(List<NLPInstance> corpus, CorpusLoader src) {
-    if (src == gold) {
-      goldCorpora.add(corpus);
-      //indices.put(corpus, createIndex(corpus));
-    } else {
-      guessCorpora.add(corpus);
-      //indices.put(corpus, createIndex(corpus));
-    }
-  }
-
-  private List<NLPInstance> getDiffCorpus(List<NLPInstance> gold, List<NLPInstance> guess) {
-    List<NLPInstance> diffCorpus = diffCorpora.get(new Pair<List<NLPInstance>, List<NLPInstance>>(gold, guess));
-    if (diffCorpus == null) {
-      diffCorpus = new ArrayList<NLPInstance>(Math.min(gold.size(), guess.size()));
-      diffCorpora.put(new Pair<List<NLPInstance>, List<NLPInstance>>(gold, guess), diffCorpus);
-      for (int i = 0; i < Math.min(gold.size(), guess.size()); ++i)
-        diffCorpus.add(diff.diff(gold.get(i), guess.get(i)));
-      //indices.put(diffCorpus,createIndex(diffCorpus));
-    }
-    return diffCorpus;
-  }
-
-  private void removeDiffCorpus(List<NLPInstance> gold, List<NLPInstance> guess) {
-    Pair<List<NLPInstance>, List<NLPInstance>> pair = new Pair<List<NLPInstance>, List<NLPInstance>>(gold, guess);
-    List<NLPInstance> diffCorpus = diffCorpora.get(pair);
-    if (diffCorpus != null) {
-      diffCorpora.remove(pair);
-      indices.remove(diffCorpus);
-    }
   }
 
   public void corpusRemoved(List<NLPInstance> corpus, CorpusLoader src) {
-    if (src == gold) {
-      goldCorpora.remove(corpus);
-      indices.remove(corpus);
-      for (List<NLPInstance> c : guessCorpora) {
-        removeDiffCorpus(corpus, c);
-      }
-    } else {
-      guessCorpora.remove(corpus);
-      indices.remove(corpus);
-      for (List<NLPInstance> c : goldCorpora) {
-        removeDiffCorpus(corpus, c);
-      }
-    }
-
+    indices.remove(corpus);
   }
 
-  public synchronized void corpusSelected(List<NLPInstance> corpus, CorpusLoader src) {
+  public void corpusSelected(List<NLPInstance> corpus, CorpusLoader src) {
     updateCanvas();
-    results.setModel(new DefaultListModel());
-
   }
 
   private static class Result {
@@ -123,13 +69,13 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     }
   }
 
-  public CorpusNavigator(NLPCanvas canvas, CorpusLoader goldLoader, CorpusLoader guessLoader) {
+  public CorpusNavigator(NLPCanvas canvas, CorpusLoader gold, CorpusLoader guess) {
     super(new GridBagLayout());
-    this.guess = guessLoader;
-    this.gold = goldLoader;
+    this.guess = guess;
+    this.gold = gold;
     this.canvas = canvas;
-    guessLoader.addChangeListener(this);
-    goldLoader.addChangeListener(this);
+    guess.addChangeListener(this);
+    gold.addChangeListener(this);
     setBorder(new EmptyBorder(5, 5, 5, 5));
     //setBorder(new TitledBorder(new EtchedBorder(), "Navigate"));
 
@@ -137,7 +83,6 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     numberModel.setMinimum(0);
     numberModel.setMaximum(100);
     spinner = new JSpinner(numberModel);
-    //spinner.getEditor().set
     spinner.setEnabled(false);
     JSpinner.NumberEditor numberEditor = new JSpinner.NumberEditor(spinner);
     spinner.setEditor(numberEditor);
@@ -147,25 +92,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       }
     });
 
-    final JFormattedTextField editorTextField = numberEditor.getTextField();
-    editorTextField.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        try {
-          spinner.setValue(Integer.valueOf(editorTextField.getText()));
-        } catch (NumberFormatException ex) {
-          spinner.setValue(editorTextField.getValue());
-        }
-      }
-    });
-
-
-    spinnerPanel = new JPanel();
-    spinnerPanel.setLayout(new BoxLayout(spinnerPanel, BoxLayout.X_AXIS));
-    spinnerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-    spinnerPanel.add(spinner);
-    ofHowMany = new JLabel(" of 1");
-    spinnerPanel.add(ofHowMany);
-
+    //add(new JSeparator(), new SimpleGridBagConstraints(0,1,2,1));
     search = new JTextField(10);
     search.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -194,35 +121,29 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
           int nr = ((Result) results.getSelectedValue()).nr;
           spinner.setValue(nr);
           repaint();
+          CorpusNavigator.this.canvas.setNLPInstance(CorpusNavigator.this.gold.getSelected().get(nr));
+          CorpusNavigator.this.canvas.updateNLPGraphics();
         }
       }
     });
 
 
-    add(searchPanel, new SimpleGridBagConstraints(0, 0, 2, 1));
-    JScrollPane resultsPane = new JScrollPane(results);
-    resultsPane.setMinimumSize(new Dimension(100,10));
-    add(resultsPane, new SimpleGridBagConstraints(0, 1, 2, 2));
+    add(new JLabel("Nr:"), new SimpleGridBagConstraints(0, true));
+    add(spinner, new SimpleGridBagConstraints(0, false, false));
+    add(new JSeparator(), new SimpleGridBagConstraints(0,1,2,1));
+    //add(new JLabel("Search:"), new SimpleGridBagConstraints(2, true));
+    add(searchPanel, new SimpleGridBagConstraints(0,2,2,1));
+    add(new JScrollPane(results), new SimpleGridBagConstraints(0,3,2,1));
 
     //setPreferredSize((new Dimension(100, (int) getPreferredSize().getHeight())));
-    analyzer = new WhitespaceAnalyzer();
     updateCanvas();
+    analyzer = new SimpleAnalyzer();
     //analyzer.
   }
 
-
-  public JPanel getSpinnerPanel
-    () {
-    return spinnerPanel;
-  }
-
-  private void searchCorpus
-    () {
+  private void searchCorpus() {
     if (search.getText().trim().equals("")) return;
     try {
-      indexSearcher = guess.getSelected() != null ?
-        getIndex(getDiffCorpus(gold.getSelected(), guess.getSelected())) :
-        getIndex(gold.getSelected());
       //System.out.println("Searching...");
       QueryParser parser = new QueryParser("Word", analyzer);
       Query query = parser.parse(search.getText());
@@ -239,7 +160,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
           best = highlighter.getBestFragment(analyzer, f.name(), hitDoc.get(f.name()));
           if (best != null) break;
         }
-        if (best != null) model.addElement(new Result(nr, "<html>" + nr + ":" + best + "</html>"));
+        if (best != null) model.addElement(new Result(nr, "<html>" + best + "</html>"));
         //System.out.println(highlighter.getBestFragment(analyzer, "Word", hitDoc.get("Word")));
         //assertEquals("This is the text to be indexed.", hitDoc.get("fieldname"));
       }
@@ -251,8 +172,9 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
-  private synchronized IndexSearcher getIndex
-    (List<NLPInstance> corpus) {
+
+
+  private IndexSearcher getIndex(List<NLPInstance> corpus) {
     IndexSearcher index = indices.get(corpus);
     if (index == null) {
       index = createIndex(corpus);
@@ -261,8 +183,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     return index;
   }
 
-  private IndexSearcher createIndex
-    (List<NLPInstance> corpus) {
+  private IndexSearcher createIndex(List<NLPInstance> corpus) {
     try {
       System.err.println("Creating Index");
       RAMDirectory directory = new RAMDirectory();
@@ -288,45 +209,12 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         for (TokenProperty p : sentences.keySet()) {
           doc.add(new Field(p.getName(), sentences.get(p).toString(), Field.Store.YES, Field.Index.TOKENIZED));
         }
-
-        //edges
-        HashMap<String, StringBuffer> edges = new HashMap<String, StringBuffer>();
-        StringBuffer types = new StringBuffer();
-        for (Edge e : instance.getEdges()) {
-          String prefix = e.getTypePrefix();
-          StringBuffer prefixBuffer = edges.get(prefix);
-          types.append(prefix).append(" ");
-          if (prefixBuffer == null) {
-            prefixBuffer = new StringBuffer();
-            edges.put(prefix, prefixBuffer);
-          }
-          prefixBuffer.append(e.getLabel()).append(" ");
-          String postfix = e.getTypePostfix();
-          if (postfix != null) {
-            types.append(postfix).append(" ");
-            StringBuffer postfixBuffer = edges.get(postfix);
-            if (postfixBuffer == null) {
-              postfixBuffer = new StringBuffer();
-              edges.put(postfix, postfixBuffer);
-            }
-            postfixBuffer.append(e.getLabel()).append(" ");
-          }
-        }
-
-        doc.add(new Field("types", types.toString(), Field.Store.YES, Field.Index.TOKENIZED));
-
-        for (String type : edges.keySet()) {
-          doc.add(new Field(type, edges.get(type).toString(), Field.Store.YES, Field.Index.TOKENIZED));
-        }
-
-        //for (DependencyEdge e : instance.getTokens())
         doc.add(new Field("<nr>", String.valueOf(nr), Field.Store.YES, Field.Index.UN_TOKENIZED));
 
         System.err.print(".");
         iwriter.addDocument(doc);
         nr++;
       }
-      System.err.println();
       iwriter.optimize();
       iwriter.close();
       return new IndexSearcher(directory);
@@ -336,8 +224,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
   }
 
-  private void updateCanvas
-    () {
+  private void updateCanvas() {
     if (gold.getSelected() != null) {
       searchButton.setEnabled(true);
       search.setEnabled(true);
@@ -348,7 +235,6 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         int index = Math.min((Integer) spinner.getValue(), maxIndex);
         spinner.setValue(index);
         numberModel.setMaximum(maxIndex);
-        ofHowMany.setText(" of " + maxIndex);
 
         indexSearcher = getIndex(gold.getSelected());
         canvas.setNLPInstance(gold.getSelected().get(index));
@@ -358,13 +244,29 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         numberModel.setMaximum(maxIndex);
         int index = Math.min((Integer) spinner.getValue(), maxIndex);
         spinner.setValue(index);
-        ofHowMany.setText(" of " + maxIndex);
-        NLPInstance instance = getDiffCorpus(gold.getSelected(), guess.getSelected()).get(index);
-        canvas.getSpanLayout().setColor("FN", Color.BLUE);
-        canvas.getSpanLayout().setColor("FP", Color.RED);
+        NLPInstance goldInstance = gold.getSelected().get(index);
+        NLPInstance guessInstance = guess.getSelected().get(index);
+        NLPInstance diff = new NLPInstance();
+        diff.addTokens(goldInstance.getTokens());
+        HashSet<DependencyEdge> fn = new HashSet<DependencyEdge>(goldInstance.getDependencies());
+        fn.removeAll(guessInstance.getDependencies());
+        HashSet<DependencyEdge> fp = new HashSet<DependencyEdge>(guessInstance.getDependencies());
+        fp.removeAll(goldInstance.getDependencies());
+        HashSet<DependencyEdge> matches = new HashSet<DependencyEdge>(goldInstance.getDependencies());
+        matches.retainAll(guessInstance.getDependencies());
+        for (DependencyEdge edge : fn) {
+          String type = edge.getType() + ":FN";
+          diff.addDependency(edge.getFrom(), edge.getTo(), edge.getLabel(), type);
+        }
+        for (DependencyEdge edge : fp) {
+          String type = edge.getType() + ":FP";
+          diff.addDependency(edge.getFrom(), edge.getTo(), edge.getLabel(), type);
+        }
+        for (DependencyEdge edge : matches)
+          diff.addDependency(edge.getFrom(), edge.getTo(), edge.getLabel(), edge.getType() + ":Match");
         canvas.getDependencyLayout().setColor("FN", Color.BLUE);
         canvas.getDependencyLayout().setColor("FP", Color.RED);
-        canvas.setNLPInstance(instance);
+        canvas.setNLPInstance(diff);
         canvas.updateNLPGraphics();
 
       }
@@ -372,10 +274,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       searchButton.setEnabled(false);
       search.setEnabled(false);
       spinner.setEnabled(false);
-      spinner.setValue(0);
       searchButton.setEnabled(false);
       results.setEnabled(false);
-      ofHowMany.setText(" of 1");
 
 
       NLPInstance example = new NLPInstance();
@@ -391,31 +291,11 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       example.addDependency(4, 2, "DET", "dep");
       example.addDependency(4, 3, "MOD", "dep");
       example.addDependency(1, 4, "A1", "role");
-      example.addSpan(1, 1, "add.1", "sense");
       canvas.getDependencyLayout().setStroke("role", new BasicStroke(1.0f,
         BasicStroke.CAP_BUTT,
         BasicStroke.JOIN_BEVEL, 10,
         new float[]{2.0f}, 0));
       canvas.setNLPInstance(example);
-
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("dep");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("role");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("sense");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("ner");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("chunk");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("pos");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("FP");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("FN");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("Match");
-
-      canvas.getSpanLayout().setTypeOrder("pos",0);
-      canvas.getSpanLayout().setTypeOrder("chunk (BIO)",1);
-      canvas.getSpanLayout().setTypeOrder("chunk",2);
-      canvas.getSpanLayout().setTypeOrder("ner (BIO)",2);
-      canvas.getSpanLayout().setTypeOrder("ner",3);
-      canvas.getSpanLayout().setTypeOrder("sense",4);
-      canvas.getSpanLayout().setTypeOrder("role",5);
-
       canvas.updateNLPGraphics();
 
     }

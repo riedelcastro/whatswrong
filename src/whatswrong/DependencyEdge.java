@@ -20,11 +20,6 @@ public class DependencyEdge {
     return index == -1 ? type : type.substring(0,index);
   }
 
-  public String getTypePostfix(){
-    int index = type.indexOf(':');
-    return index == -1 ? "" : type.substring(index+1);    
-  }
-
   public int getMinIndex(){
     return from.getIndex() < to.getIndex() ? from.getIndex() : to.getIndex();
   }

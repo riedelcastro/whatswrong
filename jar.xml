@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<project name="Demo" default="CreateExecutableJarFileWithExternalLibrary">
+	<target name="CreateExecutableJarFileWithExternalLibrary">
+		<jar destfile="whatswrong-0.0.1.jar">
+			<zipfileset dir="classes/production" prefix="" />
+			<zipfileset src="lib/epsgraphics-1.1.jar" />
+      <zipfileset src="lib/lucene-core-2.3.1.jar" />
+      <zipfileset src="lib/lucene-highlighter-2.3.1.jar" />      
+      <manifest>
+				<attribute name="Main-Class" value="whatswrong.WhatsWrongWithMyNLP" />
+			</manifest>
+		</jar>
+	</target>
+</project>

@@ -2,10 +2,8 @@ package whatswrong;
 
 import javax.swing.*;
 import java.awt.*;
-import static java.awt.GridBagConstraints.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.Properties;
+import java.io.IOException;
 
 /**
  * @author Sebastian Riedel
@@ -14,29 +12,10 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.1.0";
-  private final static Properties properties = new Properties();
-
-  public static Properties getProperties(){
-    return properties;
-  }
 
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
 
-    try {
-      File file = new File(System.getProperty("user.home") + "/.whatswrong");
-      if (file.exists()) {
-        properties.load(new FileInputStream(file));
-      } else {
-        properties.setProperty("whatswrong.golddir",System.getProperty("user.dir"));
-        properties.setProperty("whatswrong.guessdir",System.getProperty("user.dir"));        
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   public WhatsWrongWithMyNLP() {
@@ -57,10 +36,10 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   public void scrollToBottom() {
     nlpCanvas.scrollRectToVisible(new Rectangle(
-      nlpScrollPane.getViewport().getX(),
-      nlpCanvas.getHeight() - nlpScrollPane.getViewport().getHeight(),
-      nlpScrollPane.getViewport().getWidth(),
-      nlpScrollPane.getViewport().getHeight()));
+            nlpScrollPane.getViewport().getX(),
+            nlpCanvas.getHeight() - nlpScrollPane.getViewport().getHeight(),
+            nlpScrollPane.getViewport().getWidth(),
+            nlpScrollPane.getViewport().getHeight()));
   }
 
   private static class WindowMenuItem extends JCheckBoxMenuItem {
@@ -74,8 +53,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
     }
 
 
-    public WindowMenuItem(final Dialog window) {
-      this(window, window.getTitle());
+    public WindowMenuItem(final Dialog window){
+      this(window,window.getTitle());
     }
 
     public WindowMenuItem(final Window window, String title) {
@@ -106,32 +85,18 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     public ControllerDialog(Frame owner, String title, boolean resizable) throws HeadlessException {
       super(owner, title, false);
-      pack();
       setResizable(resizable);
     }
 
-    public ControllerDialog(String title, boolean resizable) {
-      this(null, title, resizable);
+    public ControllerDialog(String title, boolean resizable){
+      this(null,title,resizable);
     }
 
-  }
-
-  private static void changeUI(boolean system) {
-    try {
-      // Set System L&F
-//      UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-      UIManager.setLookAndFeel(system ?
-        UIManager.getSystemLookAndFeelClassName() :
-        UIManager.getCrossPlatformLookAndFeelClassName());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
 
   public static void main(String[] args) {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "What's Wrong ...");
-    changeUI(true);
 
     final NLPCanvas canvas = new NLPCanvas();
 
@@ -141,10 +106,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
     int canvasY = 50;
     int canvasBottom = canvasHeight + canvasY;
 
-    final CorpusLoader gold = new CorpusLoader("Select Gold");
-    final CorpusLoader guess = new CorpusLoader("Select Guess");
-    gold.loadProperties(properties);
-    guess.loadProperties(properties);
+    CorpusLoader gold = new CorpusLoader("Select Gold");
+    CorpusLoader guess = new CorpusLoader("Select Guess");
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -176,23 +139,27 @@ public class WhatsWrongWithMyNLP extends JPanel {
     toolBar.add(new JButton("Test"));
 
     //dummy Frame
-    //JFrame dummy = new JFrame();
-    //dummy.setVisible(false);
+    JFrame dummy = new JFrame();
+    dummy.setVisible(false);
 
     //canvas frame
     JFrame canvasFrame = new JFrame("What's Wrong With My NLP?");
     canvasFrame.setSize(canvasWidth, canvasHeight);
     canvasFrame.getContentPane().setLayout(new BorderLayout());
     canvasFrame.getContentPane().add(new JScrollPane(canvas), BorderLayout.CENTER);
+    JLabel status = new JLabel("What's Wrong With My NLP version 0.1");
+    status.setForeground(Color.LIGHT_GRAY);
+    canvasFrame.getContentPane().add(status, BorderLayout.SOUTH);
     canvasFrame.setJMenuBar(menuBar);
     //canvasFrame.getContentPane().add(toolBar, BorderLayout.NORTH);
     canvasFrame.setLocation(canvasX, canvasY);
+    canvasFrame.setVisible(true);
     //canvasFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     //window.add(new WindowMenuItem(canvasFrame,"Canvas"));
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);    
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection",false);
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -206,7 +173,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(fileFrame);
 
     //filter frame
-    ControllerDialog filterWindow = new ControllerDialog("Dependency Filters", false);
+    ControllerDialog filterWindow = new ControllerDialog("Dependency Filters",false);
     filterWindow.getContentPane().setLayout(new BoxLayout(filterWindow.getContentPane(), BoxLayout.Y_AXIS));
     filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas));
     filterWindow.getContentPane().add(new JSeparator());
@@ -217,7 +184,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     window.add(new WindowMenuItem(filterWindow));
 
     //token filter frame
-    ControllerDialog tokenFilterWindow = new ControllerDialog("Token Filters", false);
+    ControllerDialog tokenFilterWindow = new ControllerDialog("Token Filters",false);
     tokenFilterWindow.getContentPane().setLayout(new BoxLayout(tokenFilterWindow.getContentPane(), BoxLayout.Y_AXIS));
     tokenFilterWindow.getContentPane().add(new TokenFilterPanel(canvas));
     tokenFilterWindow.pack();
@@ -235,46 +202,19 @@ public class WhatsWrongWithMyNLP extends JPanel {
     window.add(new WindowMenuItem(appearance));
 
     //navigator
-    ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
+    ControllerDialog navigatorWindow = new ControllerDialog("Navigator",false);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
-    CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess);
-    navigatorWindow.getContentPane().add(navigator);
+    navigatorWindow.getContentPane().add(new CorpusNavigator(canvas, gold, guess));
     navigatorWindow.pack();
     navigatorWindow.setMinimumSize(navigatorWindow.getSize());
     navigatorWindow.setLocation(canvasX + 800, canvasBottom + 20);
+
     navigatorWindow.setVisible(true);
     window.add(new WindowMenuItem(navigatorWindow, "Navigator"));
 
-    //statusbar
-    JPanel statusBar = new JPanel();
-    JLabel status = new JLabel("What's Wrong With My NLP version " + VERSION);
-    status.setForeground(Color.LIGHT_GRAY);
-    statusBar.setLayout(new GridBagLayout());
-    statusBar.setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 10));
-    statusBar.add(status);
-    statusBar.add(navigator.getSpinnerPanel(), new SimpleGridBagConstraints(0, true));
-    statusBar.add(navigator.getSpinnerPanel(), new SimpleGridBagConstraints(1, 0, 1.0, 0.0, EAST, NONE));
-
-    //final preparation of canvas
-    canvasFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
-    canvasFrame.setVisible(true);
     canvasFrame.requestFocus();
     //canvasFrame.requestFocusInWindow();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-      public void run() {
-        gold.saveProperties(properties);
-        guess.saveProperties(properties);
-        try {
-          properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
-            "Whats wrong with you NLP properties");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }));
-
-    
   }
 
 }
