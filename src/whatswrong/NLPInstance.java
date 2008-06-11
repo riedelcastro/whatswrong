@@ -16,6 +16,7 @@ public class NLPInstance {
 
   public NLPInstance(Collection<TokenVertex> tokens, Collection<Edge> edges) {
     this.tokens.addAll(tokens);
+    for (TokenVertex t : tokens) map.put(t.getIndex(), t);
     this.edges.addAll(edges);
   }
 
@@ -49,7 +50,7 @@ public class NLPInstance {
   }
 
 
-  public void addDependencies(Collection<Edge> dependencies) {
+  public void addEdges(Collection<Edge> dependencies) {
     this.edges.addAll(dependencies);
   }
 
@@ -112,6 +113,6 @@ public class NLPInstance {
   }
 
   public String toString() {
-    return tokens + "\n" + edges;
+    return tokens + "\n" + map + "\n" + edges;
   }
 }

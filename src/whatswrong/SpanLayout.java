@@ -7,7 +7,6 @@ import javautils.HashMultiMapList;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -19,12 +18,13 @@ import java.util.*;
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class SpanLayout implements EdgeLayout {
 
-  private int baseline = -1;
+  private int baseline = 1;
   private int heightPerLevel = 15;
   private int arrowSize = 2;
   private int vertexExtraSpace = 12;
   private boolean curve = true;
   private boolean revert = true;
+  private boolean separationLines = true;
 
   private HashMap<String, Color> colors = new HashMap<String, Color>();
   private HashMap<String, BasicStroke> strokes = new HashMap<String, BasicStroke>();
@@ -95,6 +95,14 @@ public class SpanLayout implements EdgeLayout {
   public void onlyShow(Collection<Edge> edges) {
     this.visible.clear();
     this.visible.addAll(edges);
+  }
+
+  public boolean isSeparationLines() {
+    return separationLines;
+  }
+
+  public void setSeparationLines(boolean separationLines) {
+    this.separationLines = separationLines;
   }
 
   public void showAll() {
@@ -242,7 +250,7 @@ public class SpanLayout implements EdgeLayout {
 
       //write label in the middle under
       int labelx = minX + (maxX - minX) / 2 - (int) layout.getBounds().getWidth() / 2;
-      int labely = (int) (height + heightPerLevel / 2);
+      int labely = height + heightPerLevel / 2;
       layout.draw(g2d, labelx, labely);
       g2d.setColor(old);
       //Area area = new Area();
@@ -252,55 +260,30 @@ public class SpanLayout implements EdgeLayout {
       shapes.put(shape, edge);
       //shapes.put(new Rectangle.Double(labelx,labely,labelBounds.getWidth(), labelBounds.getHeight()), edge);
 
-
     }
 
+    if (separationLines) {
+      //find largest depth for each prefix type
+      HashMap<String, Integer> minDepths = new HashMap<String, Integer>();
+      for (Edge e : edges) {
+        int edgeDepth = depth.get(e);
+        Integer typeDepth = minDepths.get(e.getTypePrefix());
+        if (typeDepth == null || typeDepth > edgeDepth) {
+          typeDepth = edgeDepth;
+          minDepths.put(e.getTypePrefix(), typeDepth);
+        }
+      }
+      for (Integer d : minDepths.values()) {
+        double height = ((!revert ? maxDepth - d : d) * heightPerLevel);
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.drawLine(0, (int) height, getWidth(), (int) height);
 
-  }
+      }
+    }
+
+    //draw separation lines
 
 
-  private GeneralPath createRectB(Point p1, Point p2, Point p3, Point p4) {
-    GeneralPath shape = new GeneralPath();
-    shape.moveTo(p1.x, p1.y);
-    shape.lineTo(p2.x, p2.y);
-    shape.lineTo(p3.x, p3.y);
-    shape.lineTo(p4.x, p4.y);
-    return shape;
-  }
-
-  private GeneralPath createCurveArrow(Point p1, Point p2, Point p3, Point p4) {
-    GeneralPath shape = new GeneralPath();
-    shape.moveTo(p1.x, p1.y);
-    shape.curveTo(p2.x, p2.y, p2.x, p2.y, p2.x + (p3.x - p2.x) / 2, p2.y);
-    shape.curveTo(p3.x, p3.y, p3.x, p3.y, p4.x, p4.y);
-    shape.moveTo(p3.x, p3.y);
-    shape.closePath();
-    return shape;
-  }
-
-  private GeneralPath createCurveArrow(int curveLength, Point p1, Point p2, Point p3, Point p4) {
-    GeneralPath shape = new GeneralPath();
-    Point c1 = p1;
-    Point c2 = new Point(p2.x, p2.y + curveLength);
-    Point c3 = new Point(p2.x + (p3.x > p2.x ? curveLength : -curveLength), p2.y);
-    Point c4 = new Point(p3.x - (p3.x > p2.x ? curveLength : -curveLength), p2.y);
-    Point c5 = new Point(p3.x, p3.y + curveLength);
-    Point c6 = p4;
-
-//    System.out.println("c1 = " + c1);
-//    System.out.println("c2 = " + c2);
-//    System.out.println("c3 = " + c3);
-//    System.out.println("c4 = " + c4);
-//    System.out.println("c5 = " + c5);
-//    System.out.println("c6 = " + c6);
-
-    shape.moveTo(c1.x, c1.y);
-    shape.lineTo(c2.x, c2.y);
-    shape.curveTo(p2.x, p2.y, p2.x, p2.y, c3.x, c3.y);
-    shape.lineTo(c4.x, c4.y);
-    shape.curveTo(p3.x, p3.y, p3.x, p3.y, c5.x, c5.y);
-    shape.lineTo(c6.x, c6.y);
-    return shape;
   }
 
 

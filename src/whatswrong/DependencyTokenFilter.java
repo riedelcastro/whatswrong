@@ -167,8 +167,14 @@ public class DependencyTokenFilter extends DependencyFilter {
     else {
       HashSet<TokenVertex> tokens = new HashSet<TokenVertex>();
       for (Edge e : edges) {
-        tokens.add(e.getFrom());
-        tokens.add(e.getTo());
+        if (e.getRenderType() == Edge.RenderType.dependency) {
+          tokens.add(e.getFrom());
+          tokens.add(e.getTo());
+        } else if (e.getRenderType() == Edge.RenderType.span){
+          for (int i = e.getFrom().getIndex(); i <= e.getTo().getIndex();++i){
+            tokens.add(original.getToken(i));
+          }
+        }
       }
       ArrayList<TokenVertex> sorted = new ArrayList<TokenVertex>(tokens);
       Collections.sort(sorted, new Comparator<TokenVertex>() {

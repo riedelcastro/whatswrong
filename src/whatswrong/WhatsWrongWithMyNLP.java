@@ -14,7 +14,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
   private NLPCanvas nlpCanvas = new NLPCanvas();
   private JScrollPane nlpScrollPane;
-  public final static String VERSION = "0.1.0";
+  public final static String VERSION = "0.1.1";
   private final static Properties properties = new Properties();
 
   public static Properties getProperties(){
@@ -206,7 +206,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(fileFrame);
 
     //filter frame
-    ControllerDialog filterWindow = new ControllerDialog("Dependency Filters", false);
+    ControllerDialog filterWindow = new ControllerDialog("Edge Filters", false);
     filterWindow.getContentPane().setLayout(new BoxLayout(filterWindow.getContentPane(), BoxLayout.Y_AXIS));
     filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas));
     filterWindow.getContentPane().add(new JSeparator());
