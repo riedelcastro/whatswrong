@@ -1,3 +1,15 @@
+=Changes in 0.1.1=
+
+==Enhancements==
+  * separation lines between spans of different (prefix) types
+  * can read binary thebeast predicates as spans
+
+==Bugfixes==
+  * edge labels were moved down slightly to be easier to read
+  * dep edges can be selected again
+  * collapsing to spans does not shorten spans anymore
+
+
 =Changes in 0.1.0=
 
 ==Features==
