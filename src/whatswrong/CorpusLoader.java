@@ -169,8 +169,10 @@ public class CorpusLoader extends JPanel {
     CoNLLFormat coNLLFormat = new CoNLLFormat();
     TheBeastFormat theBeastFormat = new TheBeastFormat();
 
+
     addFormat(coNLLFormat);
     addFormat(theBeastFormat);
+    addFormat(new LispSExprFormat());
 
     corpora = new ArrayList<List<NLPInstance>>();
     c.gridx = 0;

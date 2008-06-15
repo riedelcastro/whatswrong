@@ -415,6 +415,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       canvas.getSpanLayout().setTypeOrder("ner",3);
       canvas.getSpanLayout().setTypeOrder("sense",4);
       canvas.getSpanLayout().setTypeOrder("role",5);
+      canvas.getSpanLayout().setTypeOrder("phrase",5);
 
       canvas.updateNLPGraphics();
 
