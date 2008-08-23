@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyTypeFilter extends DependencyFilter {
+public class EdgeTypeFilter extends EdgeFilter {
 
   private HashSet<String> allowedPrefixTypes = new HashSet<String>();
   private HashSet<String> allowedPostfixTypes = new HashSet<String>();
@@ -29,7 +29,7 @@ public class DependencyTypeFilter extends DependencyFilter {
     return Collections.unmodifiableSet(allowedPostfixTypes);
   }
 
-  public DependencyTypeFilter(String... allowedPrefixTypes) {
+  public EdgeTypeFilter(String... allowedPrefixTypes) {
     for (String type : allowedPrefixTypes) this.allowedPrefixTypes.add(type);
   }
 
@@ -57,7 +57,7 @@ public class DependencyTypeFilter extends DependencyFilter {
     fireChanged(type);
   }
 
-  public DependencyTypeFilter(Set<String> allowedPrefixTypes) {
+  public EdgeTypeFilter(Set<String> allowedPrefixTypes) {
     this.allowedPrefixTypes.addAll(allowedPrefixTypes);
   }
 

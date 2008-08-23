@@ -4,11 +4,11 @@ package whatswrong;
  * @author Sebastian Riedel
  */
 public class DependencyEdge {
-  private TokenVertex from, to;
+  private Token from, to;
   private String label;
   private String type;
 
-  public DependencyEdge(TokenVertex from, TokenVertex to, String label, String type) {
+  public DependencyEdge(Token from, Token to, String label, String type) {
     this.from = from;
     this.to = to;
     this.label = label;
@@ -33,11 +33,11 @@ public class DependencyEdge {
     return from.getIndex() > to.getIndex() ? from.getIndex() : to.getIndex();
   }
 
-  public TokenVertex getFrom() {
+  public Token getFrom() {
     return from;
   }
 
-  public TokenVertex getTo() {
+  public Token getTo() {
     return to;
   }
 
@@ -54,11 +54,11 @@ public class DependencyEdge {
     return result == 0 ? -label.compareTo(edge.label) : -result;
   }
 
-  public boolean leftOf(TokenVertex token) {
+  public boolean leftOf(Token token) {
     return from.getIndex() <= token.getIndex() && to.getIndex() <= token.getIndex();
   }
 
-  public boolean rightOf(TokenVertex token) {
+  public boolean rightOf(Token token) {
     return from.getIndex() >= token.getIndex() && to.getIndex() >= token.getIndex();
   }
 

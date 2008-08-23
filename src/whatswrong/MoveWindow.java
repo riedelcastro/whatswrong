@@ -1,14 +1,19 @@
 package whatswrong;
 
-/**
- * @author Sebastian Riedel
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MoveWindow extends JWindow implements MouseListener, MouseMotionListener {
+/**
+ * A MoveWindow is a small window without borders that can be dragged by the
+ * user. It used to serve as window to contain all NLP canvas controllers but is
+ * now legacy. Maybe it will become handy again.
+ *
+ * @author Sebastian Riedel
+ */
+@SuppressWarnings({"MissingFieldJavaDoc", "MissingMethodJavaDoc"})
+public class MoveWindow extends JWindow implements MouseListener,
+  MouseMotionListener {
   Point location;
   MouseEvent pressed;
   private JPanel contentPane;
@@ -38,7 +43,7 @@ public class MoveWindow extends JWindow implements MouseListener, MouseMotionLis
     });
   }
 
-  public JComponent getInternalContent(){
+  public JComponent getInternalContent() {
     return contentPane;
   }
 
@@ -69,7 +74,7 @@ public class MoveWindow extends JWindow implements MouseListener, MouseMotionLis
   }
 
   public static void main(String args[]) {
-    MoveWindow window = new MoveWindow(null,"Test");
+    MoveWindow window = new MoveWindow(null, "Test");
     window.setSize(300, 300);
     window.setLocationRelativeTo(null);
     window.setVisible(true);

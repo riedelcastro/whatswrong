@@ -8,11 +8,11 @@ import java.util.ArrayList;
 /**
  * @author Sebastian Riedel
  */
-public class DependencyLabelFilter extends DependencyFilter {
+public class EdgeLabelFilter extends EdgeFilter {
 
   private HashSet<String> allowedLabels = new HashSet<String>();
 
-  public DependencyLabelFilter(String ... allowedLabels){
+  public EdgeLabelFilter(String ... allowedLabels){
     for (String type : allowedLabels) this.allowedLabels.add(type);
   }
 
@@ -24,7 +24,7 @@ public class DependencyLabelFilter extends DependencyFilter {
     allowedLabels.remove(type);
   }
 
-  public DependencyLabelFilter(Set<String> forbiddenTypes) {
+  public EdgeLabelFilter(Set<String> forbiddenTypes) {
     this.allowedLabels.addAll(forbiddenTypes);
   }
 

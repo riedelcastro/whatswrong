@@ -26,16 +26,16 @@ public class NLPCanvas extends JPanel {
   private DependencyLayout dependencyLayout = new DependencyLayout();
   private TokenLayout tokenLayout = new TokenLayout();
 
-  private ArrayList<TokenVertex> tokens = new ArrayList<TokenVertex>();
+  private ArrayList<Token> tokens = new ArrayList<Token>();
   private LinkedList<Edge> dependencies = new LinkedList<Edge>();
 
   private BufferedImage tokenImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
   private BufferedImage dependencyImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
   private BufferedImage spanImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
-  private DependencyTypeFilter dependencyTypeFilter = new DependencyTypeFilter();
-  private DependencyLabelFilter dependencyLabelFilter = new DependencyLabelFilter();
-  private DependencyTokenFilter dependencyTokenFilter = new DependencyTokenFilter();
+  private EdgeTypeFilter dependencyTypeFilter = new EdgeTypeFilter();
+  private EdgeLabelFilter dependencyLabelFilter = new EdgeLabelFilter();
+  private EdgeTokenFilter dependencyTokenFilter = new EdgeTokenFilter();
   private TokenFilter tokenFilter = new TokenFilter();
   private Set<String> usedTypes = new HashSet<String>();
   private Set<TokenProperty> usedProperties = new java.util.HashSet<TokenProperty>();
@@ -106,17 +106,17 @@ public class NLPCanvas extends JPanel {
     for (Listener l : listeners) l.redrawn();
   }
 
-  public DependencyTypeFilter getDependencyTypeFilter() {
+  public EdgeTypeFilter getDependencyTypeFilter() {
     return dependencyTypeFilter;
   }
 
 
-  public DependencyLabelFilter getDependencyLabelFilter() {
+  public EdgeLabelFilter getDependencyLabelFilter() {
     return dependencyLabelFilter;
   }
 
 
-  public DependencyTokenFilter getDependencyTokenFilter() {
+  public EdgeTokenFilter getDependencyTokenFilter() {
     return dependencyTokenFilter;
   }
 
@@ -135,7 +135,7 @@ public class NLPCanvas extends JPanel {
     tokens.clear();
     tokens.addAll(nlpInstance.getTokens());
     usedProperties.clear();
-    for (TokenVertex token : tokens) {
+    for (Token token : tokens) {
       usedProperties.addAll(token.getPropertyTypes());
     }
     spanLayout.clearSelection();
@@ -164,7 +164,7 @@ public class NLPCanvas extends JPanel {
     NLPInstance filtered = filterInstance();
 
     //get edges and tokens
-    Collection<TokenVertex> tokens = new ArrayList<TokenVertex>(filtered.getTokens());
+    Collection<Token> tokens = new ArrayList<Token>(filtered.getTokens());
     Collection<Edge> dependencies = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.dependency));
     Collection<Edge> spans = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.span));
 
@@ -174,7 +174,7 @@ public class NLPCanvas extends JPanel {
     Graphics2D gSpans = spanImage.createGraphics();
 
     //get span required token widths
-    Map<TokenVertex, Integer> widths = spanLayout.estimateRequiredTokenWidths(spans, gSpans);
+    Map<Token, Integer> widths = spanLayout.estimateRequiredTokenWidths(spans, gSpans);
 
     //test layout to estimate sizes
     tokenLayout.layout(tokens, widths, gTokens);
@@ -218,7 +218,7 @@ public class NLPCanvas extends JPanel {
     fireRedrawn();
   }
 
-  private Collection<TokenVertex> filterTokens() {
+  private Collection<Token> filterTokens() {
     return tokenFilter.filterTokens(this.tokens);
   }
 
@@ -267,14 +267,14 @@ public class NLPCanvas extends JPanel {
     NLPInstance filtered = filterInstance();
 
     //get edges and tokens
-    Collection<TokenVertex> tokens = new ArrayList<TokenVertex>(filtered.getTokens());
+    Collection<Token> tokens = new ArrayList<Token>(filtered.getTokens());
     Collection<Edge> dependencies = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.dependency));
     Collection<Edge> spans = new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.span));
 
     //create dummy graphics objects to estimate dimensions
 
     //get span required token widths
-    Map<TokenVertex, Integer> widths = spanLayout.estimateRequiredTokenWidths(spans, dummy);
+    Map<Token, Integer> widths = spanLayout.estimateRequiredTokenWidths(spans, dummy);
 
     //test layout to estimate sizes
     tokenLayout.layout(tokens, widths, dummy);

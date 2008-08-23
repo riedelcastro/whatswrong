@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Sebastian Riedel
  */
 public class DependencyTypeFilterPanel extends ControllerPanel
-  implements NLPCanvas.Listener, DependencyTypeFilter.Listener {
+  implements NLPCanvas.Listener, EdgeTypeFilter.Listener {
   private NLPCanvas nlpCanvas;
   private String title;
   private JList types;
@@ -49,7 +49,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     updateSelection();
     types.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
-        DependencyTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
         justChanged.clear();
         if (e.getFirstIndex() == -1 || e.getLastIndex() >= types.getModel().getSize())
           return;
@@ -76,7 +76,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
 
     matches.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        DependencyTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
         if (matches.isSelected())
           filter.addAllowedPostfixType("Match");
         else {
@@ -88,7 +88,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     });
     falseNegatives.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        DependencyTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
         if (falseNegatives.isSelected())
           filter.addAllowedPostfixType("FN");
         else
@@ -99,7 +99,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     });
     falsePositives.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        DependencyTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
         if (falsePositives.isSelected())
           filter.addAllowedPostfixType("FP");
         else

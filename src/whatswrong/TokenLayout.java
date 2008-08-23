@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class TokenLayout {
 
-  private HashMap<Pair<TokenVertex, Integer>, TextLayout>
-          textLayouts = new HashMap<Pair<TokenVertex, Integer>, TextLayout>();
+  private HashMap<Pair<Token, Integer>, TextLayout>
+          textLayouts = new HashMap<Pair<Token, Integer>, TextLayout>();
 
-  private HashMap<TokenVertex, Rectangle2D> bounds = new HashMap<TokenVertex, Rectangle2D>();
+  private HashMap<Token, Rectangle2D> bounds = new HashMap<Token, Rectangle2D>();
 
   private int rowHeight = 14;
   private int baseline = 0;
@@ -51,7 +51,7 @@ public class TokenLayout {
     return margin;
   }
 
-  public void layout(Collection<TokenVertex> tokens, Map<TokenVertex,Integer> tokenWidths, Graphics2D g2d) {
+  public void layout(Collection<Token> tokens, Map<Token,Integer> tokenWidths, Graphics2D g2d) {
     if (tokens.size() == 0){
       height = 1;
       width = 1;
@@ -63,7 +63,7 @@ public class TokenLayout {
 
     g2d.setColor(Color.BLACK);
 
-    for (TokenVertex token : tokens) {
+    for (Token token : tokens) {
       Font font = g2d.getFont();//Font.getFont("Helvetica-bold-italic");
       FontRenderContext frc = g2d.getFontRenderContext();
       int index = 0;
@@ -77,7 +77,7 @@ public class TokenLayout {
         lasty += rowHeight;
         if (layout.getBounds().getMaxX() > maxX)
           maxX = (int) layout.getBounds().getMaxX();
-        textLayouts.put(new Pair<TokenVertex, Integer>(token, index++),layout);
+        textLayouts.put(new Pair<Token, Integer>(token, index++),layout);
       }
       Integer requiredWidth = tokenWidths.get(token);
       if (requiredWidth != null && maxX < requiredWidth) maxX = requiredWidth;
@@ -88,11 +88,11 @@ public class TokenLayout {
     width = lastx - margin;
   }
 
-  public TextLayout getProperty(TokenVertex vertex, int index) {
-    return textLayouts.get(new Pair<TokenVertex,Integer>(vertex,index));
+  public TextLayout getProperty(Token vertex, int index) {
+    return textLayouts.get(new Pair<Token,Integer>(vertex,index));
   }
 
-  public Rectangle2D getBounds(TokenVertex vertex){
+  public Rectangle2D getBounds(Token vertex){
     return bounds.get(vertex);
   }
 

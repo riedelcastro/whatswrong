@@ -138,10 +138,10 @@ public class SpanLayout implements EdgeLayout {
     return result;
   }
 
-  public Map<TokenVertex, Integer> estimateRequiredTokenWidths(
+  public Map<Token, Integer> estimateRequiredTokenWidths(
     Collection<Edge> edges, Graphics2D g2d) {
 
-    HashMap<TokenVertex, Integer> result = new HashMap<TokenVertex, Integer>();
+    HashMap<Token, Integer> result = new HashMap<Token, Integer>();
     for (Edge edge : edges) {
       if (edge.getFrom() == edge.getTo()) {
         Font font = new Font(g2d.getFont().getName(), Font.PLAIN, 8);
@@ -200,7 +200,7 @@ public class SpanLayout implements EdgeLayout {
     //have height of 1.5 levels
 
     //build map from vertex to incoming/outgoing edges
-    HashMultiMapList<TokenVertex, Edge> vertex2edges = new HashMultiMapList<TokenVertex, Edge>();
+    HashMultiMapList<Token, Edge> vertex2edges = new HashMultiMapList<Token, Edge>();
     for (Edge edge : edges) {
       vertex2edges.add(edge.getFrom(), edge);
       vertex2edges.add(edge.getTo(), edge);

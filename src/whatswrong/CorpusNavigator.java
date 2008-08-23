@@ -274,7 +274,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       for (NLPInstance instance : corpus) {
         Document doc = new Document();
         HashMap<TokenProperty, StringBuffer> sentences = new HashMap<TokenProperty, StringBuffer>();
-        for (TokenVertex token : instance.getTokens()) {
+        for (Token token : instance.getTokens()) {
           for (TokenProperty p : token.getPropertyTypes()) {
             StringBuffer buffer = sentences.get(p);
             if (buffer == null) {
@@ -392,10 +392,10 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       example.addDependency(4, 3, "MOD", "dep");
       example.addDependency(1, 4, "A1", "role");
       example.addSpan(1, 1, "add.1", "sense");
-      canvas.getDependencyLayout().setStroke("role", new BasicStroke(1.0f,
-        BasicStroke.CAP_BUTT,
-        BasicStroke.JOIN_BEVEL, 10,
-        new float[]{2.0f}, 0));
+//      canvas.getDependencyLayout().setStroke("role", new BasicStroke(1.0f,
+//        BasicStroke.CAP_BUTT,
+//        BasicStroke.JOIN_BEVEL, 10,
+//        new float[]{2.0f}, 0));
       canvas.setNLPInstance(example);
 
       canvas.getDependencyTypeFilter().addAllowedPrefixType("dep");

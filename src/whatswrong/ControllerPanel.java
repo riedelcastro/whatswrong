@@ -4,13 +4,18 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 /**
+ * ControllerPanel is a superclass for all controlling panels.
+ *
  * @author Sebastian Riedel
  */
-public class ControllerPanel extends JPanel {
+public abstract class ControllerPanel extends JPanel {
 
 
+  /**
+   * Creates new ControllerPanel. 
+   */
   public ControllerPanel() {
-    setBorder(new EmptyBorder(5,5,5,5));
-    
+    setBorder(new EmptyBorder(5, 5, 5, 5));
+
   }
 }
