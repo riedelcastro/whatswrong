@@ -22,9 +22,12 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
   private final JList list;
   private NLPCanvas canvas;
   private HashSet<TokenProperty> properties = new HashSet<TokenProperty>();
+  private TokenFilter tokenFilter;
 
 
-  public TokenFilterPanel(final NLPCanvas canvas) {
+
+  public TokenFilterPanel(final NLPCanvas canvas, final TokenFilter tokenFilter) {
+    this.tokenFilter = tokenFilter;
     this.canvas = canvas;
     canvas.addChangeListenger(this);
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -37,7 +40,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     updateProperties();
     list.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
-        TokenFilter filter = canvas.getTokenFilter();
+        TokenFilter filter = tokenFilter;
         if (e.getFirstIndex() == -1 || list.getModel().getSize() == 0)
           return;
         for (int index = e.getFirstIndex(); index < e.getLastIndex() + 1; ++index) {
@@ -62,10 +65,10 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
 
     allowed.addKeyListener(new KeyAdapter() {
       public void keyReleased(KeyEvent event) {
-        canvas.getTokenFilter().clearAllowedStrings();
+        tokenFilter.clearAllowedStrings();
         String[] split = allowed.getText().trim().split("[,]");
         for (String property : split)
-          canvas.getTokenFilter().addAllowedString(property);
+          tokenFilter.addAllowedString(property);
         canvas.updateNLPGraphics();
       }
     });
@@ -75,7 +78,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     final JCheckBox wholeWords = new JCheckBox("Whole Words");
     wholeWords.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        canvas.getTokenFilter().setWholeWord(wholeWords.isSelected());
+        tokenFilter.setWholeWord(wholeWords.isSelected());
         canvas.updateNLPGraphics();
       }
     });
@@ -99,7 +102,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     DefaultListSelectionModel selectionModel = new DefaultListSelectionModel();
     for (TokenProperty p : sorted) {
       listModel.addElement(p);
-      if (!this.canvas.getTokenFilter().getForbiddenTokenProperties().contains(p)
+      if (!this.tokenFilter.getForbiddenTokenProperties().contains(p)
               && !list.isSelectedIndex(index))
         selectionModel.addSelectionInterval(index, index);
       ++index;

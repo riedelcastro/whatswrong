@@ -17,7 +17,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
   public final static String VERSION = "0.1.1";
   private final static Properties properties = new Properties();
 
-  public static Properties getProperties(){
+  public static Properties getProperties() {
     return properties;
   }
 
@@ -29,8 +29,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
       if (file.exists()) {
         properties.load(new FileInputStream(file));
       } else {
-        properties.setProperty("whatswrong.golddir",System.getProperty("user.dir"));
-        properties.setProperty("whatswrong.guessdir",System.getProperty("user.dir"));        
+        properties.setProperty("whatswrong.golddir", System.getProperty("user.dir"));
+        properties.setProperty("whatswrong.guessdir", System.getProperty("user.dir"));
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -135,6 +135,17 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     final NLPCanvas canvas = new NLPCanvas();
 
+    //create the filter pipeline
+    EdgeTokenFilter edgeTokenFilter = new EdgeTokenFilter();
+    EdgeLabelFilter edgeLabelFilter = new EdgeLabelFilter();
+    TokenFilter tokenFilter = new TokenFilter();
+    EdgeTypeFilter edgeTypeFilter = new EdgeTypeFilter();
+    FilterPipeline filterPipeline = new FilterPipeline(
+      tokenFilter, edgeTypeFilter, edgeLabelFilter, edgeTokenFilter);
+
+    //set filter of canvas to be the pipeline
+    canvas.setFilter(filterPipeline);
+
     int canvasWidth = 900;
     int canvasHeight = 300;
     int canvasX = 50;
@@ -192,7 +203,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //desktop.add(canvasFrame);
 
     //file selection frame
-    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);    
+    final ControllerDialog fileWindow = new ControllerDialog("File Selection", true);
     fileWindow.getContentPane().setLayout(new BoxLayout(fileWindow.getContentPane(), BoxLayout.Y_AXIS));
     fileWindow.getContentPane().add(gold);
     fileWindow.getContentPane().add(new JSeparator());
@@ -208,9 +219,9 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //filter frame
     ControllerDialog filterWindow = new ControllerDialog("Edge Filters", false);
     filterWindow.getContentPane().setLayout(new BoxLayout(filterWindow.getContentPane(), BoxLayout.Y_AXIS));
-    filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas));
+    filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas,edgeTypeFilter));
     filterWindow.getContentPane().add(new JSeparator());
-    filterWindow.getContentPane().add(new DependencyFilterPanel(canvas));
+    filterWindow.getContentPane().add(new DependencyFilterPanel(canvas,edgeLabelFilter, edgeTokenFilter));
     filterWindow.pack();
     filterWindow.setLocation(canvasX + 250, canvasBottom + 15);
     filterWindow.setVisible(true);
@@ -219,7 +230,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //token filter frame
     ControllerDialog tokenFilterWindow = new ControllerDialog("Token Filters", false);
     tokenFilterWindow.getContentPane().setLayout(new BoxLayout(tokenFilterWindow.getContentPane(), BoxLayout.Y_AXIS));
-    tokenFilterWindow.getContentPane().add(new TokenFilterPanel(canvas));
+    tokenFilterWindow.getContentPane().add(new TokenFilterPanel(canvas,tokenFilter));
     tokenFilterWindow.pack();
     tokenFilterWindow.setLocation(canvasX + 360, canvasBottom + 230);
     tokenFilterWindow.setVisible(true);
@@ -237,7 +248,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //navigator
     ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
-    CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess);
+    CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess,edgeTypeFilter);
     navigatorWindow.getContentPane().add(navigator);
     navigatorWindow.pack();
     navigatorWindow.setMinimumSize(navigatorWindow.getSize());
@@ -266,7 +277,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
         gold.saveProperties(properties);
         guess.saveProperties(properties);
         try {
-          properties.store(new FileOutputStream(System.getProperty("user.home")+"/.whatswrong"),
+          properties.store(new FileOutputStream(System.getProperty("user.home") + "/.whatswrong"),
             "Whats wrong with you NLP properties");
         } catch (IOException e) {
           e.printStackTrace();
@@ -274,7 +285,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
       }
     }));
 
-    
+
   }
 
 }

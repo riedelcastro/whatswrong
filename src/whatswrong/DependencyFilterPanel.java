@@ -12,7 +12,14 @@ import java.awt.event.KeyEvent;
  */
 public class DependencyFilterPanel extends ControllerPanel {
 
-  public DependencyFilterPanel(final NLPCanvas nlpCanvas) {
+  private EdgeLabelFilter edgeLabelFilter;
+  private EdgeTokenFilter edgeTokenFilter;
+
+  public DependencyFilterPanel(final NLPCanvas nlpCanvas,
+                               final EdgeLabelFilter edgeLabelFilter,
+                               final EdgeTokenFilter edgeTokenFilter) {
+    this.edgeLabelFilter = edgeLabelFilter;
+    this.edgeTokenFilter = edgeTokenFilter;
     setLayout(new GridBagLayout());
     //setBorder(new TitledBorder(new EtchedBorder(), "Filter By Token"));
     GridBagConstraints c = new GridBagConstraints();
@@ -32,10 +39,10 @@ public class DependencyFilterPanel extends ControllerPanel {
     add(labelField,c);
     labelField.addKeyListener(new KeyAdapter() {
       public void keyReleased(KeyEvent e) {
-        nlpCanvas.getDependencyLabelFilter().clear();
+        edgeLabelFilter.clear();
         String[] split = labelField.getText().split("[,]");
         for (String label : split)
-          nlpCanvas.getDependencyLabelFilter().addAllowedLabel(label);
+          edgeLabelFilter.addAllowedLabel(label);
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -58,17 +65,17 @@ public class DependencyFilterPanel extends ControllerPanel {
     add(textField,c);
     textField.addKeyListener(new KeyAdapter() {
       public void keyReleased(KeyEvent e) {
-        nlpCanvas.getDependencyTokenFilter().clear();
+        edgeTokenFilter.clear();
         String[] split = textField.getText().split("[,]");
         for (String property : split)
-          nlpCanvas.getDependencyTokenFilter().addAllowedProperty(property);
+          edgeTokenFilter.addAllowedProperty(property);
         nlpCanvas.updateNLPGraphics();
       }
     });
-    final JCheckBox usePaths = new JCheckBox("Only Paths",nlpCanvas.getDependencyTokenFilter().isUsePaths());
+    final JCheckBox usePaths = new JCheckBox("Only Paths",edgeTokenFilter.isUsePaths());
     usePaths.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        nlpCanvas.getDependencyTokenFilter().setUsePaths(usePaths.isSelected());
+        edgeTokenFilter.setUsePaths(usePaths.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -90,7 +97,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     final JCheckBox collaps = new JCheckBox("Collaps");
     collaps.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        nlpCanvas.getDependencyTokenFilter().setCollaps(collaps.isSelected());
+        edgeTokenFilter.setCollaps(collaps.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -99,7 +106,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     final JCheckBox wholeWords = new JCheckBox("Whole Words");
     wholeWords.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        nlpCanvas.getDependencyTokenFilter().setWholeWords(wholeWords.isSelected());
+        edgeTokenFilter.setWholeWords(wholeWords.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
     });

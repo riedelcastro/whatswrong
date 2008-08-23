@@ -7,139 +7,112 @@ import javautils.HashMultiMapList;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
+ * A SpanLayouy lays out edges as rectangular blocks under or above the tokens
+ * that the edge covers. The label is written into these blocks. If there are
+ * multiple edge types then for each edge type all spans appear in the
+ * contiguous vertical area.
+ *
  * @author Sebastian Riedel
  */
-@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-public class SpanLayout implements EdgeLayout {
+public class SpanLayout extends AbstractEdgeLayout {
 
-  private int baseline = 1;
-  private int heightPerLevel = 15;
-  private int arrowSize = 2;
-  private int vertexExtraSpace = 12;
-  private boolean curve = true;
+  /**
+   * Should the graph be upside-down reverted.
+   */
   private boolean revert = true;
+
+  /**
+   * Should we draw separation lines between the areas for different span
+   * types.
+   */
   private boolean separationLines = true;
 
-  private HashMap<String, Color> colors = new HashMap<String, Color>();
-  private HashMap<String, BasicStroke> strokes = new HashMap<String, BasicStroke>();
-  private BasicStroke defaultStroke = new BasicStroke();
-  private HashMap<Edge, Point> from;
-  private HashMap<Edge, Point> to;
-  private HashMap<Shape, Edge> shapes = new HashMap<Shape, Edge>();
-  private HashSet<Edge> selected = new HashSet<Edge>();
-  private HashSet<Edge> visible = new HashSet<Edge>();
-
+  /**
+   * The order/vertical layer in which the area of a certain type should be
+   * drawn.
+   */
   private HashMap<String, Integer> orders = new HashMap<String, Integer>();
 
-  private int maxHeight;
-  private int maxWidth;
+  /**
+   * How much space should at least be between the label of a span and the right
+   * and left edges of the span.
+   */
   private double totalTextMargin = 6.0;
 
-  public void setColor(String type, Color color) {
-    colors.put(type, color);
+  /**
+   * Creates a new SpanLayout.
+   */
+  public SpanLayout() {
+    baseline = 1;
   }
 
-  public void setStroke(String type, BasicStroke stroke) {
-    strokes.put(type, stroke);
-  }
-
-  public void setTypeOrder(String type, int order) {
+  /**
+   * Sets the order/vertical layer in which the area of a certain type should be
+   * drawn.
+   *
+   * @param type  the type we want to change the order for.
+   * @param order the order/vertical layer in which the area of the given type
+   *              should be drawn.
+   */
+  public void setTypeOrder(final String type, final int order) {
     orders.put(type, order);
   }
 
+  /**
+   * Returns the order/vertical layer in which the area of a certain type should
+   * be drawn.
+   *
+   * @param type the type we want to get the order for.
+   * @return the order/vertical layer in which the area of the given type should
+   *         be drawn.
+   */
   public int getOrder(String type) {
     Integer order = orders.get(type);
     return order == null ? Integer.MIN_VALUE : order;
   }
 
-  public BasicStroke getStroke(Edge edge) {
-    BasicStroke stroke = getStroke(edge.getType());
-    return (selected.contains(edge)) ?
-      new BasicStroke(stroke.getLineWidth() + 1.5f, stroke.getEndCap(), stroke.getLineJoin(),
-        stroke.getMiterLimit(), stroke.getDashArray(), stroke.getDashPhase()) :
-      stroke;
-  }
-
-  public BasicStroke getStroke(String type) {
-    for (String substring : strokes.keySet())
-      if (type.contains(substring)) {
-        return strokes.get(substring);
-      }
-    return defaultStroke;
-  }
-
-  public Color getColor(String type) {
-    for (String substring : colors.keySet())
-      if (type.contains(substring)) return colors.get(substring);
-    return Color.BLACK;
-  }
-
-  public void addToSelection(Edge edge) {
-    selected.add(edge);
-  }
-
-  public void removeFromSelection(Edge edge) {
-    selected.remove(edge);
-  }
-
-  public void clearSelection() {
-    selected.clear();
-  }
-
-  public void onlyShow(Collection<Edge> edges) {
-    this.visible.clear();
-    this.visible.addAll(edges);
-  }
-
+  /**
+   * Should we draw separation lines between the areas for different span
+   * types.
+   *
+   * @return true iff separation lines should be drawn.
+   */
   public boolean isSeparationLines() {
     return separationLines;
   }
 
-  public void setSeparationLines(boolean separationLines) {
+  /**
+   * Should we draw separation lines between the areas for different span
+   * types.
+   *
+   * @param separationLines true iff separation lines should be drawn.
+   */
+  public void setSeparationLines(final boolean separationLines) {
     this.separationLines = separationLines;
   }
 
-  public void showAll() {
-    visible.clear();
-  }
 
-  public void toggleSelection(Edge edge) {
-    if (selected.contains(edge)) selected.remove(edge);
-    else selected.add(edge);
-  }
-
-
-  public Set<Edge> getSelected() {
-    return Collections.unmodifiableSet(selected);
-  }
-
-  public void select(Edge edge) {
-    selected.clear();
-    selected.add(edge);
-  }
-
-
-  public Edge getEdgeAt(Point2D p, int radius) {
-    Rectangle2D cursor = new Rectangle.Double(p.getX() - radius / 2, p.getY() - radius / 2, radius, radius);
-    double maxY = Integer.MIN_VALUE;
-    Edge result = null;
-    for (Shape s : shapes.keySet()) {
-      if (s.intersects(cursor) && s.getBounds().getY() > maxY) {
-        result = shapes.get(s);
-        maxY = s.getBounds().getY();
-      }
-    }
-    return result;
-  }
-
+  /**
+   * For each token that has a self-loop we need the token to be wide enough.
+   * This method calculates the needed token width for a given set of edges.
+   * That is, for all self-loops in the set of edges we calculate how wide the
+   * corresponding token need to be.
+   *
+   * @param edges the set of edges that can contain self-loops.
+   * @param g2d   the graphics object needed to find out the actual width of
+   *              text.
+   * @return A mapping from tokens with self-loops to pixel widths.
+   */
   public Map<Token, Integer> estimateRequiredTokenWidths(
-    Collection<Edge> edges, Graphics2D g2d) {
+    final Collection<Edge> edges, final Graphics2D g2d) {
 
     HashMap<Token, Integer> result = new HashMap<Token, Integer>();
     for (Edge edge : edges) {
@@ -158,6 +131,16 @@ public class SpanLayout implements EdgeLayout {
     return result;
   }
 
+  /**
+   * Lays out the edges as spans (blocks) under or above the tokens they
+   * contain.
+   *
+   * @param edges       the edges to layout.
+   * @param tokenLayout the token layout.
+   * @param g2d         the graphics object to draw on.
+   *
+   * @see EdgeLayout#layout(Collection<Edge>, TokenLayout, Graphics2D)
+   */
   public void layout(Collection<Edge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
     if (visible.size() > 0) {
       edges = new HashSet<Edge>(edges);
@@ -256,7 +239,7 @@ public class SpanLayout implements EdgeLayout {
       //Area area = new Area();
       //area.add(shape);
       //shape.append(layout.getOutline(null), false);
-      Rectangle2D labelBounds = layout.getBounds();
+      //Rectangle2D labelBounds = layout.getBounds();
       shapes.put(shape, edge);
       //shapes.put(new Rectangle.Double(labelx,labely,labelBounds.getWidth(), labelBounds.getHeight()), edge);
 
@@ -287,82 +270,4 @@ public class SpanLayout implements EdgeLayout {
   }
 
 
-  private int calculateDepth(HashMultiMapList<Edge, Edge> dominates,
-                             Counter<Edge> depth,
-                             Edge root) {
-    if (depth.get(root) > 0) return depth.get(root);
-    if (dominates.get(root).size() == 0) {
-      return 0;
-    }
-    int max = 0;
-    for (Edge children : dominates.get(root)) {
-      int current = calculateDepth(dominates, depth, children);
-      if (current > max) max = current;
-    }
-    depth.put(root, max + 1);
-    return max + 1;
-
-  }
-
-  public Point getFrom(Edge edge) {
-    return from.get(edge);
-  }
-
-  public Point getTo(Edge edge) {
-    return to.get(edge);
-  }
-
-  public int getHeight() {
-    return maxHeight;
-  }
-
-  public int getWidth() {
-    return maxWidth;
-  }
-
-  public TextLayout getLabel() {
-    return null;
-  }
-
-
-  public int getHeightPerLevel() {
-    return heightPerLevel;
-  }
-
-
-  public boolean isCurve() {
-    return curve;
-  }
-
-  public void setCurve(boolean curve) {
-    this.curve = curve;
-  }
-
-  public void setBaseline(int baseline) {
-    this.baseline = baseline;
-  }
-
-  public void setHeightPerLevel(int heightPerLevel) {
-    this.heightPerLevel = heightPerLevel;
-  }
-
-  public void setArrowSize(int arrowSize) {
-    this.arrowSize = arrowSize;
-  }
-
-  public void setVertexExtraSpace(int vertexExtraSpace) {
-    this.vertexExtraSpace = vertexExtraSpace;
-  }
-
-  public int getVertexExtraSpace() {
-    return vertexExtraSpace;
-  }
-
-  public int getArrowSize() {
-    return arrowSize;
-  }
-
-  public int getBaseline() {
-    return baseline;
-  }
 }

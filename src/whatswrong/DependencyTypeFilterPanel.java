@@ -25,11 +25,15 @@ public class DependencyTypeFilterPanel extends ControllerPanel
   private JCheckBox falseNegatives;
   private HashSet<String> justChanged = new HashSet<String>();
 
+  private EdgeTypeFilter edgeTypeFilter;
 
-  public DependencyTypeFilterPanel(String title, final NLPCanvas nlpCanvas) {
+
+  public DependencyTypeFilterPanel(String title, final NLPCanvas nlpCanvas,
+                                   final EdgeTypeFilter edgeTypeFilter) {
+    this.edgeTypeFilter = edgeTypeFilter;
     setLayout(new GridBagLayout());
     nlpCanvas.addListener(this);
-    nlpCanvas.getDependencyTypeFilter().addListener(this);
+    edgeTypeFilter.addListener(this);
     //setLayout(new GridBagLayout());
     //setBorder(new TitledBorder(new EtchedBorder(), title));
     this.title = title;
@@ -49,7 +53,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     updateSelection();
     types.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
-        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = edgeTypeFilter;
         justChanged.clear();
         if (e.getFirstIndex() == -1 || e.getLastIndex() >= types.getModel().getSize())
           return;
@@ -76,7 +80,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
 
     matches.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = edgeTypeFilter;
         if (matches.isSelected())
           filter.addAllowedPostfixType("Match");
         else {
@@ -88,7 +92,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     });
     falseNegatives.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = edgeTypeFilter;
         if (falseNegatives.isSelected())
           filter.addAllowedPostfixType("FN");
         else
@@ -99,7 +103,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     });
     falsePositives.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        EdgeTypeFilter filter = nlpCanvas.getDependencyTypeFilter();
+        EdgeTypeFilter filter = edgeTypeFilter;
         if (falsePositives.isSelected())
           filter.addAllowedPostfixType("FP");
         else
@@ -145,7 +149,7 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     selectionModel.setValueIsAdjusting(true);
     for (int index = 0;  index < types.getModel().getSize();++index) {
       String type = types.getModel().getElementAt(index).toString();
-      if (nlpCanvas.getDependencyTypeFilter().allowsPrefix(type))
+      if (edgeTypeFilter.allowsPrefix(type))
         selectionModel.addSelectionInterval(index, index);
     }
 
@@ -162,11 +166,11 @@ public class DependencyTypeFilterPanel extends ControllerPanel
     allTypes.addAll(prefixTypes);
 
     falsePositives.setEnabled(postfixTypes.contains("FP"));
-    falsePositives.setSelected(nlpCanvas.getDependencyTypeFilter().allowsPostfix("FP"));
+    falsePositives.setSelected(edgeTypeFilter.allowsPostfix("FP"));
     falseNegatives.setEnabled(postfixTypes.contains("FN"));
-    falseNegatives.setSelected(nlpCanvas.getDependencyTypeFilter().allowsPostfix("FN"));
+    falseNegatives.setSelected(edgeTypeFilter.allowsPostfix("FN"));
     matches.setEnabled(postfixTypes.contains("Match"));
-    matches.setSelected(nlpCanvas.getDependencyTypeFilter().allowsPostfix("Match"));
+    matches.setSelected(edgeTypeFilter.allowsPostfix("Match"));
 
     listModel.clear();
     for (String type : allTypes) {

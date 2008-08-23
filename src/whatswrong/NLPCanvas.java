@@ -23,7 +23,7 @@ import java.util.*;
 public class NLPCanvas extends JPanel {
 
   private SpanLayout spanLayout = new SpanLayout();
-  private DependencyLayout dependencyLayout = new DependencyLayout();
+  private AbstractEdgeLayout dependencyLayout = new DependencyLayout();
   private TokenLayout tokenLayout = new TokenLayout();
 
   private ArrayList<Token> tokens = new ArrayList<Token>();
@@ -33,16 +33,14 @@ public class NLPCanvas extends JPanel {
   private BufferedImage dependencyImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
   private BufferedImage spanImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
-  private EdgeTypeFilter dependencyTypeFilter = new EdgeTypeFilter();
-  private EdgeLabelFilter dependencyLabelFilter = new EdgeLabelFilter();
-  private EdgeTokenFilter dependencyTokenFilter = new EdgeTokenFilter();
-  private TokenFilter tokenFilter = new TokenFilter();
   private Set<String> usedTypes = new HashSet<String>();
   private Set<TokenProperty> usedProperties = new java.util.HashSet<TokenProperty>();
 
   private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
   private boolean antiAliasing = true;
   private NLPInstance nlpInstance;
+
+  private NLPInstanceFilter filter;
 
   public interface Listener {
     void instanceChanged();
@@ -106,26 +104,6 @@ public class NLPCanvas extends JPanel {
     for (Listener l : listeners) l.redrawn();
   }
 
-  public EdgeTypeFilter getDependencyTypeFilter() {
-    return dependencyTypeFilter;
-  }
-
-
-  public EdgeLabelFilter getDependencyLabelFilter() {
-    return dependencyLabelFilter;
-  }
-
-
-  public EdgeTokenFilter getDependencyTokenFilter() {
-    return dependencyTokenFilter;
-  }
-
-
-  public TokenFilter getTokenFilter() {
-    return tokenFilter;
-  }
-
-
   public void setNLPInstance(NLPInstance nlpInstance) {
     dependencies.clear();
     dependencies.addAll(nlpInstance.getEdges());
@@ -155,9 +133,18 @@ public class NLPCanvas extends JPanel {
     spanLayout.setColor(type, color);
   }
 
+  public NLPInstanceFilter getFilter() {
+    return filter;
+  }
+
+  public void setFilter(NLPInstanceFilter filter) {
+    this.filter = filter;
+  }
+
   private NLPInstance filterInstance() {
-    return dependencyTokenFilter.filter(dependencyLabelFilter.filter(dependencyTypeFilter.filter(
-      tokenFilter.filter(new NLPInstance(tokens, dependencies)))));
+    return filter.filter(new NLPInstance(tokens, dependencies));
+    //return dependencyTokenFilter.filter(dependencyLabelFilter.filter(dependencyTypeFilter.filter(
+    //  tokenFilter.filter(new NLPInstance(tokens, dependencies)))));
   }
 
   public void updateNLPGraphics() {
@@ -218,17 +205,6 @@ public class NLPCanvas extends JPanel {
     fireRedrawn();
   }
 
-  private Collection<Token> filterTokens() {
-    return tokenFilter.filterTokens(this.tokens);
-  }
-
-  private Collection<Edge> filterDependencies() {
-    return dependencyTokenFilter.filterEdges(
-      dependencyLabelFilter.filterEdges(
-        dependencyTypeFilter.filterEdges(this.dependencies)));
-  }
-
-
   public TokenLayout getTokenLayout() {
     return tokenLayout;
   }
@@ -237,7 +213,7 @@ public class NLPCanvas extends JPanel {
     return spanLayout;
   }
 
-  public DependencyLayout getDependencyLayout() {
+  public AbstractEdgeLayout getDependencyLayout() {
     return dependencyLayout;
   }
 

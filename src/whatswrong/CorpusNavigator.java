@@ -54,6 +54,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   private NLPDiff diff = new NLPDiff();
   private JPanel spinnerPanel;
   private JLabel ofHowMany;
+  private EdgeTypeFilter edgeTypeFilter;
 
   public void corpusAdded(List<NLPInstance> corpus, CorpusLoader src) {
     if (src == gold) {
@@ -123,8 +124,12 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     }
   }
 
-  public CorpusNavigator(NLPCanvas canvas, CorpusLoader goldLoader, CorpusLoader guessLoader) {
+  public CorpusNavigator(NLPCanvas canvas,
+                         CorpusLoader goldLoader,
+                         CorpusLoader guessLoader,
+                         EdgeTypeFilter edgeTypeFilter) {
     super(new GridBagLayout());
+    this.edgeTypeFilter = edgeTypeFilter;
     this.guess = guessLoader;
     this.gold = goldLoader;
     this.canvas = canvas;
@@ -201,7 +206,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
     add(searchPanel, new SimpleGridBagConstraints(0, 0, 2, 1));
     JScrollPane resultsPane = new JScrollPane(results);
-    resultsPane.setMinimumSize(new Dimension(100,10));
+    resultsPane.setMinimumSize(new Dimension(100, 10));
     add(resultsPane, new SimpleGridBagConstraints(0, 1, 2, 2));
 
     //setPreferredSize((new Dimension(100, (int) getPreferredSize().getHeight())));
@@ -211,13 +216,11 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
-  public JPanel getSpinnerPanel
-    () {
+  public JPanel getSpinnerPanel() {
     return spinnerPanel;
   }
 
-  private void searchCorpus
-    () {
+  private void searchCorpus() {
     if (search.getText().trim().equals("")) return;
     try {
       indexSearcher = guess.getSelected() != null ?
@@ -239,7 +242,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
           best = highlighter.getBestFragment(analyzer, f.name(), hitDoc.get(f.name()));
           if (best != null) break;
         }
-        if (best != null) model.addElement(new Result(nr, "<html>" + nr + ":" + best + "</html>"));
+        if (best != null)
+          model.addElement(new Result(nr, "<html>" + nr + ":" + best + "</html>"));
         //System.out.println(highlighter.getBestFragment(analyzer, "Word", hitDoc.get("Word")));
         //assertEquals("This is the text to be indexed.", hitDoc.get("fieldname"));
       }
@@ -251,8 +255,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
-  private synchronized IndexSearcher getIndex
-    (List<NLPInstance> corpus) {
+  private synchronized IndexSearcher getIndex(List<NLPInstance> corpus) {
     IndexSearcher index = indices.get(corpus);
     if (index == null) {
       index = createIndex(corpus);
@@ -261,8 +264,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     return index;
   }
 
-  private IndexSearcher createIndex
-    (List<NLPInstance> corpus) {
+  private IndexSearcher createIndex(List<NLPInstance> corpus) {
     try {
       System.err.println("Creating Index");
       RAMDirectory directory = new RAMDirectory();
@@ -336,8 +338,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
   }
 
-  private void updateCanvas
-    () {
+  private void updateCanvas() {
     if (gold.getSelected() != null) {
       searchButton.setEnabled(true);
       search.setEnabled(true);
@@ -398,24 +399,24 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 //        new float[]{2.0f}, 0));
       canvas.setNLPInstance(example);
 
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("dep");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("role");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("sense");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("ner");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("chunk");
-      canvas.getDependencyTypeFilter().addAllowedPrefixType("pos");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("FP");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("FN");
-      canvas.getDependencyTypeFilter().addAllowedPostfixType("Match");
+      edgeTypeFilter.addAllowedPrefixType("dep");
+      edgeTypeFilter.addAllowedPrefixType("role");
+      edgeTypeFilter.addAllowedPrefixType("sense");
+      edgeTypeFilter.addAllowedPrefixType("ner");
+      edgeTypeFilter.addAllowedPrefixType("chunk");
+      edgeTypeFilter.addAllowedPrefixType("pos");
+      edgeTypeFilter.addAllowedPostfixType("FP");
+      edgeTypeFilter.addAllowedPostfixType("FN");
+      edgeTypeFilter.addAllowedPostfixType("Match");
 
-      canvas.getSpanLayout().setTypeOrder("pos",0);
-      canvas.getSpanLayout().setTypeOrder("chunk (BIO)",1);
-      canvas.getSpanLayout().setTypeOrder("chunk",2);
-      canvas.getSpanLayout().setTypeOrder("ner (BIO)",2);
-      canvas.getSpanLayout().setTypeOrder("ner",3);
-      canvas.getSpanLayout().setTypeOrder("sense",4);
-      canvas.getSpanLayout().setTypeOrder("role",5);
-      canvas.getSpanLayout().setTypeOrder("phrase",5);
+      canvas.getSpanLayout().setTypeOrder("pos", 0);
+      canvas.getSpanLayout().setTypeOrder("chunk (BIO)", 1);
+      canvas.getSpanLayout().setTypeOrder("chunk", 2);
+      canvas.getSpanLayout().setTypeOrder("ner (BIO)", 2);
+      canvas.getSpanLayout().setTypeOrder("ner", 3);
+      canvas.getSpanLayout().setTypeOrder("sense", 4);
+      canvas.getSpanLayout().setTypeOrder("role", 5);
+      canvas.getSpanLayout().setTypeOrder("phrase", 5);
 
       canvas.updateNLPGraphics();
 
