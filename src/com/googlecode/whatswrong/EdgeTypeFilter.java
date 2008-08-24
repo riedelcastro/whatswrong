@@ -21,7 +21,8 @@ public class EdgeTypeFilter extends EdgeFilter {
   private HashSet<String> allowedPostfixTypes = new HashSet<String>();
 
   /**
-   * A Listener is notified of changes to the set of allowed edge type strings.
+   * Am EdgeTypeFilter.Listener is notified of changes to the set of allowed
+   * edge type strings.
    */
   public interface Listener {
     /**

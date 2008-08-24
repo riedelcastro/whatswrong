@@ -30,33 +30,116 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
+ * A CorpusNavigator allows the user to navigate through a corpus (or a diffed
+ * corpus) and pick one NLP instance to draw (or one difference of two
+ * NLPInstance objects in terms of their edges). The CorpusNavigator also allows
+ * us to search a corpus for keywords by using the Lucene IR engine. The
+ * instances that match the user's query are presented in a list and one of them
+ * can then be picked to be rendered. The CorpusNavigator has also a spinner
+ * panel that allows to go through this corpus by index. This spinner is not
+ * part of the navigator panel and can be placed anywhere.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc"})
 public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
-  private CorpusLoader guess, gold;
+  /**
+   * The loader for guess instances.
+   */
+  private CorpusLoader guess;
+  /**
+   * The loader for gold instances.
+   */
+  private CorpusLoader gold;
+  /**
+   * The canvas that renders the instances.
+   */
   private NLPCanvas canvas;
+  /**
+   * The spinner that controls the current instance to be rendered by the
+   * canvas.
+   */
   private JSpinner spinner;
+  /**
+   * The number model that backs the spinner that controls the current instance
+   * to render.
+   */
   private SpinnerNumberModel numberModel;
+
+  /**
+   * A mapping from corpora to index searchers that can be used to search the
+   * corpus.
+   */
   private HashMap<List<NLPInstance>, IndexSearcher>
     indices = new HashMap<List<NLPInstance>, IndexSearcher>();
+
+  /**
+   * A mapping from pairs of corpora to index searchers that can be used to
+   * search the differences between the two corpora.
+   */
   private HashMap<Pair<List<NLPInstance>, List<NLPInstance>>, List<NLPInstance>>
     diffCorpora = new HashMap<Pair<List<NLPInstance>, List<NLPInstance>>, List<NLPInstance>>();
   //private HashMap<List<NLPInstance>>
+
+  /**
+   * The set of gold corpora.
+   */
   private HashSet<List<NLPInstance>>
-    goldCorpora = new HashSet<List<NLPInstance>>(),
+    goldCorpora = new HashSet<List<NLPInstance>>();
+  /**
+   * The set of guess corpora.
+   */
+  private HashSet<List<NLPInstance>>
     guessCorpora = new HashSet<List<NLPInstance>>();
+
+  /**
+   * The current IndexSearcher (for the selected corpus/corpus pair).
+   */
   private IndexSearcher indexSearcher;
+  /**
+   * The Analyzer for the search index.
+   */
   private Analyzer analyzer;
+  /**
+   * The search button that triggers the search process.
+   */
   private JButton searchButton;
+  /**
+   * The list of search results.
+   */
   private JList results;
+  /**
+   * The field for the search terms.
+   */
   private JTextField search;
+  /**
+   * The NLPDiff object that compares pairs of instances.
+   */
   private NLPDiff diff = new NLPDiff();
+  /**
+   * The panel that controls the instance index spinner.
+   */
   private JPanel spinnerPanel;
+  /**
+   * The label that shows how many results where found.
+   */
   private JLabel ofHowMany;
+
+  /**
+   * The EdgeTypeFilter that needs to be initialized when the navigator does not
+   * have a selected corpus and shows an example sentence.
+   */
   private EdgeTypeFilter edgeTypeFilter;
 
-  public void corpusAdded(List<NLPInstance> corpus, CorpusLoader src) {
+  /**
+   * Adds the corpus to the corresponding internal set of corpora.
+   *
+   * @param corpus the corpus to add.
+   * @param src    the source loader.
+   */
+  public void corpusAdded(final List<NLPInstance> corpus,
+                          final CorpusLoader src) {
     if (src == gold) {
       goldCorpora.add(corpus);
       //indices.put(corpus, createIndex(corpus));
@@ -66,7 +149,17 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     }
   }
 
-  private List<NLPInstance> getDiffCorpus(List<NLPInstance> gold, List<NLPInstance> guess) {
+  /**
+   * Returns a difference corpus between two corpora. This difference corpus is
+   * calculated if it hasn't been calculated before.
+   *
+   * @param gold  the gold corpus.
+   * @param guess the guess corpus.
+   * @return the difference corpus.
+   * @see com.googlecode.whatswrong.NLPDiff
+   */
+  private List<NLPInstance> getDiffCorpus(final List<NLPInstance> gold,
+                                          final List<NLPInstance> guess) {
     List<NLPInstance> diffCorpus = diffCorpora.get(new Pair<List<NLPInstance>, List<NLPInstance>>(gold, guess));
     if (diffCorpus == null) {
       diffCorpus = new ArrayList<NLPInstance>(Math.min(gold.size(), guess.size()));
@@ -78,7 +171,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     return diffCorpus;
   }
 
-  private void removeDiffCorpus(List<NLPInstance> gold, List<NLPInstance> guess) {
+  /**
+   * Removes the difference corpus for the given corpus pair.
+   *
+   * @param gold  the gold corpus.
+   * @param guess the guess corpus.
+   */
+  private void removeDiffCorpus(final List<NLPInstance> gold,
+                                final List<NLPInstance> guess) {
     Pair<List<NLPInstance>, List<NLPInstance>> pair = new Pair<List<NLPInstance>, List<NLPInstance>>(gold, guess);
     List<NLPInstance> diffCorpus = diffCorpora.get(pair);
     if (diffCorpus != null) {
@@ -87,7 +187,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     }
   }
 
-  public void corpusRemoved(List<NLPInstance> corpus, CorpusLoader src) {
+  /**
+   * Removes the corpus and all diff corpora that compare the given corpus
+   *
+   * @param corpus the corpus to remove.
+   * @param src    the loader that removed the corpus.
+   */
+  public void corpusRemoved(final List<NLPInstance> corpus,
+                            final CorpusLoader src) {
     if (src == gold) {
       goldCorpora.remove(corpus);
       indices.remove(corpus);
@@ -104,30 +211,70 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
   }
 
-  public synchronized void corpusSelected(List<NLPInstance> corpus, CorpusLoader src) {
+  /**
+   * Changes the current selected instance to be the one in the new corpus with
+   * the same index as the last chosen instance of the old corpus or the last
+   * instance if no such instance exist.
+   *
+   * @param corpus the newly selected corpus.
+   * @param src    the loader in which the corpus was selected.
+   */
+  public synchronized void corpusSelected(final List<NLPInstance> corpus,
+                                          final CorpusLoader src) {
     updateCanvas();
     results.setModel(new DefaultListModel());
 
   }
 
+  /**
+   * A Search result consisting of the instance index and a text snippet that
+   * indicates the position in the instance where they key terms were found.
+   */
   private static class Result {
+    /**
+     * A text representation of the location in which the key terms were found.
+     */
     public final String text;
+    /**
+     * The index of the instance in which the key terms were found.
+     */
     public final int nr;
 
-    public Result(int nr, String text) {
+    /**
+     * Creates a new Result.
+     *
+     * @param nr   the index nr.
+     * @param text the text snippet.
+     */
+    public Result(final int nr, final String text) {
       this.text = text;
       this.nr = nr;
     }
 
+    /**
+     * Returns the text snippet.
+     *
+     * @return the text snippet.
+     */
     public String toString() {
       return text;
     }
   }
 
-  public CorpusNavigator(NLPCanvas canvas,
-                         CorpusLoader goldLoader,
-                         CorpusLoader guessLoader,
-                         EdgeTypeFilter edgeTypeFilter) {
+  /**
+   * Creates a new CorpusNavigator.
+   *
+   * @param canvas         the canvas to control.
+   * @param goldLoader     the loader of gold corpora.
+   * @param guessLoader    the loader of guess corpora.
+   * @param edgeTypeFilter the EdgeTypeFilter we need when no corpus is selected
+   *                       and a example sentence is chosen and passed to the
+   *                       NLPCanvas.
+   */
+  public CorpusNavigator(final NLPCanvas canvas,
+                         final CorpusLoader goldLoader,
+                         final CorpusLoader guessLoader,
+                         final EdgeTypeFilter edgeTypeFilter) {
     super(new GridBagLayout());
     this.edgeTypeFilter = edgeTypeFilter;
     this.guess = guessLoader;
@@ -216,10 +363,18 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
+  /**
+   * Returns the panel that contains the spinner to set the instance nr.
+   *
+   * @return the panel that contains the spinner to set the instance nr.
+   */
   public JPanel getSpinnerPanel() {
     return spinnerPanel;
   }
 
+  /**
+   * Searches the current corpus using the search terms in the search field.
+   */
   private void searchCorpus() {
     if (search.getText().trim().equals("")) return;
     try {
@@ -255,7 +410,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
   }
 
 
-  private synchronized IndexSearcher getIndex(List<NLPInstance> corpus) {
+  /**
+   * Returns an IndexSearcher for the given corpus. A new one is created if not
+   * yet existent.
+   *
+   * @param corpus the corpus to get an IndexSearcher for.
+   * @return the IndexSearcher for the given corpus.
+   */
+  private synchronized IndexSearcher getIndex(final List<NLPInstance> corpus) {
     IndexSearcher index = indices.get(corpus);
     if (index == null) {
       index = createIndex(corpus);
@@ -264,7 +426,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
     return index;
   }
 
-  private IndexSearcher createIndex(List<NLPInstance> corpus) {
+  /**
+   * Creates an IndexSearcher for the given corpus that allows us to search the
+   * corpus efficiently for keywords in the token properties and edges.
+   *
+   * @param corpus the corpus to create the IndexSearcher for.
+   * @return An IndexSearcher for the given corpus.
+   */
+  private IndexSearcher createIndex(final List<NLPInstance> corpus) {
     try {
       System.err.println("Creating Index");
       RAMDirectory directory = new RAMDirectory();
@@ -338,6 +507,10 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
 
   }
 
+  /**
+   * Updates the canvas based on the current state of the navigator and the
+   * corpus loaders.
+   */
   private void updateCanvas() {
     if (gold.getSelected() != null) {
       searchButton.setEnabled(true);
