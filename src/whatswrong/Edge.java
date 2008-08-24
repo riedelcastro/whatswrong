@@ -23,7 +23,7 @@ package whatswrong;
 public class Edge {
 
   /**
-   * The RenderType enum can be used to specifcy how the edge should be
+   * The RenderType enum can be used to specify how the edge should be
    * rendered.
    */
   public static enum RenderType {

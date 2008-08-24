@@ -3,15 +3,17 @@ package javautils;
 import java.util.*;
 
 /**
- * A HashMultiMapArrayList is a mapping from keys to array lists of values.
+ * A HashMultiMapLinkedList is a mapping from keys to linked lists of associated
+ * values.           
  *
  * @author Sebastian Riedel
  */
-public class HashMultiMapArrayList<K, V> extends HashMap<K, List<V>> {
+public class HashMultiMapLinkedList<K, V> extends HashMap<K, List<V>> {
+
   /**
    * the empty list to be returned when there is key without values.
    */
-  protected List<V> emptyList = Collections.unmodifiableList(new ArrayList<V>(0));
+  protected List<V> emptyList = Collections.unmodifiableList(new LinkedList<V>());
 
   /**
    * Adds a value to the list of values of the given key.
@@ -22,7 +24,7 @@ public class HashMultiMapArrayList<K, V> extends HashMap<K, List<V>> {
   public void add(final K key, final V value) {
     List<V> list = get(key);
     if (list.size() == 0) {
-      list = new ArrayList<V>();
+      list = new LinkedList<V>();
       put(key, list);
     }
     list.add(value);
@@ -33,10 +35,10 @@ public class HashMultiMapArrayList<K, V> extends HashMap<K, List<V>> {
    *
    * @return A deep copy of this mapping.
    */
-  public HashMultiMapArrayList<K, V> deepcopy() {
-    HashMultiMapArrayList<K, V> result = new HashMultiMapArrayList<K, V>();
+  public HashMultiMapLinkedList<K, V> deepcopy() {
+    HashMultiMapLinkedList<K, V> result = new HashMultiMapLinkedList<K, V>();
     for (Map.Entry<K, List<V>> entry : entrySet())
-      result.put(entry.getKey(), new ArrayList<V>(entry.getValue()));
+      result.put(entry.getKey(), new LinkedList<V>(entry.getValue()));
     return result;
   }
 

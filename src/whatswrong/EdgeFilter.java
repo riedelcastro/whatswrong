@@ -3,7 +3,7 @@ package whatswrong;
 import java.util.Collection;
 
 /**
- * A DependencyFilter is a NLPInstanceFilter that only filters out edges.
+ * An EdgeFilter is a NLPInstanceFilter that only filters out edges.
  *
  * @author Sebastian Riedel
  */

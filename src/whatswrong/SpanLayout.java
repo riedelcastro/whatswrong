@@ -2,7 +2,7 @@ package whatswrong;
 
 
 import javautils.Counter;
-import javautils.HashMultiMapList;
+import javautils.HashMultiMapLinkedList;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * A SpanLayouy lays out edges as rectangular blocks under or above the tokens
  * that the edge covers. The label is written into these blocks. If there are
- * multiple edge types then for each edge type all spans appear in the
+ * multiple edge types then all spans of the same type appear in the same
  * contiguous vertical area.
  *
  * @author Sebastian Riedel
@@ -138,7 +138,6 @@ public class SpanLayout extends AbstractEdgeLayout {
    * @param edges       the edges to layout.
    * @param tokenLayout the token layout.
    * @param g2d         the graphics object to draw on.
-   *
    * @see EdgeLayout#layout(Collection<Edge>, TokenLayout, Graphics2D)
    */
   public void layout(Collection<Edge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
@@ -152,8 +151,8 @@ public class SpanLayout extends AbstractEdgeLayout {
 
     Counter<Edge> depth = new Counter<Edge>();
     Counter<Edge> offset = new Counter<Edge>();
-    HashMultiMapList<Edge, Edge>
-      dominates = new HashMultiMapList<Edge, Edge>();
+    HashMultiMapLinkedList<Edge, Edge>
+      dominates = new HashMultiMapLinkedList<Edge, Edge>();
 
 
     for (Edge over : edges)
@@ -183,7 +182,7 @@ public class SpanLayout extends AbstractEdgeLayout {
     //have height of 1.5 levels
 
     //build map from vertex to incoming/outgoing edges
-    HashMultiMapList<Token, Edge> vertex2edges = new HashMultiMapList<Token, Edge>();
+    HashMultiMapLinkedList<Token, Edge> vertex2edges = new HashMultiMapLinkedList<Token, Edge>();
     for (Edge edge : edges) {
       vertex2edges.add(edge.getFrom(), edge);
       vertex2edges.add(edge.getTo(), edge);

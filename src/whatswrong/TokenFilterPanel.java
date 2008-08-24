@@ -1,32 +1,52 @@
 package whatswrong;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
+ * A TokenFilterPanel controls a TokenFilter and updates a NLPCanvas whenever
+ * the filter has been changed.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc"})
 public class TokenFilterPanel extends ControllerPanel implements ChangeListener {
+  /**
+   * The list model for the list of possible token properties.
+   */
   private DefaultListModel listModel;
+  /**
+   * The JList of possible token properties.
+   */
   private final JList list;
+  /**
+   * The canvas which is to be updated whenever the filter is changed.
+   */
   private NLPCanvas canvas;
-  private HashSet<TokenProperty> properties = new HashSet<TokenProperty>();
+
+  /**
+   * The filter this panel controls.
+   */
   private TokenFilter tokenFilter;
 
-
-
-  public TokenFilterPanel(final NLPCanvas canvas, final TokenFilter tokenFilter) {
+  /**
+   * Creates a new TokenFilterPanel for the given canvas and filter.
+   *
+   * @param canvas      the NLPCanvas to update whenever the filter is changed.
+   * @param tokenFilter the TokenFilter to control by this panel.
+   */
+  public TokenFilterPanel(final NLPCanvas canvas,
+                          final TokenFilter tokenFilter) {
     this.tokenFilter = tokenFilter;
     this.canvas = canvas;
     canvas.addChangeListenger(this);
@@ -40,14 +60,13 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     updateProperties();
     list.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
-        TokenFilter filter = tokenFilter;
         if (e.getFirstIndex() == -1 || list.getModel().getSize() == 0)
           return;
         for (int index = e.getFirstIndex(); index < e.getLastIndex() + 1; ++index) {
           if (list.isSelectedIndex(index)) {
-            filter.removeForbiddenProperty(listModel.get(index).toString());
+            tokenFilter.removeForbiddenProperty(listModel.get(index).toString());
           } else {
-            filter.addForbiddenProperty(listModel.get(index).toString());
+            tokenFilter.addForbiddenProperty(listModel.get(index).toString());
           }
         }
         canvas.updateNLPGraphics();
@@ -60,7 +79,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
 
     add(new JSeparator());
     JPanel allowedTokens = new JPanel(new GridBagLayout());
-    allowedTokens.add(new JLabel("Token:"), new SimpleGridBagConstraints(0,true));
+    allowedTokens.add(new JLabel("Token:"), new SimpleGridBagConstraints(0, true));
     final JTextField allowed = new JTextField();
 
     allowed.addKeyListener(new KeyAdapter() {
@@ -73,8 +92,8 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
       }
     });
 
-    allowedTokens.add(allowed, new SimpleGridBagConstraints(0,false));
-    allowedTokens.add(new JLabel("Options:"), new SimpleGridBagConstraints(1,true));
+    allowedTokens.add(allowed, new SimpleGridBagConstraints(0, false));
+    allowedTokens.add(new JLabel("Options:"), new SimpleGridBagConstraints(1, true));
     final JCheckBox wholeWords = new JCheckBox("Whole Words");
     wholeWords.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
@@ -82,7 +101,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
         canvas.updateNLPGraphics();
       }
     });
-    allowedTokens.add(wholeWords, new SimpleGridBagConstraints(1,false));
+    allowedTokens.add(wholeWords, new SimpleGridBagConstraints(1, false));
 
 
     add(allowedTokens);
@@ -92,10 +111,12 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
 
   }
 
+  /**
+   * Updates the list of available token properties.
+   */
   private void updateProperties() {
     ArrayList<TokenProperty> sorted = new ArrayList<TokenProperty>(this.canvas.getUsedProperties());
     Collections.sort(sorted);
-    properties = new HashSet<TokenProperty>(sorted);
     int index = 0;
     listModel.clear();
     listModel = new DefaultListModel();
@@ -103,7 +124,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
     for (TokenProperty p : sorted) {
       listModel.addElement(p);
       if (!this.tokenFilter.getForbiddenTokenProperties().contains(p)
-              && !list.isSelectedIndex(index))
+        && !list.isSelectedIndex(index))
         selectionModel.addSelectionInterval(index, index);
       ++index;
     }
@@ -112,7 +133,12 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
 
   }
 
-  public void stateChanged(ChangeEvent e) {
+  /**
+   * Updates available properties and requests a redraw of the panel.
+   *
+   * @param e the ChangeEvent corresponding to the change of the canvas.
+   */
+  public void stateChanged(final ChangeEvent e) {
     updateProperties();
     repaint();
 

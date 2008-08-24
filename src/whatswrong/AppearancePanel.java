@@ -9,10 +9,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 /**
+ * An AppearancePanel controls the appearance of an NLPCanvas. This includes the
+ * configuration of the height and width of the graph as well as the toggling of
+ * anti-aliasing and curved/rectangular modes.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc"})
 public class AppearancePanel extends JPanel {
 
+  /**
+   * Creates a new AppearancePanel for the given canvas.
+   *
+   * @param nlpCanvas the NLPCanvas to control.
+   */
   public AppearancePanel(final NLPCanvas nlpCanvas) {
     super(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
@@ -20,8 +30,8 @@ public class AppearancePanel extends JPanel {
     c.weighty = 1.0;
     //c.fill = GridBagConstraints.HORIZONTAL;
     //setBorder(new TitledBorder(new EtchedBorder(),"Change Appearance"));
-    setBorder(new EmptyBorder(5,5,5,5));
-    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL,0,100,nlpCanvas.getTokenLayout().getMargin());
+    setBorder(new EmptyBorder(5, 5, 5, 5));
+    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, nlpCanvas.getTokenLayout().getMargin());
     marginSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         nlpCanvas.getTokenLayout().setMargin(marginSlider.getValue());
@@ -30,14 +40,14 @@ public class AppearancePanel extends JPanel {
     });
     c.gridx = 0;
     c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Width:"),c);
+    add(new JLabel("Width:"), c);
     c.anchor = GridBagConstraints.WEST;
     c.gridx = 1;
     add(marginSlider, c);
     marginSlider.setToolTipText("Margin between tokens");
-    marginSlider.setMaximumSize(new Dimension(20,50));
+    marginSlider.setMaximumSize(new Dimension(20, 50));
 
-    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL,10,50,nlpCanvas.getSpanLayout().getHeightPerLevel());
+    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL, 10, 50, nlpCanvas.getSpanLayout().getHeightPerLevel());
     heightSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         nlpCanvas.getSpanLayout().setHeightPerLevel(heightSlider.getValue());
@@ -48,12 +58,12 @@ public class AppearancePanel extends JPanel {
     });
     c.gridx = 0;
     c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Height:"),c);
+    add(new JLabel("Height:"), c);
     c.gridx = 1;
-    c.anchor = GridBagConstraints.WEST;    
-    add(heightSlider,c);
+    c.anchor = GridBagConstraints.WEST;
+    add(heightSlider, c);
     heightSlider.setToolTipText("Tree height");
-    heightSlider.setMaximumSize(new Dimension(20,50));
+    heightSlider.setMaximumSize(new Dimension(20, 50));
 
 //    final JSlider widthSlider = new JSlider(JSlider.HORIZONTAL,10,100,nlpCanvas.getDependencyLayout().getHeightPerLevel());
 //    widthSlider.addChangeListener(new ChangeListener() {
@@ -76,12 +86,12 @@ public class AppearancePanel extends JPanel {
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridwidth = 2;
     c.gridx = 0;
-    add(new JSeparator(),c);
+    add(new JSeparator(), c);
     c.fill = GridBagConstraints.NONE;
     c.gridwidth = 1;
     c.gridx = 0;
     c.anchor = GridBagConstraints.EAST;
-    add(new JLabel("Edges:"),c);
+    add(new JLabel("Edges:"), c);
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
     final JCheckBox curved = new JCheckBox("Curved", nlpCanvas.getSpanLayout().isCurve());
@@ -92,7 +102,7 @@ public class AppearancePanel extends JPanel {
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(curved,c);
+    add(curved, c);
 
     c.fill = GridBagConstraints.NONE;
     c.gridwidth = 1;
@@ -105,7 +115,7 @@ public class AppearancePanel extends JPanel {
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(anti,c);
+    add(anti, c);
 
     c.fill = GridBagConstraints.NONE;
     c.gridwidth = 1;
@@ -118,10 +128,10 @@ public class AppearancePanel extends JPanel {
         nlpCanvas.updateNLPGraphics();
       }
     });
-    add(lines,c);
+    add(lines, c);
 
-    setMinimumSize(new Dimension(0,150));
-    
+    setMinimumSize(new Dimension(0, 150));
+
 
   }
 }

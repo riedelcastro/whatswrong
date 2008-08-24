@@ -2,7 +2,7 @@ package whatswrong;
 
 
 import javautils.Counter;
-import javautils.HashMultiMapList;
+import javautils.HashMultiMapLinkedList;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -21,9 +21,15 @@ import java.util.List;
  * head, first goes up and then down to the modifier. The height depends on the
  * number of other edges between the head and the modifier.
  *
+ * <p>Note that all incoming and outgoing edges of a token are placed along the
+ * upper edge of the token bounding box in an order that depends on the distance
+ * of the other token of the edge. The further away the other token is, the
+ * closer the edge start or end point is to the middle of the token bounding
+ * box. There is one exception to this rule: self loops always start at the
+ * leftmost position and end at the rightmost position.
+ *
  * @author Sebastian Riedel
  */
-@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class DependencyLayout extends AbstractEdgeLayout {
 
   /**
@@ -38,7 +44,6 @@ public class DependencyLayout extends AbstractEdgeLayout {
    * @param edges       the edges to draw.
    * @param tokenLayout the layout of the tokens.
    * @param g2d         the graphics object to draw the layout to.
-   *
    * @see EdgeLayout#layout(Collection<Edge>, TokenLayout, Graphics2D)
    */
   public void layout(Collection<Edge> edges, TokenLayout tokenLayout,
@@ -52,7 +57,7 @@ public class DependencyLayout extends AbstractEdgeLayout {
     //find out height of each edge
     shapes.clear();
 
-    HashMultiMapList<Token, Edge> loops = new HashMultiMapList<Token, Edge>();
+    HashMultiMapLinkedList<Token, Edge> loops = new HashMultiMapLinkedList<Token, Edge>();
     HashSet<Edge> allLoops = new HashSet<Edge>();
     HashSet<Token> tokens = new HashSet<Token>();
     for (Edge edge : edges) {
@@ -67,8 +72,8 @@ public class DependencyLayout extends AbstractEdgeLayout {
 
     Counter<Edge> depth = new Counter<Edge>();
     Counter<Edge> offset = new Counter<Edge>();
-    HashMultiMapList<Edge, Edge>
-      dominates = new HashMultiMapList<Edge, Edge>();
+    HashMultiMapLinkedList<Edge, Edge>
+      dominates = new HashMultiMapLinkedList<Edge, Edge>();
 
     for (Edge over : edges)
       for (Edge under : edges) {
@@ -104,7 +109,7 @@ public class DependencyLayout extends AbstractEdgeLayout {
       maxHeight += heightPerLevel / 2;
 
     //build map from vertex to incoming/outgoing edges
-    HashMultiMapList<Token, Edge> vertex2edges = new HashMultiMapList<Token, Edge>();
+    HashMultiMapLinkedList<Token, Edge> vertex2edges = new HashMultiMapLinkedList<Token, Edge>();
     for (Edge edge : edges) {
       vertex2edges.add(edge.getFrom(), edge);
       vertex2edges.add(edge.getTo(), edge);

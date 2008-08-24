@@ -1,6 +1,6 @@
 package whatswrong;
 
-import javautils.HashMultiMapList;
+import javautils.HashMultiMapLinkedList;
 import javautils.Counter;
 
 import java.awt.*;
@@ -246,7 +246,7 @@ public abstract class AbstractEdgeLayout implements EdgeLayout {
    * @param root      the root of the graph.
    * @return the max. depth.
    */
-  protected int calculateDepth(HashMultiMapList<Edge, Edge> dominates,
+  protected int calculateDepth(HashMultiMapLinkedList<Edge, Edge> dominates,
                                Counter<Edge> depth,
                                Edge root) {
     if (depth.get(root) > 0) return depth.get(root);

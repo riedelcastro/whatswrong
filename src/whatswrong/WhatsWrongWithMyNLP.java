@@ -8,6 +8,11 @@ import java.io.*;
 import java.util.Properties;
 
 /**
+ * The WhatsWrongWithMyNLP class serves as main application class. It sets up
+ * the canvas and all controllers and configures the position of the
+ * corresponding dialogs. It also loads all stored parameters from the
+ * "~/.whatswrong" file.
+ *
  * @author Sebastian Riedel
  */
 public class WhatsWrongWithMyNLP extends JPanel {
@@ -219,9 +224,9 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //filter frame
     ControllerDialog filterWindow = new ControllerDialog("Edge Filters", false);
     filterWindow.getContentPane().setLayout(new BoxLayout(filterWindow.getContentPane(), BoxLayout.Y_AXIS));
-    filterWindow.getContentPane().add(new DependencyTypeFilterPanel("Filter By Type", canvas,edgeTypeFilter));
+    filterWindow.getContentPane().add(new EdgeTypeFilterPanel(canvas, edgeTypeFilter));
     filterWindow.getContentPane().add(new JSeparator());
-    filterWindow.getContentPane().add(new DependencyFilterPanel(canvas,edgeLabelFilter, edgeTokenFilter));
+    filterWindow.getContentPane().add(new DependencyFilterPanel(canvas, edgeLabelFilter, edgeTokenFilter));
     filterWindow.pack();
     filterWindow.setLocation(canvasX + 250, canvasBottom + 15);
     filterWindow.setVisible(true);
@@ -230,7 +235,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //token filter frame
     ControllerDialog tokenFilterWindow = new ControllerDialog("Token Filters", false);
     tokenFilterWindow.getContentPane().setLayout(new BoxLayout(tokenFilterWindow.getContentPane(), BoxLayout.Y_AXIS));
-    tokenFilterWindow.getContentPane().add(new TokenFilterPanel(canvas,tokenFilter));
+    tokenFilterWindow.getContentPane().add(new TokenFilterPanel(canvas, tokenFilter));
     tokenFilterWindow.pack();
     tokenFilterWindow.setLocation(canvasX + 360, canvasBottom + 230);
     tokenFilterWindow.setVisible(true);
@@ -248,7 +253,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
     //navigator
     ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", true);
     navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));
-    CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess,edgeTypeFilter);
+    CorpusNavigator navigator = new CorpusNavigator(canvas, gold, guess, edgeTypeFilter);
     navigatorWindow.getContentPane().add(navigator);
     navigatorWindow.pack();
     navigatorWindow.setMinimumSize(navigatorWindow.getSize());

@@ -1,6 +1,7 @@
 package whatswrong;
 
 import javautils.*;
+
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
@@ -10,49 +11,134 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * A TokenLayout object lays out a collection of tokens in sequence by placing a
+ * stack of property values of each token at a position corresponding to the
+ * index of the token. The order in which the property values are stacked
+ * depends on the level of each corresponding property. The first property (with
+ * highest level) is rendered in black while the remaining property values are
+ * rendered in gray.
+ *
+ * <p>Note that the TokenLayout remembers the bounds of each token property
+ * stack and the text layout of each property value. This can be handy when
+ * other layouts (e.g., {@link whatswrong.DependencyLayout}) want to connect the
+ * tokens.
+ *
  * @author Sebastian Riedel
  */
 public class TokenLayout {
 
+  /**
+   * Mapping from token and property index to the text layout of the
+   * corresponding property value.
+   */
   private HashMap<Pair<Token, Integer>, TextLayout>
-          textLayouts = new HashMap<Pair<Token, Integer>, TextLayout>();
+    textLayouts = new HashMap<Pair<Token, Integer>, TextLayout>();
 
+  /**
+   * Mapping from token to its bounding box.
+   */
   private HashMap<Token, Rectangle2D> bounds = new HashMap<Token, Rectangle2D>();
 
+  /**
+   * The height of each property value row in the stack.
+   */
   private int rowHeight = 14;
+  /**
+   * Where should we start to draw the stacks.
+   */
   private int baseline = 0;
+  /**
+   * The margin between tokens (i.e., their stacks).
+   */
   private int margin = 20;
+
+  /**
+   * the total width of the graph that consists of all token stacks next to each
+   * other.
+   */
   private int width;
+
+  /**
+   * the total height of the graph that consists of all token stacks next to
+   * each other.
+   */
   private int height;
 
 
-  public void setRowHeight(int rowHeight) {
+  /**
+   * Sets the height of each property value row in the stack.
+   *
+   * @param rowHeight the height of each property value row in the stack.
+   */
+  public void setRowHeight(final int rowHeight) {
     this.rowHeight = rowHeight;
   }
 
-  public void setBaseline(int baseline) {
+  /**
+   * Sets the y value at which the token layout should start.
+   *
+   * @param baseline the y value at which the token layout should start.
+   */
+  public void setBaseline(final int baseline) {
     this.baseline = baseline;
   }
 
-  public void setMargin(int margin) {
+  /**
+   * Sets the margin between token stacks.
+   *
+   * @param margin the margin between token stacks.
+   */
+  public void setMargin(final int margin) {
     this.margin = margin;
   }
 
 
+  /**
+   * Gets the height of each property value row in the stack.
+   *
+   * @return the height of each property value row in the stack.
+   */
   public int getRowHeight() {
     return rowHeight;
   }
 
+  /**
+   * Gets the y value at which the token layout should start.
+   *
+   * @return the y value at which the token layout should start.
+   */
   public int getBaseline() {
     return baseline;
   }
 
+  /**
+   * Returns the margin between token stacks.
+   *
+   * @return the margin between token stacks.
+   */
   public int getMargin() {
     return margin;
   }
 
-  public void layout(Collection<Token> tokens, Map<Token,Integer> tokenWidths, Graphics2D g2d) {
-    if (tokens.size() == 0){
+  /**
+   * Lays out all tokens in the given collection as stacks of property values
+   * that are placed next to each other according the order of the tokens (as
+   * indicated by their indices).
+   *
+   * <p>After this method has been called the properties of the layout (height,
+   * width, bounding boxes of token stacks and text layouts of each property
+   * value) can be queried by calling the appropriate get methods.
+   *
+   * @param tokens      the tokens to lay out.
+   * @param tokenWidths if some tokens need extra space (for example because
+   *                    they have self loops in a {@link whatswrong.DependencyLayout})
+   *                    the space they need can be provided through this map.
+   * @param g2d         the graphics object to draw to.
+   */
+  public void layout(final Collection<Token> tokens,
+                     final Map<Token, Integer> tokenWidths,
+                     final Graphics2D g2d) {
+    if (tokens.size() == 0) {
       height = 1;
       width = 1;
       return;
@@ -77,29 +163,54 @@ public class TokenLayout {
         lasty += rowHeight;
         if (layout.getBounds().getMaxX() > maxX)
           maxX = (int) layout.getBounds().getMaxX();
-        textLayouts.put(new Pair<Token, Integer>(token, index++),layout);
+        textLayouts.put(new Pair<Token, Integer>(token, index++), layout);
       }
       Integer requiredWidth = tokenWidths.get(token);
       if (requiredWidth != null && maxX < requiredWidth) maxX = requiredWidth;
-      bounds.put(token, new Rectangle(lastx,baseline,maxX, lasty - baseline));
-      lastx+= maxX + margin;
+      bounds.put(token, new Rectangle(lastx, baseline, maxX, lasty - baseline));
+      lastx += maxX + margin;
       if (lasty - rowHeight > height) height = lasty - rowHeight;
     }
     width = lastx - margin;
   }
 
-  public TextLayout getProperty(Token vertex, int index) {
-    return textLayouts.get(new Pair<Token,Integer>(vertex,index));
+  /**
+   * Returns the text layout for a given property and property index in the
+   * stack.
+   *
+   * @param vertex the token for which we want the text layout of a propery of
+   *               it.
+   * @param index  the index of the property in the stack.
+   * @return the text layout of the property value at index <code>index</code>
+   *         of the stack for the token <code>vertex</code>
+   */
+  public TextLayout getPropertyTextLayout(final Token vertex, final int index) {
+    return textLayouts.get(new Pair<Token, Integer>(vertex, index));
   }
 
-  public Rectangle2D getBounds(Token vertex){
+  /**
+   * Gets the bounds of the property value stack of the given token.
+   *
+   * @param vertex the token for which to get the bounds for.
+   * @return a bounding box around the stack of property values for the given
+   *         token.
+   */
+  public Rectangle2D getBounds(Token vertex) {
     return bounds.get(vertex);
   }
 
+  /**
+   * Gets the total width of this TokenLayout (covering all token stacks).
+   * @return the total width of this TokenLayout.
+   */
   public int getWidth() {
     return width;
   }
 
+  /**
+   * Gets the total height of this TokenLayout (covering all token stacks).
+   * @return the total width of this TokenLayout.
+   */
   public int getHeight() {
     return height + 4;
   }
