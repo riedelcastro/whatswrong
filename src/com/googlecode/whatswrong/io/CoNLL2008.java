@@ -7,11 +7,17 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * Loads CoNLL 2008 Joint SRL and Dependency data.
+ *
  * @author Sebastian Riedel
  */
 
+@SuppressWarnings({"MissingFieldJavaDoc"})
 public class CoNLL2008 implements CoNLLProcessor {
 
+  /**
+   * The name of the processor.
+   */
   public static final String name = "2008";
 
   private TokenProperty
@@ -19,10 +25,18 @@ public class CoNLL2008 implements CoNLLProcessor {
     bbn = new TokenProperty("Named Entity BBN", 11),
     wn = new TokenProperty("WordNet", 11);
 
+  /**
+   * Returns the name of this processor.
+   *
+   * @return the name of this processor.
+   */  
   public String toString() {
     return name;
   }
 
+  /**
+   * @see CoNLLProcessor#create(List<? extends List<String>>)
+   */
   public NLPInstance create(List<? extends List<String>> rows) {
     NLPInstance instance = new NLPInstance();
     instance.addToken().addProperty("Word", "-Root-");
@@ -36,10 +50,10 @@ public class CoNLL2008 implements CoNLLProcessor {
         addProperty("Split Form", row.get(5)).
         addProperty("Split Lemma", row.get(6)).
         addProperty("Split PoS", row.get(7));
-      if (!row.get(10).equals("_")){
+      if (!row.get(10).equals("_")) {
         int index = Integer.parseInt(row.get(0));
         predicates.add(index);
-        instance.addSpan(index,index,row.get(10),"sense");
+        instance.addSpan(index, index, row.get(10), "sense");
       }
     }
     for (List<String> row : rows) {
@@ -60,6 +74,9 @@ public class CoNLL2008 implements CoNLLProcessor {
     return instance;
   }
 
+  /**
+   * @see CoNLLProcessor#createOpen(List<? extends List<String>>)
+   */
   public NLPInstance createOpen(List<? extends List<String>> rows) {
     NLPInstance instance = new NLPInstance();
     instance.addToken();
@@ -77,6 +94,9 @@ public class CoNLL2008 implements CoNLLProcessor {
     return instance;
   }
 
+  /**
+   * @see CoNLLProcessor#supportsOpen()
+   */
   public boolean supportsOpen() {
     return true;
   }

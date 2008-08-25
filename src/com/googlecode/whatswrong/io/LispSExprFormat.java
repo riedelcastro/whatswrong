@@ -15,8 +15,11 @@ import java.util.Properties;
 import java.util.Stack;
 
 /**
+ * Loads Lisp S-Expression data.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc", "MissingFieldJavaDoc"})
 public class LispSExprFormat implements CorpusFormat {
   private JPanel accessory;
   private JTextField word;
@@ -30,7 +33,7 @@ public class LispSExprFormat implements CorpusFormat {
     tag = new JTextField();
     phrase = new JTextField();
 
-    accessory.add(new JLabel("Choose type names",JLabel.CENTER), new SimpleGridBagConstraints(0,0,2,1));
+    accessory.add(new JLabel("Choose type names", JLabel.CENTER), new SimpleGridBagConstraints(0, 0, 2, 1));
     accessory.add(new JLabel("Word:"), new SimpleGridBagConstraints(1, true));
     accessory.add(word, new SimpleGridBagConstraints(1, false));
     accessory.add(new JLabel("Tag:"), new SimpleGridBagConstraints(2, true));
@@ -46,15 +49,15 @@ public class LispSExprFormat implements CorpusFormat {
   }
 
   public void loadProperties(Properties properties, String prefix) {
-    word.setText(properties.getProperty(prefix + ".sexpr.word","Word"));
-    tag.setText(properties.getProperty(prefix + ".sexpr.tag","pos"));
-    phrase.setText(properties.getProperty(prefix + ".sexpr.phrase","phrase"));
+    word.setText(properties.getProperty(prefix + ".sexpr.word", "Word"));
+    tag.setText(properties.getProperty(prefix + ".sexpr.tag", "pos"));
+    phrase.setText(properties.getProperty(prefix + ".sexpr.phrase", "phrase"));
   }
 
   public void saveProperties(Properties properties, String prefix) {
-    properties.setProperty(prefix + ".sexpr.word",word.getText());
-    properties.setProperty(prefix + ".sexpr.tag",tag.getText());
-    properties.setProperty(prefix + ".sexpr.phrase",phrase.getText());
+    properties.setProperty(prefix + ".sexpr.word", word.getText());
+    properties.setProperty(prefix + ".sexpr.tag", tag.getText());
+    properties.setProperty(prefix + ".sexpr.phrase", phrase.getText());
   }
 
   public String getName() {
@@ -137,8 +140,8 @@ public class LispSExprFormat implements CorpusFormat {
       int token = 0;
       for (int i = 0; i < sexpr.length();) {
         if (sexpr.charAt(i) == '(') {
-          int whitespace = sexpr.indexOf(' ', i+1);
-          int openBracket = sexpr.indexOf('(',i+1);
+          int whitespace = sexpr.indexOf(' ', i + 1);
+          int openBracket = sexpr.indexOf('(', i + 1);
           //int labelEnd = whitespace;
           //System.out.println("whitespace = " + whitespace);
           //System.out.println("openBracket = " + openBracket);

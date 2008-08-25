@@ -13,8 +13,11 @@ import java.util.*;
 import java.util.List;
 
 /**
+ * Loads markov thebeast data.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc", "MissingFieldJavaDoc"})
 public class TheBeastFormat implements CorpusFormat {
   private JPanel accessory;
   private JTextField deps;
@@ -38,25 +41,25 @@ public class TheBeastFormat implements CorpusFormat {
   }
 
 
-  private static String unquote(String string){
-    return string.substring(1,string.length()-1);
+  private static String unquote(String string) {
+    return string.substring(1, string.length() - 1);
   }
 
 
   public void setMonitor(Monitor monitor) {
-     this.monitor = monitor;
-   }
+    this.monitor = monitor;
+  }
 
   public void loadProperties(Properties properties, String prefix) {
-    deps.setText(properties.getProperty(prefix + ".thebeast.deps",""));
-    spans.setText(properties.getProperty(prefix + ".thebeast.spans",""));
-    tokens.setText(properties.getProperty(prefix + ".thebeast.tokens",""));
+    deps.setText(properties.getProperty(prefix + ".thebeast.deps", ""));
+    spans.setText(properties.getProperty(prefix + ".thebeast.spans", ""));
+    tokens.setText(properties.getProperty(prefix + ".thebeast.tokens", ""));
   }
 
   public void saveProperties(Properties properties, String prefix) {
-    properties.setProperty(prefix + ".thebeast.deps",deps.getText());
-    properties.setProperty(prefix + ".thebeast.spans",spans.getText());
-    properties.setProperty(prefix + ".thebeast.tokens",tokens.getText());
+    properties.setProperty(prefix + ".thebeast.deps", deps.getText());
+    properties.setProperty(prefix + ".thebeast.spans", spans.getText());
+    properties.setProperty(prefix + ".thebeast.tokens", tokens.getText());
   }
 
   public String getName() {
@@ -102,24 +105,33 @@ public class TheBeastFormat implements CorpusFormat {
     ArrayList<NLPInstance> result = new ArrayList<NLPInstance>(1000);
 
     HashMap<String, List<List<String>>> rows = new HashMap<String, List<List<String>>>();
-    for (String pred : tokenPreds.values()) rows.put(pred,new ArrayList<List<String>>());
-    for (String pred : spanPreds.values()) rows.put(pred,new ArrayList<List<String>>());
-    for (String pred : depPreds.values()) rows.put(pred,new ArrayList<List<String>>()); 
+    for (String pred : tokenPreds.values())
+      rows.put(pred, new ArrayList<List<String>>());
+    for (String pred : spanPreds.values())
+      rows.put(pred, new ArrayList<List<String>>());
+    for (String pred : depPreds.values())
+      rows.put(pred, new ArrayList<List<String>>());
 
     for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
       if (line.startsWith(">>")) {
         monitor.progressed(instanceNr);
         if (instanceNr++ > from && instanceNr > 1) {
-          for (String pred : tokenPreds.values()) addTokens(rows.get(pred),pred,instance);
+          for (String pred : tokenPreds.values())
+            addTokens(rows.get(pred), pred, instance);
           instance.consistify();
-          for (String pred : depPreds.values()) addDeps(rows.get(pred),pred,instance);
-          for (String pred : spanPreds.values()) addSpans(rows.get(pred),pred,instance);
+          for (String pred : depPreds.values())
+            addDeps(rows.get(pred), pred, instance);
+          for (String pred : spanPreds.values())
+            addSpans(rows.get(pred), pred, instance);
           result.add(instance);
           instance = new NLPInstance();
           rows.clear();
-          for (String pred : tokenPreds.values()) rows.put(pred,new ArrayList<List<String>>());
-          for (String pred : spanPreds.values()) rows.put(pred,new ArrayList<List<String>>());
-          for (String pred : depPreds.values()) rows.put(pred,new ArrayList<List<String>>());
+          for (String pred : tokenPreds.values())
+            rows.put(pred, new ArrayList<List<String>>());
+          for (String pred : spanPreds.values())
+            rows.put(pred, new ArrayList<List<String>>());
+          for (String pred : depPreds.values())
+            rows.put(pred, new ArrayList<List<String>>());
         }
 
       } else if (line.startsWith(">") && instanceNr > from) {
@@ -139,34 +151,36 @@ public class TheBeastFormat implements CorpusFormat {
         }
       }
     }
-    for (String pred : tokenPreds.values()) addTokens(rows.get(pred),pred,instance);
+    for (String pred : tokenPreds.values())
+      addTokens(rows.get(pred), pred, instance);
     instance.consistify();
-    for (String pred : depPreds.values()) addDeps(rows.get(pred),pred,instance);
-    for (String pred : spanPreds.values()) addSpans(rows.get(pred),pred,instance);
+    for (String pred : depPreds.values())
+      addDeps(rows.get(pred), pred, instance);
+    for (String pred : spanPreds.values())
+      addSpans(rows.get(pred), pred, instance);
     result.add(instance);
     return result;
   }
 
-  private void addTokens(List<List<String>> rows, String type, NLPInstance instance){
+  private void addTokens(List<List<String>> rows, String type, NLPInstance instance) {
     for (List<String> row : rows)
-      instance.addToken(Integer.parseInt(row.get(0))).addProperty(type,unquote(row.get(1)));
+      instance.addToken(Integer.parseInt(row.get(0))).addProperty(type, unquote(row.get(1)));
   }
 
-  private void addDeps(List<List<String>> rows, String type, NLPInstance instance){
+  private void addDeps(List<List<String>> rows, String type, NLPInstance instance) {
     for (List<String> row : rows)
-      instance.addDependency(Integer.parseInt(row.get(0)),Integer.parseInt(row.get(1)),unquote(row.get(2)),type);
+      instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), unquote(row.get(2)), type);
   }
 
-  private void addSpans(List<List<String>> rows, String type, NLPInstance instance){
+  private void addSpans(List<List<String>> rows, String type, NLPInstance instance) {
     for (List<String> row : rows)
       if (row.size() == 3)
-        instance.addSpan(Integer.parseInt(row.get(0)),Integer.parseInt(row.get(1)),unquote(row.get(2)),type);
-      else if (row.size() == 2){
+        instance.addSpan(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), unquote(row.get(2)), type);
+      else if (row.size() == 2) {
         int token = Integer.parseInt(row.get(0));
-        instance.addSpan(token,token,unquote(row.get(1)),type);        
+        instance.addSpan(token, token, unquote(row.get(1)), type);
       }
   }
-
 
 
 }

@@ -14,8 +14,12 @@ import java.io.IOException;
 import java.util.*;
 
 /**
+ * A CoNLLFormat loads CoNLL type data. The format for each individual CoNLL
+ * shared task has to be implemented through a {@link com.googlecode.whatswrong.io.CoNLLProcessor}.
+ *
  * @author Sebastian Riedel
  */
+@SuppressWarnings({"MissingMethodJavaDoc", "MissingFieldJavaDoc"})
 public class CoNLLFormat implements CorpusFormat {
 
   private JPanel accessory;
@@ -73,7 +77,7 @@ public class CoNLLFormat implements CorpusFormat {
   public void loadProperties(Properties properties, String prefix) {
     String yearString = properties.getProperty(prefix + ".conll.year", "2008");
     year.setSelectedItem(processors.get(yearString));
-   }
+  }
 
 
   public void saveProperties(Properties properties, String prefix) {
@@ -119,7 +123,8 @@ public class CoNLLFormat implements CorpusFormat {
       }
 
     }
-    if (rows.size() > 0) corpus.add(open ? processor.createOpen(rows) : processor.create(rows));
+    if (rows.size() > 0)
+      corpus.add(open ? processor.createOpen(rows) : processor.create(rows));
     return corpus;
 
   }
@@ -139,13 +144,13 @@ public class CoNLLFormat implements CorpusFormat {
       if (minus != -1) {
         String bio = chunk.substring(0, minus);
         String label = chunk.substring(minus + 1);
-        if (inChunk){
+        if (inChunk) {
           //start a new chunk and finish old one
-          if ("B".equals(bio) || "I".equals(bio) && !label.equals(currentChunk)){
+          if ("B".equals(bio) || "I".equals(bio) && !label.equals(currentChunk)) {
             instance.addSpan(begin, index - 1, currentChunk, type);
             begin = index;
             currentChunk = label;
-          } 
+          }
         } else {
           inChunk = true;
           begin = index;
@@ -159,8 +164,8 @@ public class CoNLLFormat implements CorpusFormat {
       }
       ++index;
     }
-    if (inChunk){
-      instance.addSpan(begin, index - 1, currentChunk, type);      
+    if (inChunk) {
+      instance.addSpan(begin, index - 1, currentChunk, type);
     }
   }
 
@@ -208,12 +213,12 @@ public class CoNLLFormat implements CorpusFormat {
     String currentChunk = "";
     for (java.util.List<String> row : rows) {
       String chunk = row.get(column);
-      if (chunk.startsWith("(")){
-        currentChunk = chunk.substring(1,chunk.indexOf("*"));
+      if (chunk.startsWith("(")) {
+        currentChunk = chunk.substring(1, chunk.indexOf("*"));
         begin = index;
       }
-      if (chunk.endsWith(")")){
-        instance.addSpan(begin, index, prefix + currentChunk, type);        
+      if (chunk.endsWith(")")) {
+        instance.addSpan(begin, index, prefix + currentChunk, type);
       }
       ++index;
     }
