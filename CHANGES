@@ -1,3 +1,14 @@
+=Changes in 0.1.2=
+
+==Features==
+  * Reads Lisp S-Expressions
+  * Reads Malt-Tab Format
+
+==Enhancements==
+  * Added source more code documentation
+  * Refactored code
+  * Packages renamed
+  
 =Changes in 0.1.1=
 
 ==Enhancements==
