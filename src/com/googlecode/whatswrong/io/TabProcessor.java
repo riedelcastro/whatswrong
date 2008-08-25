@@ -5,17 +5,18 @@ import com.googlecode.whatswrong.NLPInstance;
 import java.util.List;
 
 /**
- * A CoNLLProcessor takes a table of string values and returns an NLPInstance.
+ * A TabProcessor takes a table of string values and returns an NLPInstance.
  * This table of string value corresponds to the standard way of representing
- * sentences in the CoNLL shared tasks.
+ * sentences in the CoNLL shared tasks as well as the MALT-Tab format for
+ * dependencies.
  *
  * @author Sebastian Riedel
  */
-public interface CoNLLProcessor {
+public interface TabProcessor {
   /**
    * Create an NLPInstance from the given table (list of rows) of strings.
    *
-   * @param rows the rows that represent the column separated values in CoNLL
+   * @param rows the rows that represent the column separated values in Tab
    *             format files.
    * @return an NLPInstance that represents the given rows.
    */
@@ -25,7 +26,7 @@ public interface CoNLLProcessor {
    * Create an NLPInstance from the given table (list of rows) of strings,
    * assuming that the passed rows are from the open dataset.
    *
-   * @param rows the rows that represent the column separated values in CoNLL
+   * @param rows the rows that represent the column separated values in Tab
    *             format files.
    * @return an NLPInstance that represents the given rows.
    */

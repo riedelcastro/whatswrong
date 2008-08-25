@@ -1,6 +1,6 @@
 package com.googlecode.whatswrong;
 
-import com.googlecode.whatswrong.io.CoNLLFormat;
+import com.googlecode.whatswrong.io.TabFormat;
 import com.googlecode.whatswrong.io.CorpusFormat;
 import com.googlecode.whatswrong.io.LispSExprFormat;
 import com.googlecode.whatswrong.io.TheBeastFormat;
@@ -209,7 +209,8 @@ public class CorpusLoader extends JPanel {
       filetypeComboBox = new JComboBox(new Vector<Object>(formats.values()));
       filetypeComboBox.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          ((CardLayout) accessoryCards.getLayout()).show(accessoryCards, filetypeComboBox.getSelectedItem().toString());
+          ((CardLayout) accessoryCards.getLayout()).show(accessoryCards,
+            filetypeComboBox.getSelectedItem().toString());
         }
       });
       start = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
@@ -295,7 +296,9 @@ public class CorpusLoader extends JPanel {
    */
   public void loadProperties(Properties properties) {
     setDirectory(properties.getProperty(property("dir"), ""));
-    String formatString = properties.getProperty(property("format"), "CoNLL");
+    String formatString = properties.getProperty(property("format"), "TAB-separated");
+    if (formatString.equals("CoNLL"))
+      formatString = "TAB-separated";
     accessory.filetypeComboBox.setSelectedItem(formats.get(formatString));
     for (CorpusFormat format : formats.values())
       format.loadProperties(properties, id);
@@ -340,11 +343,11 @@ public class CorpusLoader extends JPanel {
     GridBagConstraints c = new GridBagConstraints();
 
 
-    CoNLLFormat coNLLFormat = new CoNLLFormat();
+    TabFormat tabFormat = new TabFormat();
     TheBeastFormat theBeastFormat = new TheBeastFormat();
 
 
-    addFormat(coNLLFormat);
+    addFormat(tabFormat);
     addFormat(theBeastFormat);
     addFormat(new LispSExprFormat());
 

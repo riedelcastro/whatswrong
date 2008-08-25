@@ -10,12 +10,12 @@ import java.util.List;
  * @author Sebastian Riedel
  */
 
-public class CoNLL2003 implements CoNLLProcessor {
+public class CoNLL2003 implements TabProcessor {
 
   /**
    * The name of the processor.
    */
-  public static final String name = "2003";
+  public static final String name = "CoNLL 2003";
 
   /**
    * Returns the name of this processor.
@@ -27,7 +27,7 @@ public class CoNLL2003 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#create(List<? extends List<String>>)
+   * @see TabProcessor#create(List<? extends List<String>>)
    */
   public NLPInstance create(List<? extends List<String>> rows) {
 
@@ -44,22 +44,22 @@ public class CoNLL2003 implements CoNLLProcessor {
       ++index;
     }
 
-    CoNLLFormat.extractSpan03(rows, 2, "chunk", instance);
-    CoNLLFormat.extractSpan03(rows, 3, "ner", instance);
+    TabFormat.extractSpan03(rows, 2, "chunk", instance);
+    TabFormat.extractSpan03(rows, 3, "ner", instance);
 
     return instance;
   }
 
 
   /**
-   * @see CoNLLProcessor#createOpen(List<? extends List<String>>)
+   * @see TabProcessor#createOpen(List<? extends List<String>>)
    */
   public NLPInstance createOpen(List<? extends List<String>> rows) {
     return null;
   }
 
   /**
-   * @see CoNLLProcessor#supportsOpen()
+   * @see TabProcessor#supportsOpen()
    */
   public boolean supportsOpen() {
     return false;

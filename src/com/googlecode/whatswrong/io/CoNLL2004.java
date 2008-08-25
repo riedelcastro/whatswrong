@@ -10,13 +10,13 @@ import java.util.List;
  * @author Sebastian Riedel
  */
 
-public class CoNLL2004 implements CoNLLProcessor {
+public class CoNLL2004 implements TabProcessor {
 
 
   /**
    * The name of the processor.
    */
-  public static final String name = "2004";
+  public static final String name = "CoNLL 2004";
 
   /**
    * Returns the name of this processor.
@@ -28,7 +28,7 @@ public class CoNLL2004 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#create(List<? extends List<String>>)
+   * @see TabProcessor#create(List<? extends List<String>>)
    */
   public NLPInstance create(List<? extends List<String>> rows) {
     NLPInstance instance = new NLPInstance();
@@ -45,7 +45,7 @@ public class CoNLL2004 implements CoNLLProcessor {
       if (!row.get(1).equals("-")) {
         String sense = row.get(1);
         instance.addSpan(index, index, sense, "sense");
-        CoNLLFormat.extractSpan05(rows, 2 + predicateCount, "role", sense + ":", instance);
+        TabFormat.extractSpan05(rows, 2 + predicateCount, "role", sense + ":", instance);
         ++predicateCount;
       }
       ++index;
@@ -54,14 +54,14 @@ public class CoNLL2004 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#createOpen(List<? extends List<String>>)
+   * @see TabProcessor#createOpen(List<? extends List<String>>)
    */
   public NLPInstance createOpen(List<? extends List<String>> rows) {
     return null;
   }
 
   /**
-   * @see CoNLLProcessor#supportsOpen()
+   * @see TabProcessor#supportsOpen()
    */
   public boolean supportsOpen() {
     return false;

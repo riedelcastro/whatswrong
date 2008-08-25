@@ -13,17 +13,17 @@ import java.util.ArrayList;
  */
 
 @SuppressWarnings({"MissingFieldJavaDoc"})
-public class CoNLL2008 implements CoNLLProcessor {
+public class CoNLL2008 implements TabProcessor {
 
   /**
    * The name of the processor.
    */
-  public static final String name = "2008";
+  public static final String name = "CoNLL 2008";
 
   private TokenProperty
     ne = new TokenProperty("Named Entity", 10),
     bbn = new TokenProperty("Named Entity BBN", 11),
-    wn = new TokenProperty("WordNet", 11);
+    wn = new TokenProperty("WordNet", 12);
 
   /**
    * Returns the name of this processor.
@@ -35,7 +35,7 @@ public class CoNLL2008 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#create(List<? extends List<String>>)
+   * @see TabProcessor#create(List<? extends List<String>>)
    */
   public NLPInstance create(List<? extends List<String>> rows) {
     NLPInstance instance = new NLPInstance();
@@ -75,7 +75,7 @@ public class CoNLL2008 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#createOpen(List<? extends List<String>>)
+   * @see TabProcessor#createOpen(List<? extends List<String>>)
    */
   public NLPInstance createOpen(List<? extends List<String>> rows) {
     NLPInstance instance = new NLPInstance();
@@ -95,7 +95,7 @@ public class CoNLL2008 implements CoNLLProcessor {
   }
 
   /**
-   * @see CoNLLProcessor#supportsOpen()
+   * @see TabProcessor#supportsOpen()
    */
   public boolean supportsOpen() {
     return true;
