@@ -1,0 +1,44 @@
+What's Wrong With My NLP?
+-------------------------
+
+What's Wrong With My NLP? is visualizer and graphical diff for Natural Language Processing problems. It can
+jointly display syntactic and semantic dependencies as well as all types of chunk information such as NP, NER or
+SRL chunks. It also allows you to compare your system output to a gold standard in order to find the mistakes
+your system does. There are numerous ways to filter the graph and only display what is needed. It is also possible
+to search a corpus for sentences with certain properties using lucene search expressions. The tool reads all
+CoNLL shared task formats and exports to EPS.
+
+For more information go to
+
+http://whatswrong.googlecode.com
+
+Installation
+------------
+
+unpack the archive into a directory of choice
+
+Compilation
+-----------
+
+cd into the directory created by extracting the archive, then call
+
+$ ant
+
+Compiling the JAR file
+----------------------
+
+cd into the directory created by extracting the archive, then call
+
+$ ant jar
+
+
+Starting the application
+------------------------
+
+execute
+
+$ java -java whatswrong-x.y.z.jar
+
+
+
+
