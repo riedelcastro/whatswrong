@@ -139,7 +139,7 @@ public class NLPCanvas extends JPanel {
    */
   public NLPCanvas() {
     setPreferredSize(new Dimension(300, 300));
-    setOpaque(false);
+    setOpaque(true);
     addMouseListener(new MouseAdapter() {
       /**
        * Selects edges in the dependency layout.
@@ -405,8 +405,8 @@ public class NLPCanvas extends JPanel {
    */
   public void paintComponent(Graphics graphics) {
     Graphics2D g2d = (Graphics2D) graphics;
-    //g2d.setColor(Color.WHITE);
-    //g2d.fillRect(0,0,getWidth(),getHeight());
+    g2d.setColor(Color.WHITE);
+    g2d.fillRect(0,0,getWidth(),getHeight());
     int y = getHeight() - dependencyImage.getHeight() - tokenImage.getHeight() - spanImage.getHeight();
     g2d.drawImage(dependencyImage, 0, y, this);
     g2d.drawImage(tokenImage, 0, y + dependencyImage.getHeight(), this);

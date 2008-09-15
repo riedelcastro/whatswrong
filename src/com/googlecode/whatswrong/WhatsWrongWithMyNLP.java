@@ -26,6 +26,9 @@ public class WhatsWrongWithMyNLP extends JPanel {
     return properties;
   }
 
+  /**
+   * Sets some ui properties and loads oroperties from .whatswrong
+   */
   static {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
 
@@ -44,6 +47,9 @@ public class WhatsWrongWithMyNLP extends JPanel {
     }
   }
 
+  /**
+   * Create a new WhatsWrongWithMyNLP application.
+   */
   public WhatsWrongWithMyNLP() {
     super(new BorderLayout());
 
