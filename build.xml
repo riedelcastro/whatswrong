@@ -128,7 +128,7 @@
       <zipfileset src="lib/lucene-core-2.3.1.jar"/>
       <zipfileset src="lib/lucene-highlighter-2.3.1.jar"/>
       <manifest>
-        <attribute name="Main-Class" value="whatswrong.WhatsWrongWithMyNLP"/>
+        <attribute name="Main-Class" value="com.googlecode.whatswrong.WhatsWrongWithMyNLP"/>
         <!--<attribute name="Class-Path" value="lib/*.jar"/> -->
         <attribute name="Specification-Version" value="${version}"/>
         <attribute name="Specification-Title" value="${name}"/>
@@ -145,6 +145,7 @@
     <include name="build.xml"/>
     <include name="whatswrong.properties"/>
     <include name="lib/**"/>
+    <include name="examples/**"/>
   </fileset>
   
   <target name="dist">

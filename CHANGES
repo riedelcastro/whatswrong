@@ -1,7 +1,55 @@
-Changes in 0.0.4:
+=Changes in 0.1.3=
 
-new features:
-- new feature: tokens can be removed from the graph using a filter that tests whether token properties contain (or equal) certain strings.
-- new feature: remove all tokens that don't have an edge
-- changed lucene analyzer to WhitespaceAnalyzer -> now searching for "role:R-AA" does break up the "R-AA" to find things with "A" in it.
-- gold and guess loader now remember their directory from previous session
+==Enhancements==
+  * Background of canvas now white on all OSs
+  * Closing the main window now quits the system.
+  * Quit menuitem in file menu introduced
+
+=Changes in 0.1.2=
+
+==Features==
+  * Reads Lisp S-Expressions
+  * Reads Malt-Tab Format
+
+==Enhancements==
+  * Added source more code documentation
+  * Refactored code
+  * Packages renamed
+  
+=Changes in 0.1.1=
+
+==Enhancements==
+  * separation lines between spans of different (prefix) types
+  * can read binary thebeast predicates as spans
+
+==Bugfixes==
+  * edge labels were moved down slightly to be easier to read
+  * dep edges can be selected again
+  * collapsing to spans does not shorten spans anymore
+
+
+=Changes in 0.1.0=
+
+==Features==
+  * Span visualization
+  * Reads CoNLL 2000,2002,2003,2004
+  * Reads markov thebeast format
+
+==Enhancements==
+  * corpus loader now remembers state from last session
+  * Changed edge type filter: now FP,FN and match extra checkboxes, more intuitive
+  * file loading progress bar
+
+==Bugfixes==
+  * Issue 2 : drawing nodes with many edges results in edges being shifted to the left
+(http://code.google.com/p/whatswrong/issues/detail?id=2)
+  * Issue 5 : first time filtering of types did not work  
+
+
+=Changes in 0.0.4=
+
+==Features==
+  * tokens can be removed from the graph using a filter that tests whether token properties contain (or equal) certain strings.
+  * remove all tokens that don't have an edge
+  * changed lucene analyzer to WhitespaceAnalyzer -> now searching for "role:R-AA" does break up the "R-AA" to find things with "A" in it.
+  * gold and guess loader now remember their directory from previous session
