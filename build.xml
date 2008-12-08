@@ -145,6 +145,7 @@
     <include name="build.xml"/>
     <include name="whatswrong.properties"/>
     <include name="lib/**"/>
+    <include name="examples/**"/>
   </fileset>
   
   <target name="dist">

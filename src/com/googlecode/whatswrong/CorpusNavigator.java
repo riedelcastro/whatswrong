@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedHashMap;
 
 /**
  * A CorpusNavigator allows the user to navigate through a corpus (or a diffed
@@ -444,7 +445,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       int nr = 0;
       for (NLPInstance instance : corpus) {
         Document doc = new Document();
-        HashMap<TokenProperty, StringBuffer> sentences = new HashMap<TokenProperty, StringBuffer>();
+        HashMap<TokenProperty, StringBuffer>
+          sentences = new LinkedHashMap<TokenProperty, StringBuffer>();
         for (Token token : instance.getTokens()) {
           for (TokenProperty p : token.getPropertyTypes()) {
             StringBuffer buffer = sentences.get(p);
@@ -457,7 +459,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
           }
         }
         for (TokenProperty p : sentences.keySet()) {
-          doc.add(new Field(p.getName(), sentences.get(p).toString(), Field.Store.YES, Field.Index.TOKENIZED));
+          doc.add(new Field(p.getName(), sentences.get(p).toString(),
+            Field.Store.YES, Field.Index.TOKENIZED));
         }
 
         //edges

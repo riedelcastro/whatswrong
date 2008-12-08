@@ -24,7 +24,7 @@ cd into the directory created by extracting the archive, then call
 
 $ ant
 
-Compiling the JAR file
+Compiling the executable JAR file
 ----------------------
 
 cd into the directory created by extracting the archive, then call
