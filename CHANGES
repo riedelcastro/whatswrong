@@ -1,3 +1,10 @@
+=Changes in 0.1.3=
+
+==Enhancements==
+  * Background of canvas now white on all OSs
+  * Closing the main window now quits the system.
+  * Quit menuitem in file menu introduced
+
 =Changes in 0.1.2=
 
 ==Features==

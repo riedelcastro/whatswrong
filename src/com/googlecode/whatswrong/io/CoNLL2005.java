@@ -5,7 +5,7 @@ import com.googlecode.whatswrong.NLPInstance;
 import java.util.List;
 
 /**
- * Loads CoNLL 2004 SRL data.
+ * Loads CoNLL 2005 SRL data.
  *
  * @author Sebastian Riedel
  */

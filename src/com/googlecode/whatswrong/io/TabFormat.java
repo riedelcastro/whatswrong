@@ -35,7 +35,7 @@ public class TabFormat implements CorpusFormat {
     public TabFormat() {
         addProcessor("CoNLL 2008", new CoNLL2008());
         addProcessor("CoNLL 2006", new CoNLL2006());
-        addProcessor("CoNLL 2005", new CoNLL2005());
+        //addProcessor("CoNLL 2005", new CoNLL2005());
         addProcessor("CoNLL 2004", new CoNLL2004());
         addProcessor("CoNLL 2002", new CoNLL2002());
         addProcessor("CoNLL 2003", new CoNLL2003());
