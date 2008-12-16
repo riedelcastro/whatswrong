@@ -135,12 +135,14 @@ public class SpanLayout extends AbstractEdgeLayout {
    * Lays out the edges as spans (blocks) under or above the tokens they
    * contain.
    *
-   * @param edges       the edges to layout.
-   * @param tokenLayout the token layout.
-   * @param g2d         the graphics object to draw on.
-   * @see EdgeLayout#layout(Collection<Edge>, TokenLayout, Graphics2D)
+   * @param edges  the edges to layout.
+   * @param bounds the bounds of the tokens the spans connect.
+   * @param g2d    the graphics object to draw on.
+   * @return the dimensions of the drawn graph.
    */
-  public void layout(Collection<Edge> edges, TokenLayout tokenLayout, Graphics2D g2d) {
+  public Dimension layoutEdges(Collection<Edge> edges,
+                               Map<Token, Bounds1D> bounds,
+                               Graphics2D g2d) {
     if (visible.size() > 0) {
       edges = new HashSet<Edge>(edges);
       edges.retainAll(visible);
@@ -174,9 +176,8 @@ public class SpanLayout extends AbstractEdgeLayout {
       calculateDepth(dominates, depth, edge);
 
     //calculate maxHeight and maxWidth
-    maxWidth = tokenLayout.getWidth() + 1;
     int maxDepth = depth.getMaximum();
-    maxHeight = edges.size() > 0 ? (maxDepth + 1) * heightPerLevel + 3 : 1;
+    int maxHeight = edges.size() > 0 ? (maxDepth + 1) * heightPerLevel + 3 : 1;
     //in case there are no edges that cover other edges (depth == 0) we need
     //to increase the height slightly because loops on the same token
     //have height of 1.5 levels
@@ -209,10 +210,10 @@ public class SpanLayout extends AbstractEdgeLayout {
 
       int buffer = 2;
 
-      Rectangle2D fromBounds = tokenLayout.getBounds(edge.getFrom());
-      Rectangle2D toBounds = tokenLayout.getBounds(edge.getTo());
-      int minX = (int) Math.min(fromBounds.getMinX(), toBounds.getMinX());
-      int maxX = (int) Math.max(fromBounds.getMaxX(), toBounds.getMaxX());
+      Bounds1D fromBounds = bounds.get(edge.getFrom());
+      Bounds1D toBounds = bounds.get(edge.getTo());
+      int minX = Math.min(fromBounds.from, toBounds.from);
+      int maxX = Math.max(fromBounds.to, toBounds.to);
 
       if (maxX - minX < layout.getBounds().getWidth() + totalTextMargin) {
         double middle = minX + (maxX - minX) / 2.0;
@@ -235,14 +236,13 @@ public class SpanLayout extends AbstractEdgeLayout {
       int labely = height + heightPerLevel / 2;
       layout.draw(g2d, labelx, labely);
       g2d.setColor(old);
-      //Area area = new Area();
-      //area.add(shape);
-      //shape.append(layout.getOutline(null), false);
-      //Rectangle2D labelBounds = layout.getBounds();
       shapes.put(shape, edge);
-      //shapes.put(new Rectangle.Double(labelx,labely,labelBounds.getWidth(), labelBounds.getHeight()), edge);
 
     }
+
+    int maxWidth = 0;
+    for (Bounds1D bound1D : bounds.values())
+      if (bound1D.to > maxWidth) maxWidth = bound1D.to;
 
     if (separationLines) {
       //find largest depth for each prefix type
@@ -256,15 +256,15 @@ public class SpanLayout extends AbstractEdgeLayout {
         }
       }
       for (Integer d : minDepths.values()) {
-        double height = ((!revert ? maxDepth - d : d) * heightPerLevel);
+        double height = baseline + ((!revert ? maxDepth - d : d) * heightPerLevel);
         g2d.setColor(Color.LIGHT_GRAY);
-        g2d.drawLine(0, (int) height, getWidth(), (int) height);
+        g2d.drawLine(0, (int) height, maxWidth, (int) height);
 
       }
     }
 
-    //draw separation lines
 
+    return new Dimension(maxWidth, maxHeight);
 
   }
 

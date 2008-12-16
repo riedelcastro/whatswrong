@@ -537,10 +537,8 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
         spinner.setValue(index);
         ofHowMany.setText(" of " + maxIndex);
         NLPInstance instance = getDiffCorpus(gold.getSelected(), guess.getSelected()).get(index);
-        canvas.getSpanLayout().setColor("FN", Color.BLUE);
-        canvas.getSpanLayout().setColor("FP", Color.RED);
-        canvas.getDependencyLayout().setColor("FN", Color.BLUE);
-        canvas.getDependencyLayout().setColor("FP", Color.RED);
+        canvas.getRenderer().setEdgeTypeColor("FN", Color.BLUE);
+        canvas.getRenderer().setEdgeTypeColor("FP", Color.RED);
         canvas.setNLPInstance(instance);
         canvas.updateNLPGraphics();
 
@@ -585,14 +583,14 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       edgeTypeFilter.addAllowedPostfixType("FN");
       edgeTypeFilter.addAllowedPostfixType("Match");
 
-      canvas.getSpanLayout().setTypeOrder("pos", 0);
-      canvas.getSpanLayout().setTypeOrder("chunk (BIO)", 1);
-      canvas.getSpanLayout().setTypeOrder("chunk", 2);
-      canvas.getSpanLayout().setTypeOrder("ner (BIO)", 2);
-      canvas.getSpanLayout().setTypeOrder("ner", 3);
-      canvas.getSpanLayout().setTypeOrder("sense", 4);
-      canvas.getSpanLayout().setTypeOrder("role", 5);
-      canvas.getSpanLayout().setTypeOrder("phrase", 5);
+      canvas.getRenderer().setEdgeTypeOrder("pos", 0);
+      canvas.getRenderer().setEdgeTypeOrder("chunk (BIO)", 1);
+      canvas.getRenderer().setEdgeTypeOrder("chunk", 2);
+      canvas.getRenderer().setEdgeTypeOrder("ner (BIO)", 2);
+      canvas.getRenderer().setEdgeTypeOrder("ner", 3);
+      canvas.getRenderer().setEdgeTypeOrder("sense", 4);
+      canvas.getRenderer().setEdgeTypeOrder("role", 5);
+      canvas.getRenderer().setEdgeTypeOrder("phrase", 5);
 
       canvas.updateNLPGraphics();
 

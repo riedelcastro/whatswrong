@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A DependencyLayout lays out edges in a dependency parse layout. Here the edge
@@ -37,17 +38,17 @@ public class DependencyLayout extends AbstractEdgeLayout {
    */
   private int arrowSize = 2;
 
-
   /**
-   * Lays out the edges in a dependency style graph.
+   * Lays out the edges as directed labelled dependency links between tokens.
    *
-   * @param edges       the edges to draw.
-   * @param tokenLayout the layout of the tokens.
-   * @param g2d         the graphics object to draw the layout to.
-   * @see EdgeLayout#layout(Collection<Edge>, TokenLayout, Graphics2D)
+   * @param edges  the edges to layout.
+   * @param bounds the bounds of the tokens the edges connect.
+   * @param g2d    the graphics object to draw on.
+   * @return the dimensions of the drawn graph.
    */
-  public void layout(Collection<Edge> edges, TokenLayout tokenLayout,
-                     Graphics2D g2d) {
+  public Dimension layoutEdges(Collection<Edge> edges,
+                               Map<Token, Bounds1D> bounds,
+                               Graphics2D g2d) {
 
     if (visible.size() > 0) {
       edges = new HashSet<Edge>(edges);
@@ -100,8 +101,7 @@ public class DependencyLayout extends AbstractEdgeLayout {
       }
 
     //calculate maxHeight and maxWidth
-    maxWidth = tokenLayout.getWidth();
-    maxHeight = (depth.getMaximum() + 1) * heightPerLevel + 3;
+    int maxHeight = (depth.getMaximum() + 1) * heightPerLevel + 3;
     //in case there are no edges that cover other edges (depth == 0) we need
     //to increase the height slightly because loops on the same token
     //have height of 1.5 levels
@@ -141,8 +141,8 @@ public class DependencyLayout extends AbstractEdgeLayout {
       });
       //now put points along the token vertex wrt to ordering
       List<Edge> loopsOnVertex = loops.get(token);
-      double width = (tokenLayout.getBounds(token).getWidth() + vertexExtraSpace) / (connections.size() + 1.0 + loopsOnVertex.size() * 2);
-      double x = (tokenLayout.getBounds(token).getMinX() - (vertexExtraSpace / 2.0)) + width;
+      double width = (bounds.get(token).getWidth() + vertexExtraSpace) / (connections.size() + 1.0 + loopsOnVertex.size() * 2);
+      double x = (bounds.get(token).from - (vertexExtraSpace / 2.0)) + width;
       for (Edge loop : loopsOnVertex) {
         Point point = new Point((int) x, baseline + maxHeight);
         from.put(loop, point);
@@ -199,6 +199,13 @@ public class DependencyLayout extends AbstractEdgeLayout {
 
     }
 
+    int maxWidth = 0;
+    for (Point p : from.values())
+      if (p.getX() > maxWidth) maxWidth = (int) p.getX();
+    for (Point p : to.values())
+      if (p.getX() > maxWidth) maxWidth = (int) p.getX();
+
+    return new Dimension(maxWidth + arrowSize + 2, maxHeight);
 
   }
 

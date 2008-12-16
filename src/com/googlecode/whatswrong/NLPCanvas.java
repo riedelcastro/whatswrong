@@ -16,21 +16,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * An NLPCanvas is responsible for drawing the tokens and edges of an
  * NLPInstance using different edge and token layouts. In order to draw an
  * NLPInstance clients have to first set the instance to draw by calling {@link
- * com.googlecode.whatswrong.NLPCanvas#setNLPInstance(NLPInstance)} and then update the
- * graphical representation by calling {@link NLPCanvas#updateNLPGraphics()}.
- * The latter method should also be called whenever changes are made to the
- * layout configuration (curved edges vs straight edges, antialiasing etc.).
+ * com.googlecode.whatswrong.NLPCanvas#setNLPInstance(NLPInstance)} and then
+ * update the graphical representation by calling {@link
+ * NLPCanvas#updateNLPGraphics()}. The latter method should also be called
+ * whenever changes are made to the layout configuration (curved edges vs
+ * straight edges, antialiasing etc.).
  *
  * @author Sebastian Riedel
  * @see com.googlecode.whatswrong.EdgeLayout
@@ -38,18 +37,6 @@ import java.util.Set;
  */
 public class NLPCanvas extends JPanel {
 
-  /**
-   * The layout object for spans.
-   */
-  private SpanLayout spanLayout = new SpanLayout();
-  /**
-   * The layout object for dependencies.
-   */
-  private DependencyLayout dependencyLayout = new DependencyLayout();
-  /**
-   * The layout object for tokens.
-   */
-  private TokenLayout tokenLayout = new TokenLayout();
 
   /**
    * All tokens.
@@ -64,17 +51,7 @@ public class NLPCanvas extends JPanel {
    * The image we write the token layout to.
    */
   private BufferedImage
-    tokenImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
-  /**
-   * The image we write the dependency layout to.
-   */
-  private BufferedImage
-    dependencyImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
-  /**
-   * The image we write the span layout to.
-   */
-  private BufferedImage
-    spanImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+    image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
   /**
    * A collection of all edge types used in the current nlp instance.
@@ -92,15 +69,16 @@ public class NLPCanvas extends JPanel {
   private ArrayList<ChangeListener>
     changeListeners = new ArrayList<ChangeListener>();
 
-  /**
-   * Should lines and fonts should be drawn using anti-aliasing.
-   */
-  private boolean antiAliasing = true;
 
   /**
    * The filter that processes the current instance before it is drawn.
    */
   private NLPInstanceFilter filter;
+
+  /**
+   * The renderer that draws the filtered NLPInstance to the canvas.
+   */
+  private NLPCanvasRenderer renderer = new SingleSentenceRenderer();
 
   /**
    * A NLPCanvas.Listener is notified whenever the canvas is redrawn or when a
@@ -146,42 +124,31 @@ public class NLPCanvas extends JPanel {
        * @param e the event.
        */
       public void mousePressed(MouseEvent e) {
-        Point point = e.getPoint();
-        point.translate(0, -(getHeight() - tokenLayout.getHeight() -
-          dependencyLayout.getHeight() - spanLayout.getHeight()));
-        Edge edge = dependencyLayout.getEdgeAt(point, 5);
-        //System.out.println("edge = " + edge);
-        if (edge != null) {
-          if (e.isMetaDown())
-            dependencyLayout.toggleSelection(edge);
-          else
-            dependencyLayout.select(edge);
-
-          updateNLPGraphics();
-        }
+//        Point point = e.getPoint();
+//        point.translate(0, -(getHeight() - tokenLayout.getHeight() -
+//          dependencyLayout.getHeight() - spanLayout.getHeight()));
+//        Edge edge = dependencyLayout.getEdgeAt(point, 5);
+//        //System.out.println("edge = " + edge);
+//        if (edge != null) {
+//          if (e.isMetaDown())
+//            dependencyLayout.toggleSelection(edge);
+//          else
+//            dependencyLayout.select(edge);
+//
+//          updateNLPGraphics();
+//        }
       }
     });
   }
 
-
   /**
-   * Should anti-aliasing be used when drawing the graph.
-   *
-   * @return true iff anti-aliasing is used when drawing the graph.
+   * Return the renderer that draws the NLPInstance onto this canvas.
+   * @return the renderer that draws the NLPInstance onto this canvas.
    */
-  public boolean isAntiAliasing() {
-    return antiAliasing;
+  public NLPCanvasRenderer getRenderer() {
+    return renderer;
   }
 
-  /**
-   * Should anti-aliasing be used when drawing the graph.
-   *
-   * @param antiAliasing rue iff anti-aliasing should be used when drawing the
-   *                     graph.
-   */
-  public void setAntiAliasing(boolean antiAliasing) {
-    this.antiAliasing = antiAliasing;
-  }
 
   /**
    * Adds a change listener to this canvas.
@@ -235,7 +202,7 @@ public class NLPCanvas extends JPanel {
     for (Token token : tokens) {
       usedProperties.addAll(token.getPropertyTypes());
     }
-    spanLayout.clearSelection();
+    //spanLayout.clearSelection();
     fireInstanceChanged();
     //updateNLPGraphics();
   }
@@ -295,64 +262,20 @@ public class NLPCanvas extends JPanel {
   public void updateNLPGraphics() {
     NLPInstance filtered = filterInstance();
 
-    //get edges and tokens
-    Collection<Token> tokens =
-      new ArrayList<Token>(filtered.getTokens());
-    Collection<Edge> dependencies =
-      new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.dependency));
-    Collection<Edge> spans =
-      new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.span));
+    Graphics2D gTokens = image.createGraphics();
 
-    //create dummy graphics objects to estimate dimensions    
-    Graphics2D gTokens = tokenImage.createGraphics();
-    Graphics2D gDependencies = dependencyImage.createGraphics();
-    Graphics2D gSpans = spanImage.createGraphics();
+    Dimension dim = renderer.render(filtered, gTokens);
 
-    //get span required token widths
-    Map<Token, Integer> widths =
-      spanLayout.estimateRequiredTokenWidths(spans, gSpans);
-
-    //test layout to estimate sizes
-    tokenLayout.layout(tokens, widths, gTokens);
-    dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
-    spanLayout.layout(spans, tokenLayout, gSpans);
-
-    //create a new images with right dimensions
-    tokenImage = new BufferedImage(tokenLayout.getWidth(),
-      tokenLayout.getHeight(),
-      BufferedImage.TYPE_4BYTE_ABGR);
-    dependencyImage = new BufferedImage(dependencyLayout.getWidth(),
-      dependencyLayout.getHeight(),
-      BufferedImage.TYPE_4BYTE_ABGR);
-    spanImage = new BufferedImage(spanLayout.getWidth(),
-      spanLayout.getHeight(),
+    image = new BufferedImage((int) dim.getWidth(),
+      (int) dim.getHeight(),
       BufferedImage.TYPE_4BYTE_ABGR);
 
-    //create the real graphics objects
-    gTokens = tokenImage.createGraphics();
-    gDependencies = dependencyImage.createGraphics();
-    gSpans = spanImage.createGraphics();
+    gTokens = image.createGraphics();
 
-    //specify rendering hints
-    if (antiAliasing) {
-      gDependencies.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-      gSpans.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-    }
-
-    //do the layout
-    tokenLayout.layout(tokens, widths, gTokens);
-    dependencyLayout.layout(dependencies, tokenLayout, gDependencies);
-    spanLayout.layout(spans, tokenLayout, gSpans);
-
-
-    int width = spanLayout.getWidth();
-    int height = dependencyLayout.getHeight() + tokenLayout.getHeight()
-      + spanLayout.getHeight();
-    setPreferredSize(new Dimension(width, height));
-    setMinimumSize(new Dimension(width, height));
-    setSize(new Dimension(width, getHeight()));
+    renderer.render(filtered, gTokens);
+    setPreferredSize(dim);
+    setMinimumSize(dim);
+    setSize(new Dimension(dim.width, getHeight()));
     repaint();
     invalidate();
     //invalidate();
@@ -360,32 +283,6 @@ public class NLPCanvas extends JPanel {
     fireRedrawn();
   }
 
-  /**
-   * Returns the token layout of this canvas.
-   *
-   * @return the token layout of this canvas.
-   */
-  public TokenLayout getTokenLayout() {
-    return tokenLayout;
-  }
-
-  /**
-   * Returns the span layout of this canvas.
-   *
-   * @return the span layout of this canvas.
-   */
-  public SpanLayout getSpanLayout() {
-    return spanLayout;
-  }
-
-  /**
-   * Returns the dependency layout of this canvas.
-   *
-   * @return the dependency layout of this canvas.
-   */
-  public DependencyLayout getDependencyLayout() {
-    return dependencyLayout;
-  }
 
   /**
    * Clears the current instance.
@@ -406,11 +303,11 @@ public class NLPCanvas extends JPanel {
   public void paintComponent(Graphics graphics) {
     Graphics2D g2d = (Graphics2D) graphics;
     g2d.setColor(Color.WHITE);
-    g2d.fillRect(0,0,getWidth(),getHeight());
-    int y = getHeight() - dependencyImage.getHeight() - tokenImage.getHeight() - spanImage.getHeight();
-    g2d.drawImage(dependencyImage, 0, y, this);
-    g2d.drawImage(tokenImage, 0, y + dependencyImage.getHeight(), this);
-    g2d.drawImage(spanImage, 0, y + tokenImage.getHeight() + dependencyImage.getHeight(), this);
+    g2d.fillRect(0, 0, getWidth(), getHeight());
+    int y = getHeight() - image.getHeight();
+    //g2d.drawImage(dependencyImage, 0, y, this);
+    g2d.drawImage(image, 0, y, this);
+    //g2d.drawImage(spanImage, 0, y + image.getHeight() + dependencyImage.getHeight(), this);
   }
 
 
@@ -423,43 +320,16 @@ public class NLPCanvas extends JPanel {
   public void exportToEPS(File file) throws IOException {
 
     EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(),
-      0, 0, tokenLayout.getWidth(), spanLayout.getHeight()
-      + tokenLayout.getHeight(), ColorMode.BLACK_AND_WHITE);
+      0, 0, 1, 1, ColorMode.BLACK_AND_WHITE);
 
     NLPInstance filtered = filterInstance();
 
-    //get edges and tokens
-    Collection<Token> tokens =
-      new ArrayList<Token>(filtered.getTokens());
-    Collection<Edge> dependencies =
-      new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.dependency));
-    Collection<Edge> spans =
-      new ArrayList<Edge>(filtered.getEdges(Edge.RenderType.span));
+    Dimension dim = renderer.render(filtered, dummy);
 
-    //create dummy graphics objects to estimate dimensions
-
-    //get span required token widths
-    Map<Token, Integer> widths =
-      spanLayout.estimateRequiredTokenWidths(spans, dummy);
-
-    //test layout to estimate sizes
-    tokenLayout.layout(tokens, widths, dummy);
-    dependencyLayout.layout(dependencies, tokenLayout, dummy);
-    spanLayout.layout(spans, tokenLayout, dummy);
-
-    //create actual EPS graphics object
     EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
-      tokenLayout.getWidth() + 2,
-      spanLayout.getHeight() + tokenLayout.getHeight()
-        + dependencyLayout.getHeight(),
-      ColorMode.COLOR_RGB);
+      (int) dim.getWidth() + 2, (int) dim.getHeight(), ColorMode.COLOR_RGB);
 
-    // do eps rendering
-    dependencyLayout.layout(dependencies, tokenLayout, g);
-    g.translate(0, dependencyLayout.getHeight());
-    tokenLayout.layout(tokens, widths, g);
-    g.translate(0, tokenLayout.getHeight());
-    spanLayout.layout(spans, tokenLayout, g);
+    renderer.render(filtered, g);
 
     g.flush();
     g.close();

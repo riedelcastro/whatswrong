@@ -31,10 +31,10 @@ public class AppearancePanel extends JPanel {
     //c.fill = GridBagConstraints.HORIZONTAL;
     //setBorder(new TitledBorder(new EtchedBorder(),"Change Appearance"));
     setBorder(new EmptyBorder(5, 5, 5, 5));
-    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, nlpCanvas.getTokenLayout().getMargin());
+    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, nlpCanvas.getRenderer().getMargin());
     marginSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
-        nlpCanvas.getTokenLayout().setMargin(marginSlider.getValue());
+        nlpCanvas.getRenderer().setMargin(marginSlider.getValue());
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -47,11 +47,11 @@ public class AppearancePanel extends JPanel {
     marginSlider.setToolTipText("Margin between tokens");
     marginSlider.setMaximumSize(new Dimension(20, 50));
 
-    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL, 10, 50, nlpCanvas.getSpanLayout().getHeightPerLevel());
+    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL, 10, 50,
+      nlpCanvas.getRenderer().getHeightFactor());
     heightSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
-        nlpCanvas.getSpanLayout().setHeightPerLevel(heightSlider.getValue());
-        nlpCanvas.getDependencyLayout().setHeightPerLevel(heightSlider.getValue());
+        nlpCanvas.getRenderer().setHeightFactor(heightSlider.getValue());
         nlpCanvas.updateNLPGraphics();
         //scrollToBottom();
       }
@@ -94,11 +94,11 @@ public class AppearancePanel extends JPanel {
     add(new JLabel("Edges:"), c);
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox curved = new JCheckBox("Curved", nlpCanvas.getSpanLayout().isCurve());
+    final JCheckBox curved = new JCheckBox("Curved",
+      nlpCanvas.getRenderer().isCurved());
     curved.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        nlpCanvas.getSpanLayout().setCurve(curved.isSelected());
-        nlpCanvas.getDependencyLayout().setCurve(curved.isSelected());
+        nlpCanvas.getRenderer().setCurved(curved.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -108,10 +108,11 @@ public class AppearancePanel extends JPanel {
     c.gridwidth = 1;
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox anti = new JCheckBox("Antialiasing", nlpCanvas.isAntiAliasing());
+    final JCheckBox anti = new JCheckBox("Antialiasing",
+      nlpCanvas.getRenderer().isAntiAliasing());
     anti.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        nlpCanvas.setAntiAliasing(anti.isSelected());
+        nlpCanvas.getRenderer().setAntiAliasing(anti.isSelected());
         nlpCanvas.updateNLPGraphics();
       }
     });
@@ -121,14 +122,14 @@ public class AppearancePanel extends JPanel {
     c.gridwidth = 1;
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox lines = new JCheckBox("Separation Lines", nlpCanvas.getSpanLayout().isSeparationLines());
-    lines.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        nlpCanvas.getSpanLayout().setSeparationLines(lines.isSelected());
-        nlpCanvas.updateNLPGraphics();
-      }
-    });
-    add(lines, c);
+//    final JCheckBox lines = new JCheckBox("Separation Lines", nlpCanvas.getSpanLayout().isSeparationLines());
+//    lines.addActionListener(new ActionListener() {
+//      public void actionPerformed(ActionEvent e) {
+//        //nlpCanvas.getSpanLayout().setSeparationLines(lines.isSelected());
+//        nlpCanvas.updateNLPGraphics();
+//      }
+//    });
+//    add(lines, c);
 
     setMinimumSize(new Dimension(0, 150));
 

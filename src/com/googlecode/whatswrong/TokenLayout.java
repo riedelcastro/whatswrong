@@ -1,6 +1,6 @@
 package com.googlecode.whatswrong;
 
-import com.googlecode.whatswrong.javautils.*;
+import com.googlecode.whatswrong.javautils.Pair;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -20,8 +20,8 @@ import java.util.Map;
  *
  * <p>Note that the TokenLayout remembers the bounds of each token property
  * stack and the text layout of each property value. This can be handy when
- * other layouts (e.g., {@link com.googlecode.whatswrong.DependencyLayout}) want to connect the
- * tokens.
+ * other layouts (e.g., {@link com.googlecode.whatswrong.DependencyLayout}) want
+ * to connect the tokens.
  *
  * @author Sebastian Riedel
  */
@@ -120,6 +120,45 @@ public class TokenLayout {
     return margin;
   }
 
+
+  public Map<Token, Bounds1D> estimateTokenBounds(
+    final Collection<Token> tokens,
+    final Map<Token, Integer> tokenWidths,
+    final Graphics2D g2d) {
+
+    HashMap<Token, Bounds1D>
+      result = new HashMap<Token, Bounds1D>();
+    height = 0;
+
+    if (tokens.size() == 0) {
+      return result;
+    }
+    int lastx = 0;
+
+
+    for (Token token : tokens) {
+      Font font = g2d.getFont();//Font.getFont("Helvetica-bold-italic");
+      FontRenderContext frc = g2d.getFontRenderContext();
+      int maxX = 0;
+      int lasty = baseline + rowHeight;
+      for (TokenProperty p : token.getSortedProperties()) {
+        String property = token.getProperty(p);
+        TextLayout layout = new TextLayout(property, font, frc);
+        lasty += rowHeight;
+        if (layout.getBounds().getMaxX() > maxX)
+          maxX = (int) layout.getBounds().getMaxX();
+
+      }
+      Integer requiredWidth = tokenWidths.get(token);
+      if (requiredWidth != null && maxX < requiredWidth) maxX = requiredWidth;
+      result.put(token, new Bounds1D(lastx, lastx + maxX));
+      lastx += maxX + margin;
+      if (lasty - rowHeight > height) height = lasty - rowHeight;
+    }
+    return result;
+  }
+
+
   /**
    * Lays out all tokens in the given collection as stacks of property values
    * that are placed next to each other according the order of the tokens (as
@@ -134,14 +173,15 @@ public class TokenLayout {
    *                    they have self loops in a {@link com.googlecode.whatswrong.DependencyLayout})
    *                    the space they need can be provided through this map.
    * @param g2d         the graphics object to draw to.
+   * @return the dimension of the drawn graph.
    */
-  public void layout(final Collection<Token> tokens,
-                     final Map<Token, Integer> tokenWidths,
-                     final Graphics2D g2d) {
+  public Dimension layout(final Collection<Token> tokens,
+                          final Map<Token, Integer> tokenWidths,
+                          final Graphics2D g2d) {
     if (tokens.size() == 0) {
       height = 1;
       width = 1;
-      return;
+      return new Dimension(width, height);
     }
     textLayouts.clear();
     int lastx = 0;
@@ -172,6 +212,7 @@ public class TokenLayout {
       if (lasty - rowHeight > height) height = lasty - rowHeight;
     }
     width = lastx - margin;
+    return new Dimension(width, height);
   }
 
   /**
@@ -201,6 +242,7 @@ public class TokenLayout {
 
   /**
    * Gets the total width of this TokenLayout (covering all token stacks).
+   *
    * @return the total width of this TokenLayout.
    */
   public int getWidth() {
@@ -209,6 +251,7 @@ public class TokenLayout {
 
   /**
    * Gets the total height of this TokenLayout (covering all token stacks).
+   *
    * @return the total width of this TokenLayout.
    */
   public int getHeight() {

@@ -19,7 +19,7 @@ import java.util.HashSet;
  *
  * @author Sebastian Riedel
  */
-public abstract class AbstractEdgeLayout implements EdgeLayout {
+public abstract class AbstractEdgeLayout  {
   /**
    * Where do we start to draw
    */

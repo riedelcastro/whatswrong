@@ -123,11 +123,11 @@ public class DependencyFilterPanel extends ControllerPanel {
     //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
     onlySelected.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
-          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
-        else
-          nlpCanvas.getSpanLayout().showAll();
-        nlpCanvas.updateNLPGraphics();
+//        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
+//          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
+//        else
+//          nlpCanvas.getSpanLayout().showAll();
+//        nlpCanvas.updateNLPGraphics();
       }
     });
     add(onlySelected, new SimpleGridBagConstraints(5, false));
