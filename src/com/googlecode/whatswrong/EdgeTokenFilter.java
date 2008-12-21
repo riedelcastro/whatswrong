@@ -368,20 +368,39 @@ public class EdgeTokenFilter implements NLPInstanceFilter {
       });
       ArrayList<Token> updatedTokens = new ArrayList<Token>();
       HashMap<Token, Token> old2new = new HashMap<Token, Token>();
+      HashMap<Token, Token> new2old = new HashMap<Token, Token>();
       for (Token t : sorted) {
         Token newToken = new Token(updatedTokens.size());
         newToken.merge(original.getTokens().get(t.getIndex()));
         old2new.put(t, newToken);
+        new2old.put(newToken,t);
         updatedTokens.add(newToken);
       }
 
       HashSet<Edge> updatedEdges = new HashSet<Edge>();
       for (Edge e : edges) {
-        updatedEdges.add(new Edge(old2new.get(e.getFrom()), old2new.get(e.getTo()), e.getLabel(), e.getType(),
+        updatedEdges.add(new Edge(old2new.get(e.getFrom()),
+          old2new.get(e.getTo()), e.getLabel(), e.getType(),
           e.getRenderType()));
       }
+      //find new split points
+      ArrayList<Integer> splitPoints = new ArrayList<Integer>();
+      int newTokenIndex = 0;
+      for (Integer oldSplitPoint : original.getSplitPoints()){
+
+        Token newToken = updatedTokens.get(newTokenIndex);
+        Token oldToken = new2old.get(newToken);
+        while (newTokenIndex + 1 < tokens.size()
+          && oldToken.getIndex() < oldSplitPoint){
+          ++newTokenIndex;
+          newToken = updatedTokens.get(newTokenIndex);
+          oldToken = new2old.get(newToken);
+        }
+        splitPoints.add(newTokenIndex);
+      }
+
       return new NLPInstance(updatedTokens, updatedEdges,
-        original.getRenderType(), original.getSplitPoints());
+        original.getRenderType(), splitPoints);
     }
   }
 

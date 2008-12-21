@@ -163,7 +163,8 @@ public class TokenFilter implements NLPInstanceFilter {
         if (newFrom == null || newTo == null) continue;
         edges.add(new Edge(newFrom, newTo, e.getLabel(), e.getType(), e.getRenderType()));
       }
-      //find new split points
+      //find new split points (have to be changed because new instance
+      //has new token sequence 
       ArrayList<Integer> splitPoints = new ArrayList<Integer>();
       int newTokenIndex = 0;
       for (Integer oldSplitPoint : original.getSplitPoints()){
@@ -180,7 +181,7 @@ public class TokenFilter implements NLPInstanceFilter {
       }
 
       return new NLPInstance(filterTokens(tokens),
-        edges,original.getRenderType(), original.getSplitPoints());
+        edges,original.getRenderType(), splitPoints);
 
     } else {
       List<Token> filteredTokens = filterTokens(original.getTokens());
