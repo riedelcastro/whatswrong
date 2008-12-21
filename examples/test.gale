@@ -1,10 +1,8 @@
 <seg id=1>
-<source_raw>???????????(????)</source_raw>
-<source>? ? ? ? ? ? ? ? ? ? ? ( ? ? ? ? )</source>
-<translation_raw>Xinhua News Agency, Beijing, February 11, by wire (reporter Hong Tan
-g)</translation_raw>
-<translation>Xinhua News Agency , Beijing , February 11 , by wire ( reporter Hong Tan
-g )</translation>
+<source_raw>新华社北京二月十一日电(记者唐虹)</source_raw>
+<source>新 华 社 北 京 二 月 十 一 日 电 ( 记 者 唐 虹 )</source>
+<translation_raw>Xinhua News Agency, Beijing, February 11, by wire (reporter Hong Tang)</translation_raw>
+<translation>Xinhua News Agency , Beijing , February 11 , by wire ( reporter Hong Tang )</translation>
 <matrix>
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -23,13 +21,11 @@ g )</translation>
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
 </matrix>
-<seg id=2>
-<source_raw>???????????(????)</source_raw>
-<source>? ? ? ? ? ? ? ? ? ? ? ( ? ? ? ? )</source>
-<translation_raw>Xinhua News Agency, Beijing, February 11, by wire (reporter Hong Tan
-g)</translation_raw>
-<translation>Xinhua News Agency , Beijing , February 11 , by wire ( reporter Hong Tan
-g )</translation>
+<seg id=1>
+<source_raw>新华社北京二月十一日电(记者唐虹)</source_raw>
+<source>新 华 社 北 京 二 月 十 一 日 电 ( 记 者 唐 虹 )</source>
+<translation_raw>Xinhua News Agency, Beijing, February 11, by wire (reporter Hong Tang)</translation_raw>
+<translation>Xinhua News Agency , Beijing , February 11 , by wire ( reporter Hong Tang )</translation>
 <matrix>
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0

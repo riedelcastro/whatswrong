@@ -26,6 +26,9 @@ public class NLPDiff {
    */
   public NLPInstance diff(NLPInstance goldInstance, NLPInstance guessInstance) {
     NLPInstance diff = new NLPInstance();
+    diff.setRenderType(goldInstance.getRenderType());
+    for (int splitPoint : goldInstance.getSplitPoints())
+      diff.addSplitPoint(splitPoint);
     diff.addTokens(goldInstance.getTokens());
     HashSet<Edge> fn = new HashSet<Edge>(goldInstance.getEdges());
     fn.removeAll(guessInstance.getEdges());

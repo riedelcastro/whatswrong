@@ -6,8 +6,8 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,6 +52,9 @@ public class TokenLayout {
    */
   private int margin = 20;
 
+  private int fromSplitPoint = -1;
+  private int toSplitPoint = -1;
+
   /**
    * the total width of the graph that consists of all token stacks next to each
    * other.
@@ -81,6 +84,22 @@ public class TokenLayout {
    */
   public void setBaseline(final int baseline) {
     this.baseline = baseline;
+  }
+
+  public int getFromSplitPoint() {
+    return fromSplitPoint;
+  }
+
+  public void setFromSplitPoint(int fromSplitPoint) {
+    this.fromSplitPoint = fromSplitPoint;
+  }
+
+  public int getToSplitPoint() {
+    return toSplitPoint;
+  }
+
+  public void setToSplitPoint(int toSplitPoint) {
+    this.toSplitPoint = toSplitPoint;
   }
 
   /**
@@ -122,7 +141,7 @@ public class TokenLayout {
 
 
   public Map<Token, Bounds1D> estimateTokenBounds(
-    final Collection<Token> tokens,
+    final NLPInstance instance,
     final Map<Token, Integer> tokenWidths,
     final Graphics2D g2d) {
 
@@ -130,13 +149,20 @@ public class TokenLayout {
       result = new HashMap<Token, Bounds1D>();
     height = 0;
 
+    List<Token> tokens = instance.getTokens();
+
     if (tokens.size() == 0) {
       return result;
     }
     int lastx = 0;
 
+    int fromToken = fromSplitPoint == -1 ? 0 :
+      instance.getSplitPoints().get(fromSplitPoint);
+    int toToken = toSplitPoint == -1 ? tokens.size() :
+      instance.getSplitPoints().get(toSplitPoint);
 
-    for (Token token : tokens) {
+    for (int tokenIndex = fromToken; tokenIndex < toToken; ++tokenIndex) {
+      Token token = tokens.get(tokenIndex);
       Font font = g2d.getFont();//Font.getFont("Helvetica-bold-italic");
       FontRenderContext frc = g2d.getFontRenderContext();
       int maxX = 0;
@@ -168,16 +194,17 @@ public class TokenLayout {
    * width, bounding boxes of token stacks and text layouts of each property
    * value) can be queried by calling the appropriate get methods.
    *
-   * @param tokens      the tokens to lay out.
+   * @param instance
    * @param tokenWidths if some tokens need extra space (for example because
    *                    they have self loops in a {@link com.googlecode.whatswrong.DependencyLayout})
    *                    the space they need can be provided through this map.
    * @param g2d         the graphics object to draw to.
    * @return the dimension of the drawn graph.
    */
-  public Dimension layout(final Collection<Token> tokens,
+  public Dimension layout(final NLPInstance instance,
                           final Map<Token, Integer> tokenWidths,
                           final Graphics2D g2d) {
+    List<Token> tokens = instance.getTokens();
     if (tokens.size() == 0) {
       height = 1;
       width = 1;
@@ -189,7 +216,13 @@ public class TokenLayout {
 
     g2d.setColor(Color.BLACK);
 
-    for (Token token : tokens) {
+    int fromToken = fromSplitPoint == -1 ? 0 :
+      instance.getSplitPoints().get(fromSplitPoint);
+    int toToken = toSplitPoint == -1 ? tokens.size() :
+      instance.getSplitPoints().get(toSplitPoint);
+
+    for (int tokenIndex = fromToken; tokenIndex < toToken; ++tokenIndex) {
+      Token token = tokens.get(tokenIndex);
       Font font = g2d.getFont();//Font.getFont("Helvetica-bold-italic");
       FontRenderContext frc = g2d.getFontRenderContext();
       int index = 0;
@@ -212,7 +245,7 @@ public class TokenLayout {
       if (lasty - rowHeight > height) height = lasty - rowHeight;
     }
     width = lastx - margin;
-    return new Dimension(width, height);
+    return new Dimension(width, height + 1);
   }
 
   /**

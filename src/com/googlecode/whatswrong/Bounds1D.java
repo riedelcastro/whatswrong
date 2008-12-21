@@ -15,4 +15,8 @@ public class Bounds1D {
   public int getWidth(){
     return to - from;
   }
+
+  public int getMiddle(){
+    return from + getWidth() / 2;
+  }
 }

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.HashMap;
 
 /**
  * An NLPCanvas is responsible for drawing the tokens and edges of an
@@ -39,6 +40,12 @@ public class NLPCanvas extends JPanel {
 
 
   /**
+   * Renderers for different render types.
+   */
+  private final HashMap<NLPInstance.RenderType, NLPCanvasRenderer>
+    renderers = new HashMap<NLPInstance.RenderType, NLPCanvasRenderer>();
+
+  /**
    * All tokens.
    */
   private ArrayList<Token> tokens = new ArrayList<Token>();
@@ -48,7 +55,7 @@ public class NLPCanvas extends JPanel {
   private LinkedList<Edge> dependencies = new LinkedList<Edge>();
 
   /**
-   * The image we write the token layout to.
+   * The image we render to.
    */
   private BufferedImage
     image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
@@ -69,6 +76,7 @@ public class NLPCanvas extends JPanel {
   private ArrayList<ChangeListener>
     changeListeners = new ArrayList<ChangeListener>();
 
+  private NLPInstance instance;
 
   /**
    * The filter that processes the current instance before it is drawn.
@@ -118,6 +126,8 @@ public class NLPCanvas extends JPanel {
   public NLPCanvas() {
     setPreferredSize(new Dimension(300, 300));
     setOpaque(true);
+    renderers.put(NLPInstance.RenderType.single, renderer);
+    renderers.put(NLPInstance.RenderType.alignment, new AlignmentRenderer());
     addMouseListener(new MouseAdapter() {
       /**
        * Selects edges in the dependency layout.
@@ -143,6 +153,7 @@ public class NLPCanvas extends JPanel {
 
   /**
    * Return the renderer that draws the NLPInstance onto this canvas.
+   *
    * @return the renderer that draws the NLPInstance onto this canvas.
    */
   public NLPCanvasRenderer getRenderer() {
@@ -191,6 +202,7 @@ public class NLPCanvas extends JPanel {
    * @param nlpInstance the new NLP instance.
    */
   public void setNLPInstance(final NLPInstance nlpInstance) {
+    this.instance = nlpInstance;
     dependencies.clear();
     dependencies.addAll(nlpInstance.getEdges());
     usedTypes.clear();
@@ -252,7 +264,8 @@ public class NLPCanvas extends JPanel {
    * @return the filtered instance.
    */
   private NLPInstance filterInstance() {
-    return filter.filter(new NLPInstance(tokens, dependencies));
+    return filter.filter(new NLPInstance(tokens, dependencies,
+      instance.getRenderType(), instance.getSplitPoints()));
   }
 
   /**
@@ -263,6 +276,8 @@ public class NLPCanvas extends JPanel {
     NLPInstance filtered = filterInstance();
 
     Graphics2D gTokens = image.createGraphics();
+
+    renderer = renderers.get(filtered.getRenderType());
 
     Dimension dim = renderer.render(filtered, gTokens);
 

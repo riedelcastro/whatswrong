@@ -4,6 +4,7 @@ import com.googlecode.whatswrong.io.TabFormat;
 import com.googlecode.whatswrong.io.CorpusFormat;
 import com.googlecode.whatswrong.io.LispSExprFormat;
 import com.googlecode.whatswrong.io.TheBeastFormat;
+import com.googlecode.whatswrong.io.GaleAlignmentFormat;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -350,6 +351,7 @@ public class CorpusLoader extends JPanel {
     addFormat(tabFormat);
     addFormat(theBeastFormat);
     addFormat(new LispSExprFormat());
+    addFormat(new GaleAlignmentFormat());
 
     corpora = new ArrayList<List<NLPInstance>>();
     c.gridx = 0;

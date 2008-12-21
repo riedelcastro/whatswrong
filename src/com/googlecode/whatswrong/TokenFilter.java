@@ -140,6 +140,7 @@ public class TokenFilter implements NLPInstanceFilter {
     if (allowedStrings.size() > 0) {
       //first filter out tokens not containing allowed strings
       HashMap<Token, Token> old2new = new HashMap<Token, Token>();
+      HashMap<Token, Token> new2old = new HashMap<Token, Token>();
       ArrayList<Token> tokens = new ArrayList<Token>();
       main:
       for (Token t : original.getTokens()) {
@@ -150,6 +151,7 @@ public class TokenFilter implements NLPInstanceFilter {
               newVertex.merge(t);
               tokens.add(newVertex);
               old2new.put(t, newVertex);
+              new2old.put(newVertex, t);
               continue main;
             }
       }
@@ -161,11 +163,29 @@ public class TokenFilter implements NLPInstanceFilter {
         if (newFrom == null || newTo == null) continue;
         edges.add(new Edge(newFrom, newTo, e.getLabel(), e.getType(), e.getRenderType()));
       }
-      return new NLPInstance(filterTokens(tokens), edges);
+      //find new split points
+      ArrayList<Integer> splitPoints = new ArrayList<Integer>();
+      int newTokenIndex = 0;
+      for (Integer oldSplitPoint : original.getSplitPoints()){
+
+        Token newToken = tokens.get(newTokenIndex);
+        Token oldToken = new2old.get(newToken);
+        while (newTokenIndex + 1 < tokens.size()
+          && oldToken.getIndex() < oldSplitPoint){
+          ++newTokenIndex;
+          newToken = tokens.get(newTokenIndex);
+          oldToken = new2old.get(newToken);
+        }
+        splitPoints.add(newTokenIndex);
+      }
+
+      return new NLPInstance(filterTokens(tokens),
+        edges,original.getRenderType(), original.getSplitPoints());
 
     } else {
       List<Token> filteredTokens = filterTokens(original.getTokens());
-      return new NLPInstance(filteredTokens, original.getEdges());
+      return new NLPInstance(filteredTokens, original.getEdges(),
+        original.getRenderType(),original.getSplitPoints());
     }
   }
 

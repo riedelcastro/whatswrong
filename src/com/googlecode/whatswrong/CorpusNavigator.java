@@ -579,6 +579,7 @@ public class CorpusNavigator extends JPanel implements CorpusLoader.Listener {
       edgeTypeFilter.addAllowedPrefixType("ner");
       edgeTypeFilter.addAllowedPrefixType("chunk");
       edgeTypeFilter.addAllowedPrefixType("pos");
+      edgeTypeFilter.addAllowedPrefixType("align");
       edgeTypeFilter.addAllowedPostfixType("FP");
       edgeTypeFilter.addAllowedPostfixType("FN");
       edgeTypeFilter.addAllowedPostfixType("Match");

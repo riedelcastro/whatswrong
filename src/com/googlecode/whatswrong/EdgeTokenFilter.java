@@ -339,7 +339,8 @@ public class EdgeTokenFilter implements NLPInstanceFilter {
   public NLPInstance filter(NLPInstance original) {
     Collection<Edge> edges = filterEdges(original.getEdges());
     if (!collaps)
-      return new NLPInstance(original.getTokens(), edges);
+      return new NLPInstance(original.getTokens(), edges,
+        original.getRenderType(), original.getSplitPoints());
     else {
       HashSet<Token> tokens = new HashSet<Token>();
       for (Edge e : edges) {
@@ -379,7 +380,8 @@ public class EdgeTokenFilter implements NLPInstanceFilter {
         updatedEdges.add(new Edge(old2new.get(e.getFrom()), old2new.get(e.getTo()), e.getLabel(), e.getType(),
           e.getRenderType()));
       }
-      return new NLPInstance(updatedTokens, updatedEdges);
+      return new NLPInstance(updatedTokens, updatedEdges,
+        original.getRenderType(), original.getSplitPoints());
     }
   }
 

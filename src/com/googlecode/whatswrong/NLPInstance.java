@@ -17,6 +17,22 @@ import java.util.List;
  */
 public class NLPInstance {
 
+  public static enum RenderType {
+    /**
+     * Show as single sentence with dependencies and spans
+     */
+    single,
+    /**
+     * Show two aligned sentences, on top of each other
+     */
+    alignment
+  }
+
+  /**
+   * How to render this instance.
+   */
+  private RenderType renderType = RenderType.single;
+
   /**
    * Contains the edges of this instance.
    */
@@ -29,6 +45,14 @@ public class NLPInstance {
    * Contains a mapping from sentence indices to tokens.
    */
   private HashMap<Integer, Token> map = new HashMap<Integer, Token>();
+
+  /**
+   * A list of token indices at which the NLP instance is to be split. These
+   * indices can refer to sentence boundaries in a document, but they can also
+   * indicate that what follows after a split point is an utterance in a
+   * different language (for alignment).
+   */
+  private ArrayList<Integer> splitPoints = new ArrayList<Integer>();
 
   /**
    * Creates an empty NLPInstance without edges or tokens.
@@ -44,10 +68,33 @@ public class NLPInstance {
    * @param edges  the edges of the sentence.
    */
   public NLPInstance(final Collection<Token> tokens,
-                     final Collection<Edge> edges) {
+                     final Collection<Edge> edges,
+                     final RenderType renderType,
+                     final List<Integer> splitPoints) {
     this.tokens.addAll(tokens);
     for (Token t : tokens) map.put(t.getIndex(), t);
     this.edges.addAll(edges);
+    this.renderType = renderType;
+    this.splitPoints.addAll(splitPoints);
+  }
+
+
+  /**
+   * Returns the render type that controls which renderer to use.
+   *
+   * @return the render type for this instance.
+   */
+  public RenderType getRenderType() {
+    return renderType;
+  }
+
+  /**
+   * Sets the render type for this instance.
+   *
+   * @param renderType the render type for this instance.
+   */
+  public void setRenderType(RenderType renderType) {
+    this.renderType = renderType;
   }
 
   /**
@@ -249,15 +296,33 @@ public class NLPInstance {
   }
 
   /**
-   * If tokesn were added with {@link com.googlecode.whatswrong.NLPInstance#addToken(int)} this
-   * method ensures that all internal representations of the token sequence are
-   * consistent.
+   * If tokesn were added with {@link com.googlecode.whatswrong.NLPInstance#addToken(int)}
+   * this method ensures that all internal representations of the token sequence
+   * are consistent.
    */
   public void consistify() {
     tokens.addAll(map.values());
     Collections.sort(tokens);
   }
 
+  /**
+   * Add a split point token index.
+   *
+   * @param tokenIndex a token index at which the instance should be split.
+   */
+  public void addSplitPoint(int tokenIndex) {
+    splitPoints.add(tokenIndex);
+  }
+
+  /**
+   * Returns the list of split points for this instance. A split point is a
+   * point at which renderers can split the token list.
+   *
+   * @return the list of split points.
+   */
+  public List<Integer> getSplitPoints() {
+    return Collections.unmodifiableList(splitPoints);
+  }
 
   /**
    * Returns all edges of this instance.

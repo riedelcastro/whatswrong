@@ -16,7 +16,12 @@ import java.awt.event.ActionEvent;
  * @author Sebastian Riedel
  */
 @SuppressWarnings({"MissingMethodJavaDoc"})
-public class AppearancePanel extends JPanel {
+public class AppearancePanel extends JPanel implements NLPCanvas.Listener {
+  private JSlider marginSlider;
+  private JSlider heightSlider;
+  private JCheckBox curved;
+  private NLPCanvas nlpCanvas;
+  private JCheckBox anti;
 
   /**
    * Creates a new AppearancePanel for the given canvas.
@@ -25,13 +30,16 @@ public class AppearancePanel extends JPanel {
    */
   public AppearancePanel(final NLPCanvas nlpCanvas) {
     super(new GridBagLayout());
+    this.nlpCanvas = nlpCanvas;
+    nlpCanvas.addListener(this);
     GridBagConstraints c = new GridBagConstraints();
     c.weightx = 1.0;
     c.weighty = 1.0;
     //c.fill = GridBagConstraints.HORIZONTAL;
     //setBorder(new TitledBorder(new EtchedBorder(),"Change Appearance"));
     setBorder(new EmptyBorder(5, 5, 5, 5));
-    final JSlider marginSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, nlpCanvas.getRenderer().getMargin());
+    marginSlider = new JSlider(JSlider.HORIZONTAL, 0, 100,
+      nlpCanvas.getRenderer().getMargin());
     marginSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         nlpCanvas.getRenderer().setMargin(marginSlider.getValue());
@@ -47,7 +55,7 @@ public class AppearancePanel extends JPanel {
     marginSlider.setToolTipText("Margin between tokens");
     marginSlider.setMaximumSize(new Dimension(20, 50));
 
-    final JSlider heightSlider = new JSlider(JSlider.HORIZONTAL, 10, 50,
+    heightSlider = new JSlider(JSlider.HORIZONTAL, 10, 50,
       nlpCanvas.getRenderer().getHeightFactor());
     heightSlider.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
@@ -94,7 +102,7 @@ public class AppearancePanel extends JPanel {
     add(new JLabel("Edges:"), c);
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox curved = new JCheckBox("Curved",
+    curved = new JCheckBox("Curved",
       nlpCanvas.getRenderer().isCurved());
     curved.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -108,7 +116,7 @@ public class AppearancePanel extends JPanel {
     c.gridwidth = 1;
     c.gridx = 1;
     c.anchor = GridBagConstraints.WEST;
-    final JCheckBox anti = new JCheckBox("Antialiasing",
+    anti = new JCheckBox("Antialiasing",
       nlpCanvas.getRenderer().isAntiAliasing());
     anti.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -134,5 +142,16 @@ public class AppearancePanel extends JPanel {
     setMinimumSize(new Dimension(0, 150));
 
 
+  }
+
+  public void instanceChanged() {
+    heightSlider.setValue(nlpCanvas.getRenderer().getHeightFactor());
+    curved.setSelected(nlpCanvas.getRenderer().isCurved());
+    marginSlider.setValue(nlpCanvas.getRenderer().getMargin());
+    anti.setSelected(nlpCanvas.getRenderer().isAntiAliasing());
+    //heightSlider.set
+  }
+
+  public void redrawn() {
   }
 }

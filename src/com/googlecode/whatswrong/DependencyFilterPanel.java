@@ -119,18 +119,18 @@ public class DependencyFilterPanel extends ControllerPanel {
     });
     add(wholeWords, new SimpleGridBagConstraints(4, false));
 
-    final JButton onlySelected = new JButton("Hide Unselected");
-    //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
-    onlySelected.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-//        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
-//          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
-//        else
-//          nlpCanvas.getSpanLayout().showAll();
-//        nlpCanvas.updateNLPGraphics();
-      }
-    });
-    add(onlySelected, new SimpleGridBagConstraints(5, false));
+//    final JButton onlySelected = new JButton("Hide Unselected");
+//    //onlySelected.setEnabled(!nlpCanvas.getDependencyLayout().getSelected().isEmpty());
+//    onlySelected.addActionListener(new ActionListener() {
+//      public void actionPerformed(ActionEvent e) {
+////        if (!nlpCanvas.getSpanLayout().getSelected().isEmpty())
+////          nlpCanvas.getSpanLayout().onlyShow(nlpCanvas.getSpanLayout().getSelected());
+////        else
+////          nlpCanvas.getSpanLayout().showAll();
+////        nlpCanvas.updateNLPGraphics();
+//      }
+//    });
+//    add(onlySelected, new SimpleGridBagConstraints(5, false));
 
     //setPreferredSize(new Dimension(200, (int) getPreferredSize().getHeight()));
 

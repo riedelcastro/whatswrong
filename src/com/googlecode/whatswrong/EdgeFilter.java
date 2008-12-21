@@ -22,6 +22,8 @@ public abstract class EdgeFilter implements NLPInstanceFilter {
    * @see NLPInstanceFilter#filter(NLPInstance)
    */
   public NLPInstance filter(NLPInstance original) {
-    return new NLPInstance(original.getTokens(), filterEdges(original.getEdges()));
+    return new NLPInstance(original.getTokens(),
+      filterEdges(original.getEdges()),original.getRenderType(),
+      original.getSplitPoints());
   }
 }
