@@ -37,7 +37,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     add(new JLabel("Label:"), c);
 
     //setBorder(new TitledBorder(new EtchedBorder(), "Filter By Label"));
-    final JTextField labelField = new JTextField();
+    final JTextField labelField = new FilterTextField("text1,text2,...");
     labelField.setColumns(10);
     c.weightx = 1.0;
     c.fill = GridBagConstraints.HORIZONTAL;
@@ -67,7 +67,7 @@ public class DependencyFilterPanel extends ControllerPanel {
     c.weightx = 1.0;
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.WEST;
-    final JTextField textField = new JTextField();
+    final JTextField textField = new FilterTextField("text1,text2,...");
     textField.setColumns(10);
     add(textField, c);
     textField.addKeyListener(new KeyAdapter() {
