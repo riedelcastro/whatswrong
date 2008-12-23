@@ -25,6 +25,13 @@ public interface CorpusFormat {
   String getName();
 
   /**
+   * Returns a longer name that may contain information about the configuration
+   * of this format.
+   * @return the long name of this format.
+   */
+  String getLongName();
+
+  /**
    * Returns the GUI element that controls how this format is to be loaded.
    *
    * @return the GUI element that controls how this format is to be loaded.

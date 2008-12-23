@@ -64,6 +64,10 @@ public class LispSExprFormat implements CorpusFormat {
     return "Lisp S-Expression";
   }
 
+  public String getLongName() {
+    return getName();
+  }
+
   public String toString() {
     return getName();
   }

@@ -19,6 +19,10 @@ public class GaleAlignmentFormat implements CorpusFormat {
     return "Gale Alignment";
   }
 
+  public String getLongName() {
+    return getName();
+  }
+
   public JComponent getAccessory() {
     return new JPanel();
   }

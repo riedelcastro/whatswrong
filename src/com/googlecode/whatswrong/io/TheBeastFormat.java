@@ -66,6 +66,10 @@ public class TheBeastFormat implements CorpusFormat {
     return "thebeast";
   }
 
+  public String getLongName() {
+    return getName();
+  }
+
   public String toString() {
     return getName();
   }

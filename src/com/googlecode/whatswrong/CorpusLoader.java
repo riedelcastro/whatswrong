@@ -405,10 +405,11 @@ public class CorpusLoader extends JPanel {
             "Loading data", null, 0, accessory.getEnd() - 1);
           new Thread(new Runnable() {
             public void run() {
+              CorpusFormat format = new TheBeastFormat();
               try {
                 monitor.setProgress(0);
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                CorpusFormat format = accessory.getFormat();
+                format = accessory.getFormat();
                 format.setMonitor(new CorpusFormat.Monitor() {
                   public void progressed(int index) {
                     monitor.setProgress(index);
@@ -425,6 +426,14 @@ public class CorpusLoader extends JPanel {
                 e1.printStackTrace();
               } catch (IOException e1) {
                 e1.printStackTrace();
+              } catch (Exception e) {
+                JOptionPane.showMessageDialog(CorpusLoader.this,
+                  "<html>Data could not be loaded with the <br><b>" +
+                    format.getLongName() +
+                    "</b> format.\nThis means that either you chose the wrong " +
+                    "format, \nthe format of file you selected is broken, \nor we " +
+                    "made a terrible mistake.", "Corpus format problem",
+                  JOptionPane.ERROR_MESSAGE);
               }
             }
           }).start();
