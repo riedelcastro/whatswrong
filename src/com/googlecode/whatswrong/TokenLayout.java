@@ -245,7 +245,7 @@ public class TokenLayout {
       if (lasty - rowHeight > height) height = lasty - rowHeight;
     }
     width = lastx - margin;
-    return new Dimension(width, height + 1);
+    return new Dimension(width, height + 2);
   }
 
   /**

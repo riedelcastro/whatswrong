@@ -256,7 +256,7 @@ public class SpanLayout extends AbstractEdgeLayout {
         }
       }
       for (Integer d : minDepths.values()) {
-        double height = baseline + ((!revert ? maxDepth - d : d) * heightPerLevel);
+        double height = baseline - 1 + ((!revert ? maxDepth - d : d) * heightPerLevel);
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.drawLine(0, (int) height, maxWidth, (int) height);
 
