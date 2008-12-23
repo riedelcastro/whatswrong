@@ -192,6 +192,8 @@ public class SpanLayout extends AbstractEdgeLayout {
     from = new HashMap<Edge, Point>();
     to = new HashMap<Edge, Point>();
 
+    int maxWidth = 0;
+
     //draw each edge
     for (Edge edge : edges) {
       //set Color and remember old color
@@ -214,6 +216,8 @@ public class SpanLayout extends AbstractEdgeLayout {
       Bounds1D toBounds = bounds.get(edge.getTo());
       int minX = Math.min(fromBounds.from, toBounds.from);
       int maxX = Math.max(fromBounds.to, toBounds.to);
+
+      if (maxX > maxWidth) maxWidth = maxX + 1;
 
       if (maxX - minX < layout.getBounds().getWidth() + totalTextMargin) {
         double middle = minX + (maxX - minX) / 2.0;
@@ -240,7 +244,7 @@ public class SpanLayout extends AbstractEdgeLayout {
 
     }
 
-    int maxWidth = 0;
+    //int maxWidth = 0;
     for (Bounds1D bound1D : bounds.values())
       if (bound1D.to > maxWidth) maxWidth = bound1D.to;
 
