@@ -1,3 +1,13 @@
+=Changes in 2.0.0a=
+
+==Features==
+  * Bilingual alignment visualization
+  * Refactoring: now instances of different types can have different renderers
+
+==Enhancements==
+  * Error message when loading a corpus went wrong
+  * filter text fields have suggested texts when empty
+
 =Changes in 0.1.3=
 
 ==Enhancements==
