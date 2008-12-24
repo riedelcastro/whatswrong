@@ -417,6 +417,8 @@ public class CorpusLoader extends JPanel {
                 });
                 List<NLPInstance> corpus = format.load(fileChooser.getSelectedFile(),
                   accessory.getStart(), accessory.getEnd());
+                if (corpus.size() == 0)
+                  throw new RuntimeException("No instances in corpus.");
                 setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 corpora.add(corpus);
                 fileNames.addElement(fileChooser.getSelectedFile().getName());
