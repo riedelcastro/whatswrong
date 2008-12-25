@@ -52,7 +52,15 @@ public class TokenLayout {
    */
   private int margin = 20;
 
+  /**
+   * The index of the the split point at which the renderer starts to draw the
+   * token sequence or -1 if it should start at the beginning.
+   */
   private int fromSplitPoint = -1;
+  /**
+   * The index of the the split point at which the renderer stops to draw the
+   * token sequence or -1 if it should stop at the end.
+   */
   private int toSplitPoint = -1;
 
   /**
@@ -86,18 +94,48 @@ public class TokenLayout {
     this.baseline = baseline;
   }
 
+  /**
+   * Returns the index of the first split point from which the token layout
+   * starts to render or -1 if it begins from the start of the token sequence.
+   *
+   * @return the index of the first split point or -1 if renderering happens
+   *         from the beginning of the token sequence.
+   */
   public int getFromSplitPoint() {
     return fromSplitPoint;
   }
 
+  /**
+   * Sets the first split point from which the token layout starts to render or
+   * -1 if it begins from the start of the token sequence.
+   *
+   * @param fromSplitPoint the index of the first split point or -1 if
+   *                       renderering should happen from the beginning of the
+   *                       token sequence.
+   */
   public void setFromSplitPoint(int fromSplitPoint) {
     this.fromSplitPoint = fromSplitPoint;
   }
 
+  /**
+   * Returns the index of the the split point at which the token renderer should
+   * stop rendering the token sequence.
+   *
+   * @return the index of split point at which the renderer stops or -1 if
+   *         renderering goes to the end of the token sequence.
+   */
   public int getToSplitPoint() {
     return toSplitPoint;
   }
 
+  /**
+   * Returns the index of the the split point at which the token renderer should
+   * stop rendering the token sequence.
+   *
+   * @param toSplitPoint the index of split point at which the renderer stops or
+   *                     -1 if renderering goes to the end of the token
+   *                     sequence.
+   */
   public void setToSplitPoint(int toSplitPoint) {
     this.toSplitPoint = toSplitPoint;
   }
@@ -140,6 +178,20 @@ public class TokenLayout {
   }
 
 
+  /**
+   * Method estimateTokenBounds calculates the horizontal bounds of each token
+   * in the layout of the tokens.
+   *
+   * @param instance    the NLPInstance to layout.
+   * @param tokenWidths A map that defines some minomal widths for each token.
+   *                    The estimated bounds will fulfill the width requirements
+   *                    specified by this map. If a token has no required width
+   *                    its estimated width will be based on the length of its
+   *                    textual properties.
+   * @param g2d         The graphics object to render to.
+   * @return Map<Token, Bounds1D> A mapping from tokens to estimated horizontal
+   *         bounds in the layout.
+   */
   public Map<Token, Bounds1D> estimateTokenBounds(
     final NLPInstance instance,
     final Map<Token, Integer> tokenWidths,
@@ -194,7 +246,7 @@ public class TokenLayout {
    * width, bounding boxes of token stacks and text layouts of each property
    * value) can be queried by calling the appropriate get methods.
    *
-   * @param instance
+   * @param instance    the NLPInstance to layout.
    * @param tokenWidths if some tokens need extra space (for example because
    *                    they have self loops in a {@link com.googlecode.whatswrong.DependencyLayout})
    *                    the space they need can be provided through this map.
