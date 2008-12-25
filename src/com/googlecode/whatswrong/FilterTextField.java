@@ -1,371 +1,201 @@
 package com.googlecode.whatswrong;
 
 
-
-import java.awt.*;
-
-import java.awt.event.*;
-
 import javax.swing.*;
-
-import javax.swing.event.*;
-
-import javax.swing.border.*;
-
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
 /**
-
- * A text field for search/filter interfaces. The extra functionality includes
-
- * a placeholder string (when the user hasn't yet typed anything), and a button
-
- * to clear the currently-entered text.
-
+ * A text field for search/filter interfaces. For now this ncludes a placeholder
+ * string (when the user hasn't yet typed anything).
  *
-
- * @author Elliott Hughes
-
+ * @author Elliott Hughes, Sebastian Riedel
  */
-
-
-
-//
-
-// TODO: add a menu of recent searches.
-
-// TODO: make recent searches persistent.
-
-// TODO: use rounded corners, at least on Mac OS X.
-
-//
-
-
-
 public class FilterTextField extends JTextField {
 
 
+  /**
+   * Should notifications be send at each keystroke.
+   */
+  private boolean sendsNotificationForEachKeystroke = false;
 
-    private boolean sendsNotificationForEachKeystroke = false;
-
-    private boolean showingPlaceholderText = false;
-
-    private boolean armed = false;
-
-
-
-    public FilterTextField(String placeholderText) {
-
-        super();
-
-        addFocusListener(new PlaceholderText(placeholderText));
+  /**
+   * Is the placeholder text currently shown.
+   */
+  private boolean showingPlaceholderText = false;
 
 
-        initKeyListener();
+  /**
+   * Creates a new FilterTextField with the given placehold text.
+   *
+   * @param placeholderText the placeholder text that appears if nothing has
+   *                        been entered into the field and the focus is lost.
+   */
+  public FilterTextField(String placeholderText) {
 
-    }
+    super();
+    addFocusListener(new PlaceholderText(placeholderText));
+    initKeyListener();
 
-
-
-    public FilterTextField() {
-
-        this("Search");
-
-    }
-
-
-
-
+  }
 
 
-    private void initKeyListener() {
+  /**
+   * A FilterTextField with default placeholder text ("Search").
+   */
+  public FilterTextField() {
 
-        addKeyListener(new KeyAdapter() {
+    this("Search");
 
-            public void keyReleased(KeyEvent e) {
-
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-
-                    cancel();
-
-                } else if (sendsNotificationForEachKeystroke) {
-
-                    maybeNotify();
-
-                }
-
-            }
-
-        });
-
-    }
+  }
 
 
+  /**
+   * This adds a key listener that reacts to the escape key entered into the
+   * text field. If pressed, the text will be cleared.
+   */
+  private void initKeyListener() {
 
-    private void cancel() {
-
-        setText("");
-
-        postActionEvent();
-
-    }
-
+    addKeyListener(new KeyAdapter() {
 
 
-    private void maybeNotify() {
+      /**
+       * @see java.awt.event.KeyAdapter#keyReleased(KeyEvent)
+       */
+      public void keyReleased(KeyEvent e) {
 
-        if (showingPlaceholderText) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 
-            return;
+          cancel();
+
+        } else if (sendsNotificationForEachKeystroke) {
+
+          maybeNotify();
 
         }
 
-        postActionEvent();
+      }
+
+    });
+
+  }
+
+
+  /**
+   * Method cancel clears the text field.
+   */
+  private void cancel() {
+
+    setText("");
+
+    postActionEvent();
+
+  }
+
+
+  /**
+   * Method maybeNotify performs post action events in case
+   * <code>showingPlaceholderText</code> is false.
+   */
+  private void maybeNotify() {
+
+    if (showingPlaceholderText) {
+
+      return;
 
     }
 
+    postActionEvent();
+
+  }
 
 
-    public void setSendsNotificationForEachKeystroke(boolean eachKeystroke) {
+  /**
+   * Sets whether notifications should be send after each keystroke on the text
+   * field.
+   *
+   * @param eachKeystroke true iff notifications should be send after each
+   *                      keystroke on the text field.
+   */
+  public void setSendsNotificationForEachKeystroke(boolean eachKeystroke) {
 
-        this.sendsNotificationForEachKeystroke = eachKeystroke;
+    this.sendsNotificationForEachKeystroke = eachKeystroke;
 
-    }
+  }
 
+
+  /**
+   * Replaces the entered text with a gray placeholder string when the search
+   * field doesn't have the focus. The entered text returns when we get the
+   * focus back.
+   */
+  class PlaceholderText implements FocusListener {
+
+    /**
+     * The actual placeholder text.
+     */
+    private String placeholderText;
+
+    /**
+     * The text previously in the text field.
+     */
+    private String previousText = "";
+
+    /**
+     * The color used previously.
+     */
+    private Color previousColor;
 
 
     /**
-
-     * Draws the cancel button as a gray circle with a white cross inside.
-
+     * Creates a new placeholder text.
+     *
+     * @param placeholderText the placeholder text to display.
      */
+    PlaceholderText(String placeholderText) {
 
-    static class CancelBorder extends EmptyBorder {
-
-        private static final Color GRAY = new Color(0.7f, 0.7f, 0.7f);
-
-
-
-        CancelBorder() {
-
-            super(0, 0, 0, 15);
-
-        }
-
-
-
-        public void paintBorder(Component c, Graphics oldGraphics, int x, int y, int width, int height) {
-
-            FilterTextField field = (FilterTextField) c;
-
-            if (field.showingPlaceholderText || field.getText().length() == 0) {
-
-                return;
-
-            }
-
-
-
-            Graphics2D g = (Graphics2D) oldGraphics;
-
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-
-
-            final int circleL = 14;
-
-            final int circleX = x + width - circleL;
-
-            final int circleY = y + (height - 1 - circleL)/2;
-
-            g.setColor(field.armed ? Color.GRAY : GRAY);
-
-            g.fillOval(circleX, circleY, circleL, circleL);
-
-
-
-            final int lineL = circleL - 8;
-
-            final int lineX = circleX + 4;
-
-            final int lineY = circleY + 4;
-
-            g.setColor(Color.WHITE);
-
-            g.drawLine(lineX, lineY, lineX + lineL, lineY + lineL);
-
-            g.drawLine(lineX, lineY + lineL, lineX + lineL, lineY);
-
-        }
+      this.placeholderText = placeholderText;
+      focusLost(null);
 
     }
-
 
 
     /**
-
-     * Handles a click on the cancel button by clearing the text and notifying
-
-     * any ActionListeners.
-
+     * If focus is gained the previous text is displayed.
+     *
+     * @param e the focus event.
      */
+    public void focusGained(FocusEvent e) {
 
-    class CancelListener extends MouseInputAdapter {
-
-        private boolean isOverButton(MouseEvent e) {
-
-            // If the button is down, we might be outside the component
-
-            // without having had mouseExited invoked.
-
-            if (contains(e.getPoint()) == false) {
-
-                return false;
-
-            }
-
-
-
-            // In lieu of proper hit-testing for the circle, check that
-
-            // the mouse is somewhere in the border.
-
-            Rectangle innerArea = SwingUtilities.calculateInnerArea(FilterTextField.this, null);
-
-            return (innerArea.contains(e.getPoint()) == false);
-
-        }
-
-
-
-        public void mouseDragged(MouseEvent e) {
-
-            arm(e);
-
-        }
-
-
-
-        public void mouseEntered(MouseEvent e) {
-
-            arm(e);
-
-        }
-
-
-
-        public void mouseExited(MouseEvent e) {
-
-            disarm();
-
-        }
-
-
-
-        public void mousePressed(MouseEvent e) {
-
-            arm(e);
-
-        }
-
-
-
-        public void mouseReleased(MouseEvent e) {
-
-            if (armed) {
-
-                cancel();
-
-            }
-
-            disarm();
-
-        }
-
-
-
-        private void arm(MouseEvent e) {
-
-            armed = (isOverButton(e) && SwingUtilities.isLeftMouseButton(e));
-
-            repaint();
-
-        }
-
-
-
-        private void disarm() {
-
-            armed = false;
-
-            repaint();
-
-        }
+      setForeground(previousColor);
+      setText(previousText);
+      showingPlaceholderText = false;
 
     }
-
 
 
     /**
-
-     * Replaces the entered text with a gray placeholder string when the
-
-     * search field doesn't have the focus. The entered text returns when
-
-     * we get the focus back.
-
+     * Method focusLost remembers the previous text and color and if the
+     * previous text is empty the placeholder text is shown in gray color.
+     *
+     * @param e of type FocusEvent
      */
+    public void focusLost(FocusEvent e) {
 
-    class PlaceholderText implements FocusListener {
-
-        private String placeholderText;
-
-        private String previousText = "";
-
-        private Color previousColor;
-
-
-
-        PlaceholderText(String placeholderText) {
-
-            this.placeholderText = placeholderText;
-
-            focusLost(null);
-
-        }
-
-
-
-        public void focusGained(FocusEvent e) {
-
-            setForeground(previousColor);
-
-            setText(previousText);
-
-            showingPlaceholderText = false;
-
-        }
-
-
-
-        public void focusLost(FocusEvent e) {
-
-            previousText = getText();
-
-            previousColor = getForeground();
-
-            if (previousText.length() == 0) {
-
-                showingPlaceholderText = true;
-
-                setForeground(Color.GRAY);
-
-                setText(placeholderText);
-
-            }
-
-        }
+      previousText = getText();
+      previousColor = getForeground();
+      if (previousText.length() == 0) {
+        showingPlaceholderText = true;
+        setForeground(Color.GRAY);
+        setText(placeholderText);
+      }
 
     }
+
+  }
 
 }
