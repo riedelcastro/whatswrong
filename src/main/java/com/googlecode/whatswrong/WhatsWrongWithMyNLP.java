@@ -2,16 +2,19 @@ package com.googlecode.whatswrong;
 
 import javax.swing.*;
 import java.awt.*;
-import static java.awt.GridBagConstraints.*;
-import java.awt.event.*;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.NONE;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.Properties;
 
 /**
- * The WhatsWrongWithMyNLP class serves as main application class. It sets up
- * the canvas and all controllers and configures the position of the
- * corresponding dialogs. It also loads all stored parameters from the
- * "~/.whatswrong" file.
+ * The WhatsWrongWithMyNLP class serves as main application class. It sets up the canvas and all controllers and
+ * configures the position of the corresponding dialogs. It also loads all stored parameters from the "~/.whatswrong"
+ * file.
  *
  * @author Sebastian Riedel
  */
@@ -69,10 +72,10 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     public void scrollToBottom() {
         nlpCanvas.scrollRectToVisible(new Rectangle(
-                nlpScrollPane.getViewport().getX(),
-                nlpCanvas.getHeight() - nlpScrollPane.getViewport().getHeight(),
-                nlpScrollPane.getViewport().getWidth(),
-                nlpScrollPane.getViewport().getHeight()));
+            nlpScrollPane.getViewport().getX(),
+            nlpCanvas.getHeight() - nlpScrollPane.getViewport().getHeight(),
+            nlpScrollPane.getViewport().getWidth(),
+            nlpScrollPane.getViewport().getHeight()));
     }
 
     private static class WindowMenuItem extends JCheckBoxMenuItem {
@@ -133,8 +136,8 @@ public class WhatsWrongWithMyNLP extends JPanel {
             // Set System L&F
 //      UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
             UIManager.setLookAndFeel(system ?
-                    UIManager.getSystemLookAndFeelClassName() :
-                    UIManager.getCrossPlatformLookAndFeelClassName());
+                UIManager.getSystemLookAndFeelClassName() :
+                UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -153,7 +156,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
         TokenFilter tokenFilter = new TokenFilter();
         EdgeTypeFilter edgeTypeFilter = new EdgeTypeFilter();
         FilterPipeline filterPipeline = new FilterPipeline(
-                tokenFilter, edgeTypeFilter, edgeLabelFilter, edgeTokenFilter);
+            tokenFilter, edgeTypeFilter, edgeLabelFilter, edgeTokenFilter);
 
         //set filter of canvas to be the pipeline
         canvas.setFilter(filterPipeline);
@@ -301,7 +304,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
                 guess.saveProperties(properties);
                 try {
                     properties.store(new FileOutputStream(System.getProperty("user.home") + "/.whatswrong"),
-                            "Whats wrong with you NLP properties");
+                        "Whats wrong with you NLP properties");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

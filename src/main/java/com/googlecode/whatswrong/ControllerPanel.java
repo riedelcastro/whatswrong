@@ -11,11 +11,11 @@ import javax.swing.border.EmptyBorder;
 public abstract class ControllerPanel extends JPanel {
 
 
-  /**
-   * Creates new ControllerPanel. 
-   */
-  public ControllerPanel() {
-    setBorder(new EmptyBorder(5, 5, 5, 5));
+    /**
+     * Creates new ControllerPanel.
+     */
+    public ControllerPanel() {
+        setBorder(new EmptyBorder(5, 5, 5, 5));
 
-  }
+    }
 }
