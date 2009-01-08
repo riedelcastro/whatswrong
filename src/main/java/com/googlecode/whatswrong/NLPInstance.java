@@ -42,8 +42,8 @@ public class NLPInstance {
     private HashMap<Integer, Token> map = new HashMap<Integer, Token>();
 
     /**
-     * A list of token indices at which the NLP instance is to be split. These indices can refer to sentence boundaries in
-     * a document, but they can also indicate that what follows after a split point is an utterance in a different
+     * A list of token indices at which the NLP instance is to be split. These indices can refer to sentence boundaries
+     * in a document, but they can also indicate that what follows after a split point is an utterance in a different
      * language (for alignment).
      */
     private ArrayList<Integer> splitPoints = new ArrayList<Integer>();
@@ -55,7 +55,8 @@ public class NLPInstance {
     }
 
     /**
-     * Creates a new NLPInstance with the given tokens and edges. The passed collections will be copied and not changed.
+     * Creates a new NLPInstance with the given tokens and edges. The passed collections will be copied and not
+     * changed.
      *
      * @param tokens the tokens of the sentence.
      * @param edges  the edges of the sentence.
@@ -104,9 +105,9 @@ public class NLPInstance {
      */
     public void addEdge(final int from, final int to,
                         final String label, final String type) {
+
         edges.add(new Edge(map.get(from), map.get(to), label, type));
     }
-
 
     /**
      * Creates and adds a new edge with the given properties.
@@ -123,6 +124,16 @@ public class NLPInstance {
     public void addEdge(final int from, final int to, final String label,
                         final String type, final Edge.RenderType renderType) {
         edges.add(new Edge(map.get(from), map.get(to), label, type, renderType));
+    }
+
+    /**
+     * Adds an edge.
+     *
+     * @param edge the edge to add.
+     */
+    public void addEdge(final Edge edge) {
+        edges.add(new Edge(map.get(edge.getFrom().getIndex()),
+            map.get(edge.getTo().getIndex()), edge.getLabel(), edge.getNote(), edge.getType(), edge.getRenderType()));
     }
 
     /**
@@ -162,9 +173,9 @@ public class NLPInstance {
     /**
      * Creates and adds an edge with the given properties. It will have the default render type.
      *
-     * @param from  The start token. The created edge will start at the token of this sentence with the same index as the
-     *              provided token. This means the start token of created edge does not need to be equal to the provided
-     *              token -- they just have to have the same index.
+     * @param from  The start token. The created edge will start at the token of this sentence with the same index as
+     *              the provided token. This means the start token of created edge does not need to be equal to the
+     *              provided token -- they just have to have the same index.
      * @param to    the end token. The created edge will end at the token of this sentence with the same index as the
      *              provided token. This means that the end token of created edge does not need to be equal to the
      *              provided token -- they just have to have the same index.
@@ -180,12 +191,12 @@ public class NLPInstance {
     /**
      * Creates and adds an edge with the given properties. It will have the default render type.
      *
-     * @param from       The start token. The created edge will start at the token of this sentence with the same index as
-     *                   the provided token. This means the start token of created edge does not need to be equal to the
-     *                   provided token -- they just have to have the same index.
-     * @param to         the end token. The created edge will end at the token of this sentence with the same index as the
-     *                   provided token. This means that the end token of created edge does not need to be equal to the
-     *                   provided token -- they just have to have the same index.
+     * @param from       The start token. The created edge will start at the token of this sentence with the same index
+     *                   as the provided token. This means the start token of created edge does not need to be equal to
+     *                   the provided token -- they just have to have the same index.
+     * @param to         the end token. The created edge will end at the token of this sentence with the same index as
+     *                   the provided token. This means that the end token of created edge does not need to be equal to
+     *                   the provided token -- they just have to have the same index.
      * @param label      the label of the edge.
      * @param type       the type of edge.
      * @param renderType the render type of the edge.
@@ -218,8 +229,8 @@ public class NLPInstance {
     /**
      * Merges the given instance with this instance. A merge will add for every token i all properties of the token i of
      * the passed instance <code>nlp</code>. It will also add every edge between i and i in the given instance
-     * <code>nlp</code> as an edge between the tokens i and j of this instance, using the same type, label and rendertype
-     * as the original edge.
+     * <code>nlp</code> as an edge between the tokens i and j of this instance, using the same type, label and
+     * rendertype as the original edge.
      *
      * @param nlp the instance to merge into this instance.
      */
@@ -276,8 +287,8 @@ public class NLPInstance {
     }
 
     /**
-     * If tokesn were added with {@link com.googlecode.whatswrong.NLPInstance#addToken(int)} this method ensures that all
-     * internal representations of the token sequence are consistent.
+     * If tokesn were added with {@link com.googlecode.whatswrong.NLPInstance#addToken(int)} this method ensures that
+     * all internal representations of the token sequence are consistent.
      */
     public void consistify() {
         tokens.addAll(map.values());
@@ -294,8 +305,8 @@ public class NLPInstance {
     }
 
     /**
-     * Returns the list of split points for this instance. A split point is a point at which renderers can split the token
-     * list.
+     * Returns the list of split points for this instance. A split point is a point at which renderers can split the
+     * token list.
      *
      * @return the list of split points.
      */

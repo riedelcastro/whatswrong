@@ -40,6 +40,13 @@ public class Edge {
      * The label of the edge.
      */
     private String label;
+
+    /**
+     * A note that is added to the label but which does not have an effect on the identity of the edge when compared
+     * with another edge in the {@link com.googlecode.whatswrong.NLPDiff#diff(NLPInstance, NLPInstance)} method.
+     */
+    private String note;
+
     /**
      * The type of the edge.
      */
@@ -69,6 +76,27 @@ public class Edge {
         this.renderType = renderType;
     }
 
+
+    /**
+     * Create new edge.
+     *
+     * @param from       from token.
+     * @param to         to token
+     * @param label      the label of the edge
+     * @param note       the note to add to the edge
+     * @param type       the type of the edge (say, 'semantic role').
+     * @param renderType the render type.
+     */
+    public Edge(Token from, Token to, String label, String note,
+                String type, RenderType renderType) {
+        this.from = from;
+        this.to = to;
+        this.label = label;
+        this.type = type;
+        this.renderType = renderType;
+        this.note = note;
+    }
+
     /**
      * Creates a new edge with default render type (dependency).
      *
@@ -88,7 +116,8 @@ public class Edge {
      * If the type of label is qualified with a "qualifier:" prefix this method returns "qualifier". Else it returns the
      * complete type string.
      *
-     * @return the prefix until ":" of the type string, or the complete type string if no ":" is contained in the string.
+     * @return the prefix until ":" of the type string, or the complete type string if no ":" is contained in the
+     *         string.
      */
     public String getTypePrefix() {
         int index = type.indexOf(':');
@@ -171,6 +200,24 @@ public class Edge {
     }
 
     /**
+     * Returns the note that is appended to the label.
+     *
+     * @return note to be appended to the label.
+     */
+    public String getNote() {
+        return note;
+    }
+
+    /**
+     * Returns the label with an additional note if available.
+     *
+     * @return label with note in parentheses.
+     */
+    public String getLabelWithNote() {
+        return label + (note == null ? "" : "(" + note + ")");
+    }
+
+    /**
      * Returns the type of the edge. This differs from the render type. For example, we can represent semantic and
      * syntactic dependencies both using the dependency render type. However, the first one could have the edge type
      * "semantic" and the second one "syntactic".
@@ -189,7 +236,12 @@ public class Edge {
      */
     public int lexicographicOrder(Edge edge) {
         int result = type.compareTo(edge.type);
-        return result == 0 ? -label.compareTo(edge.label) : -result;
+        if (result == 0) {
+            result = -label.compareTo(edge.label);
+            if (result == 0 && note != null)
+                result = -note.compareTo(edge.note);
+        }
+        return result;
     }
 
     /**
@@ -315,7 +367,7 @@ public class Edge {
      * Checks whether to edges are equal
      *
      * @param o the other edge
-     * @return true if both edges have the same type, label and the same from and to tokens.
+     * @return true if both edges have the same type, label, note and the same from and to tokens.
      */
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -331,14 +383,17 @@ public class Edge {
         //noinspection RedundantIfStatement
         if (type != null ? !type.equals(that.type) : that.type != null)
             return false;
+        if (note != null ? !note.equals(that.note) : that.note != null)
+            return false;
 
         return true;
     }
 
+
     /**
-     * Returns a hashcode based on type, label, from and to token.
+     * Returns a hashcode based on type, label, note, from and to token.
      *
-     * @return a hashcode based on type, label, from and to token.
+     * @return a hashcode based on type, label, note, from and to token.
      */
     public int hashCode() {
         int result;
@@ -346,6 +401,10 @@ public class Edge {
         result = 31 * result + (to != null ? to.hashCode() : 0);
         result = 31 * result + (label != null ? label.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (note != null ? note.hashCode() : 0);
         return result;
     }
+
+
+   
 }

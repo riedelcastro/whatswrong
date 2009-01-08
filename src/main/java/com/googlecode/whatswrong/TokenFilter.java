@@ -17,8 +17,8 @@ public class TokenFilter implements NLPInstanceFilter {
 
     /**
      * A token needs to have at least one property value contained in this set (if {@link
-     * com.googlecode.whatswrong.TokenFilter#wholeWord} is true) or needs to have one value that contains a string in this
-     * set (otherwise).
+     * com.googlecode.whatswrong.TokenFilter#wholeWord} is true) or needs to have one value that contains a string in
+     * this set (otherwise).
      */
     private HashSet<String> allowedStrings = new HashSet<String>();
 
@@ -35,8 +35,8 @@ public class TokenFilter implements NLPInstanceFilter {
     }
 
     /**
-     * Are tokens allowed only if they have a property value that equals one of the allowed strings or is it sufficient if
-     * one value contains one of the allowed strings.
+     * Are tokens allowed only if they have a property value that equals one of the allowed strings or is it sufficient
+     * if one value contains one of the allowed strings.
      *
      * @return true iff tokens are allowed based on exact matches with allowed strings, false otherwise.
      */
@@ -135,9 +135,23 @@ public class TokenFilter implements NLPInstanceFilter {
             ArrayList<Token> tokens = new ArrayList<Token>();
             main:
             for (Token t : original.getTokens()) {
-                for (String prop : t.getPropertyValues())
+                for (TokenProperty property : t.getPropertyTypes()) {
+                    String prop = t.getProperty(property);
                     for (String allowed : allowedStrings)
-                        if (wholeWord ? prop.equals(allowed) : prop.contains(allowed)) {
+                        if (property.getName().equals("Index") && allowed.matches("\\d+-\\d+")) {
+                            String[] split = allowed.split("[-]");
+                            int from = Integer.parseInt(split[0]);
+                            int to = Integer.parseInt(split[1]);
+                            for (int i = from; i <= to; ++i)
+                                if (prop.equals(String.valueOf(i))) {
+                                    Token newVertex = new Token(tokens.size());
+                                    newVertex.merge(t);
+                                    tokens.add(newVertex);
+                                    old2new.put(t, newVertex);
+                                    new2old.put(newVertex, t);
+                                    continue main;
+                                }
+                        } else if (wholeWord ? prop.equals(allowed) : prop.contains(allowed)) {
                             Token newVertex = new Token(tokens.size());
                             newVertex.merge(t);
                             tokens.add(newVertex);
@@ -145,6 +159,7 @@ public class TokenFilter implements NLPInstanceFilter {
                             new2old.put(newVertex, t);
                             continue main;
                         }
+                }
             }
             //update edges and remove those that have vertices not in the new vertex set
             ArrayList<Edge> edges = new ArrayList<Edge>();

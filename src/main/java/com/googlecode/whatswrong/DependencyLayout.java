@@ -181,7 +181,7 @@ public class DependencyLayout extends AbstractEdgeLayout {
             //write label in the middle under
             Font font = new Font(g2d.getFont().getName(), Font.PLAIN, 8);
             FontRenderContext frc = g2d.getFontRenderContext();
-            TextLayout layout = new TextLayout(edge.getLabel(), font, frc);
+            TextLayout layout = new TextLayout(edge.getLabelWithNote(), font, frc);
             int labelx = (int) (Math.min(p1.x, p3.x) + Math.abs(p1.x - p3.x) / 2 - layout.getBounds().getWidth() / 2);
             int labely = (int) (height + layout.getAscent()) + 1;
             layout.draw(g2d, labelx, labely);

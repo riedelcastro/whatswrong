@@ -158,8 +158,8 @@ public class Token implements Comparable<Token> {
      * Check whether any of the property values of this token contains any of the strings in the given set of strings.
      *
      * @param substrings set of strings to check
-     * @param wholeWord  should we check for complete words of is it enough for the given strings to be substrings of the
-     *                   token value.
+     * @param wholeWord  should we check for complete words of is it enough for the given strings to be substrings of
+     *                   the token value.
      * @return true iff a) if there is a property value equal to one of the strings in <code>substrings</code>
      *         (wholeword=true) or b) if there is a property value that contains one of the strings in
      *         <code>substrings</code> (wholeword=false).
@@ -167,7 +167,13 @@ public class Token implements Comparable<Token> {
     public boolean propertiesContain(Collection<String> substrings, boolean wholeWord) {
         for (String property : tokenProperties.values())
             for (String substring : substrings)
-                if (wholeWord ? property.equals(substring) : property.contains(substring))
+                if (substring.matches("\\d+-\\d+")) {
+                    String[] split = substring.split("[-]");
+                    int from = Integer.parseInt(split[0]);
+                    int to = Integer.parseInt(split[1]);
+                    for (int i = from; i <= to; ++i)
+                        if (property.equals(String.valueOf(i))) return true;
+                } else if (wholeWord ? property.equals(substring) : property.contains(substring))
                     return true;
         return false;
     }

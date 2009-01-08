@@ -87,9 +87,9 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
      */
     public void loadProperties(final Properties properties,
                                final String prefix) {
-        txtExtensionField.setText(properties.getProperty(prefix + ".bionlp09.txt", ""));
-        proteinExtensionField.setText(properties.getProperty(prefix + ".bionlp09.protein", ""));
-        eventExtensionField.setText(properties.getProperty(prefix + ".bionlp09.event", ""));
+        txtExtensionField.setText(properties.getProperty(prefix + ".bionlp09.txt", "txt"));
+        proteinExtensionField.setText(properties.getProperty(prefix + ".bionlp09.protein", "a1"));
+        eventExtensionField.setText(properties.getProperty(prefix + ".bionlp09.event", "a2"));
 
     }
 
@@ -119,6 +119,7 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                                   final int from,
                                   final int to) throws IOException {
         ArrayList<NLPInstance> result = new ArrayList<NLPInstance>();
+        int index = 0;
         for (final File txtFile : file.listFiles((FileFilter)
             new WildcardFileFilter("*." + txtExtensionField.getText().trim()))) {
             String filename = txtFile.getAbsolutePath();
@@ -127,8 +128,10 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                 proteinExtensionField.getText().trim());
             File eventFile = new File(prefix + "." +
                 eventExtensionField.getText().trim());
-            if (proteinFile.exists() && eventFile.exists())
+            if (proteinFile.exists() && eventFile.exists()){
                 result.add(load(txtFile, proteinFile, eventFile));
+                monitor.progressed(index++);
+            }
         }
         return result;
     }
@@ -182,11 +185,12 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
             }
         }
         List eventLines = IOUtils.readLines(new FileReader(eventFile));
+        //get event mentions and locations etc.
         for (Object lineObject : eventLines) {
             String line = (String) lineObject;
             String[] split = line.split("\\s+");
-            if (split[0].startsWith("T")) {
-                String id = split[0];
+            String id = split[0];
+            if (id.startsWith("T")) {
                 String type = split[1];
                 int from = Integer.valueOf(split[2]);
                 int to = Integer.valueOf(split[3]);
@@ -195,9 +199,27 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                 String termClass = type.equals("Entity") ? "entity" : "event";
                 result.addEdge(fromToken, toToken, type, termClass, Edge.RenderType.span);
                 id2Token.put(id, toToken);
+            } else if (id.startsWith("E")){
+                String[] typeAndMentionId = split[1].split("[:]");
+                Token evenToken = id2Token.get(typeAndMentionId[1]);
+                id2Token.put(id, evenToken);
             }
         }
-        
+        //now create the event roles
+        for (Object lineObject : eventLines) {
+            String line = (String) lineObject;
+            String[] split = line.split("\\s+");
+            String id = split[0];
+            if (id.startsWith("E")){
+                Token evenToken = id2Token.get(id);
+                for (int i = 2; i < split.length; ++i){
+                    String[] roleAndId = split[i].split("[:]");
+                    Token argToken = id2Token.get(roleAndId[1]);
+                    result.addEdge(new Edge(evenToken,argToken,roleAndId[0],id, "role", Edge.RenderType.dependency));
+                }
+            }
+        }
+
 
         return result;
     }
