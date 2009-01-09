@@ -7,7 +7,17 @@
     <packaging>jar</packaging>
     <version>0.2.0-SNAPSHOT</version>
     <name>What's Wrong With My NLP?</name>
-    <url>http://maven.apache.org</url>
+    <url>http://whatswrong.googlecode.com</url>
+
+    <developers>
+         <developer>
+             <id>seb</id>
+             <name>Sebastian Riedel</name>
+             <url>http://sebrie.freehostia.com/cms</url>
+         </developer>
+     </developers>
+    
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

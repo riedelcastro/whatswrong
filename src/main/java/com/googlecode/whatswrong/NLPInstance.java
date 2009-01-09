@@ -12,6 +12,8 @@ import java.util.*;
  */
 public class NLPInstance {
 
+    //todo: this class needs a redesign, in particular with respect to token identities.
+
     public static enum RenderType {
         /**
          * Show as single sentence with dependencies and spans
@@ -58,8 +60,10 @@ public class NLPInstance {
      * Creates a new NLPInstance with the given tokens and edges. The passed collections will be copied and not
      * changed.
      *
-     * @param tokens the tokens of the sentence.
-     * @param edges  the edges of the sentence.
+     * @param tokens      the tokens of the sentence.
+     * @param edges       the edges of the sentence.
+     * @param renderType  the render type for the instance.
+     * @param splitPoints the points at which the instance can be split.
      */
     public NLPInstance(final Collection<Token> tokens,
                        final Collection<Edge> edges,

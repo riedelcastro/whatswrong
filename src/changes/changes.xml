@@ -1,0 +1,27 @@
+<document>
+    <properties>
+        <title>What's Wrong With My NLP?</title>
+        <author email="blah@gmail.com">Sebastian Riedel</author>
+    </properties>
+    <body>
+        <release version="0.2.0" date="2005-03-01" description="First maven based release">
+            <action dev="seb" type="add">
+                Project now mavenized.
+            </action>
+            <action dev="seb" type="add">
+                Added BioNLP 2009 Shared Task format
+            </action>
+            <action dev="seb" type="add">
+                Edge identities during diff can be different from edge identities for rendering: an edge can
+                appear differently but still be scored as the same edge. This allows clients to add information
+                to an edge that makes the graph more readable (for example, relation IDs) without changing the diff
+                semantics.
+            </action>
+            <action dev="seb" type="remove">
+                removed checkbox for drawing separation lines (always drawn).
+            </action>
+        </release>
+
+
+    </body>
+</document>
