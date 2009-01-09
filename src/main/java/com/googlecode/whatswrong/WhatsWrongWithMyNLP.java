@@ -22,7 +22,7 @@ public class WhatsWrongWithMyNLP extends JPanel {
 
     private NLPCanvas nlpCanvas = new NLPCanvas();
     private JScrollPane nlpScrollPane;
-    public final static String VERSION = "0.2.0a";
+    public final static String VERSION = "0.2.0";
     private final static Properties properties = new Properties();
     private static final boolean USE_SYSTEM_UI = true;
 

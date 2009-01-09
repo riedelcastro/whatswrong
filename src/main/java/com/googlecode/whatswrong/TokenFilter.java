@@ -138,6 +138,7 @@ public class TokenFilter implements NLPInstanceFilter {
                 for (TokenProperty property : t.getPropertyTypes()) {
                     String prop = t.getProperty(property);
                     for (String allowed : allowedStrings)
+                        //todo: this can surely be implemented in a nicer way (e.g. no reparsing of interval)
                         if (property.getName().equals("Index") && allowed.matches("\\d+-\\d+")) {
                             String[] split = allowed.split("[-]");
                             int from = Integer.parseInt(split[0]);

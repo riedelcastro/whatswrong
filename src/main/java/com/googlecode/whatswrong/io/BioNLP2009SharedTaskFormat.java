@@ -215,6 +215,9 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                 for (int i = 2; i < split.length; ++i){
                     String[] roleAndId = split[i].split("[:]");
                     Token argToken = id2Token.get(roleAndId[1]);
+                    if (argToken == null)
+                        throw new RuntimeException("There seems to be no mention associated with " +
+                            "id " + roleAndId[1] + " for event " + id + " in file " + eventFile);
                     result.addEdge(new Edge(evenToken,argToken,roleAndId[0],id, "role", Edge.RenderType.dependency));
                 }
             }
