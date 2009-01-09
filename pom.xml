@@ -89,9 +89,12 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <descriptors>
+                        <descriptor>src/assemble/standalone.xml</descriptor>
+                    </descriptors>
                     <descriptorRefs>
                         <descriptorRef>src</descriptorRef>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                        <descriptorRef>project</descriptorRef>
                     </descriptorRefs>
                     <archive>
                         <manifest>
