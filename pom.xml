@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.riedelcastro</groupId>
     <artifactId>whatswrong</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.0</version>
     <name>What's Wrong With My NLP?</name>
     <url>http://whatswrong.googlecode.com</url>
 
@@ -29,10 +27,10 @@
         <url>http://code.google.com/p/whatswrong/issues/list</url>
     </issueManagement>
     <scm>
-        <connection>scm:svn:http://whatswrong.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://whatswrong.googlecode.com/svn/trunk</developerConnection>
+        <connection>scm:svn:http://whatswrong.googlecode.com/svn/tags/whatswrong-0.2.0</connection>
+        <developerConnection>scm:svn:https://whatswrong.googlecode.com/svn/tags/whatswrong-0.2.0</developerConnection>
         <tag>HEAD</tag>
-        <url>http://code.google.com/p/whatswrong/source/browse/</url>
+        <url>scm:svn:https://whatswrong.googlecode.com/svn/tags/whatswrong-0.2.0</url>
     </scm>
 
 
