@@ -10,13 +10,13 @@
     <url>http://whatswrong.googlecode.com</url>
 
     <developers>
-         <developer>
-             <id>seb</id>
-             <name>Sebastian Riedel</name>
-             <url>http://sebrie.freehostia.com/cms</url>
-         </developer>
-     </developers>
-    
+        <developer>
+            <id>seb</id>
+            <name>Sebastian Riedel</name>
+            <url>http://sebrie.freehostia.com/cms</url>
+        </developer>
+    </developers>
+
 
     <dependencies>
         <dependency>
@@ -64,7 +64,7 @@
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
             <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/snapshots</url>
+            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/repo/snapshots</url>
         </snapshotRepository>
         <site>
             <id>freehostia</id>
@@ -112,6 +112,19 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <extensions>

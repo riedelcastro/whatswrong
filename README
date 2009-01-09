@@ -12,6 +12,8 @@ For more information go to
 
 http://whatswrong.googlecode.com
 
+Note that you will need Maven (http://maven.apache.org) to build this project.
+
 Installation
 ------------
 
@@ -22,14 +24,20 @@ Compilation
 
 cd into the directory created by extracting the archive, then call
 
-$ ant
+$ mvn clean install
 
-Compiling the executable JAR file
-----------------------
+this will create the library version of whatswrong in the target directory (
+note that this version *will not* include any dependend libraries).
+
+Compiling the executable standalone JAR file
+--------------------------------------------
 
 cd into the directory created by extracting the archive, then call
 
-$ ant jar
+$ mvn assembly:assembly
+
+this will create the standalone version of whatswrong in the target directory (
+note that this version *will* include any dependend libraries).
 
 
 Starting the application
@@ -37,7 +45,7 @@ Starting the application
 
 execute
 
-$ java -java whatswrong-x.y.z.jar
+$ java -java whatswrong-x.y.z-standalone.jar
 
 
 

@@ -18,6 +18,10 @@ import java.util.*;
 import java.util.List;
 
 /**
+ * The BioNLP2009SharedTaskFormat loads files in the format of the BioNLP 2009 Shared Task. It allows users to select a
+ * directory and enter the filename extensions for the text files and annotation files. More details on the file format
+ * can be found at the <a href="http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/">shared task website</a>.
+ *
  * @author Sebastian Riedel
  */
 public class BioNLP2009SharedTaskFormat implements CorpusFormat {
@@ -128,7 +132,7 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                 proteinExtensionField.getText().trim());
             File eventFile = new File(prefix + "." +
                 eventExtensionField.getText().trim());
-            if (proteinFile.exists() && eventFile.exists()){
+            if (proteinFile.exists() && eventFile.exists()) {
                 result.add(load(txtFile, proteinFile, eventFile));
                 monitor.progressed(index++);
             }
@@ -199,7 +203,7 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
                 String termClass = type.equals("Entity") ? "entity" : "event";
                 result.addEdge(fromToken, toToken, type, termClass, Edge.RenderType.span);
                 id2Token.put(id, toToken);
-            } else if (id.startsWith("E")){
+            } else if (id.startsWith("E")) {
                 String[] typeAndMentionId = split[1].split("[:]");
                 Token evenToken = id2Token.get(typeAndMentionId[1]);
                 id2Token.put(id, evenToken);
@@ -210,24 +214,28 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
             String line = (String) lineObject;
             String[] split = line.split("\\s+");
             String id = split[0];
-            if (id.startsWith("E")){
+            if (id.startsWith("E")) {
                 Token evenToken = id2Token.get(id);
-                for (int i = 2; i < split.length; ++i){
+                for (int i = 2; i < split.length; ++i) {
                     String[] roleAndId = split[i].split("[:]");
                     Token argToken = id2Token.get(roleAndId[1]);
                     if (argToken == null)
                         throw new RuntimeException("There seems to be no mention associated with " +
                             "id " + roleAndId[1] + " for event " + id + " in file " + eventFile);
-                    result.addEdge(new Edge(evenToken,argToken,roleAndId[0],id, "role", Edge.RenderType.dependency));
+                    result.addEdge(new Edge(evenToken, argToken, roleAndId[0], id, "role", Edge.RenderType.dependency));
                 }
             }
         }
-
 
         return result;
     }
 
 
+    /**
+     * Returns the name of this format.
+     *
+     * @return name of this format.
+     */
     @Override
     public String toString() {
         return getName();
