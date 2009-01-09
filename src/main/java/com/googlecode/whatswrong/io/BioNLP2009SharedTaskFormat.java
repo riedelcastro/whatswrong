@@ -152,8 +152,8 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
     private NLPInstance load(final File txtFile,
                              final File proteinFile,
                              final File eventFile) throws IOException {
-        TIntObjectHashMap<Token> charToToken = new TIntObjectHashMap<Token>();
 
+        TIntObjectHashMap<Token> charToToken = new TIntObjectHashMap<Token>();
         FileReader reader = new FileReader(txtFile);
         int currentIndex = 0;
         NLPInstance result = new NLPInstance();
@@ -161,11 +161,13 @@ public class BioNLP2009SharedTaskFormat implements CorpusFormat {
         StringBuffer currentTokenContent = new StringBuffer("");
         for (int character = reader.read(); character != -1; character = reader.read()) {
             charToToken.put(currentIndex, currentToken);
-            if (character == ' ') {
-                currentToken.addProperty("Word", currentTokenContent.toString());
-                currentToken.addProperty("Index", String.valueOf(result.getTokens().size() - 1));
-                currentTokenContent.setLength(0);
-                currentToken = result.addToken();
+            if (character == ' ' || character == '\n') {
+                if (currentTokenContent.length() > 0) {
+                    currentToken.addProperty("Word", currentTokenContent.toString());
+                    currentToken.addProperty("Index", String.valueOf(result.getTokens().size() - 1));
+                    currentTokenContent.setLength(0);
+                    currentToken = result.addToken();
+                }
             } else {
                 currentTokenContent.append(Character.valueOf((char) character));
             }

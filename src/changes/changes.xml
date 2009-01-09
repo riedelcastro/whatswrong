@@ -4,12 +4,15 @@
         <author email="blah@gmail.com">Sebastian Riedel</author>
     </properties>
     <body>
-        <release version="0.2.0" date="2005-03-01" description="First maven based release">
+        <release version="0.2.0" description="First maven based release">
             <action dev="seb" type="add">
                 Project now mavenized.
             </action>
             <action dev="seb" type="add">
-                Added BioNLP 2009 Shared Task format
+                Added BioNLP 2009 Shared Task format.
+            </action>
+            <action dev="seb" type="add">
+                Tokens can now be filtered using an index range FROM-TO.
             </action>
             <action dev="seb" type="add">
                 Edge identities during diff can be different from edge identities for rendering: an edge can
