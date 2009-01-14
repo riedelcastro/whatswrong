@@ -404,6 +404,7 @@ public class CorpusLoader extends JPanel {
                                     accessory.getStart(), accessory.getEnd());
                                 if (corpus.size() == 0)
                                     throw new RuntimeException("No instances in corpus.");
+                                monitor.close();
                                 setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                 corpora.add(corpus);
                                 fileNames.addElement(fileChooser.getSelectedFile().getName());
