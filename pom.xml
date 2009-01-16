@@ -40,7 +40,7 @@
                     <plugin>
                         <groupId>org.riedelcastro</groupId>
                         <artifactId>gcupload-maven-plugin</artifactId>
-                        <version>0.9</version>
+                        <version>0.9.1-SNAPSHOT</version>
                         <configuration>
                             <allowSnapshots>false</allowSnapshots>
                             <dryRun>false</dryRun>
