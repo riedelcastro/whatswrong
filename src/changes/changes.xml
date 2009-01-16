@@ -4,6 +4,17 @@
         <author email="blah@gmail.com">Sebastian Riedel</author>
     </properties>
     <body>
+
+        <release version="0.2.1" date="2009-16-01" description="Bug fixes">
+            <action dev="seb" type="fix">
+                When a format loader finishes before reaching the upper limit of instance index the progress bar
+                is properly closed now.
+            </action>
+            <action dev="seb" type="add">
+                The token filter text fields show example range expressions.
+            </action>
+        </release>
+
         <release version="0.2.0" description="First maven based release">
             <action dev="seb" type="add">
                 Project now mavenized.

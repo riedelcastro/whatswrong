@@ -79,7 +79,7 @@ public class TokenFilterPanel extends ControllerPanel implements ChangeListener 
         add(new JSeparator());
         JPanel allowedTokens = new JPanel(new GridBagLayout());
         allowedTokens.add(new JLabel("Token:"), new SimpleGridBagConstraints(0, true));
-        final JTextField allowed = new FilterTextField("text1,text2,...");
+        final JTextField allowed = new FilterTextField("text,2-5,...");
 
         allowed.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {

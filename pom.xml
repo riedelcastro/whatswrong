@@ -33,6 +33,50 @@
         <url>http://code.google.com/p/whatswrong/source/browse/</url>
     </scm>
 
+    <profiles>
+        <profile>
+            <id>upload</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.riedelcastro</groupId>
+                        <artifactId>gcupload-maven-plugin</artifactId>
+                        <version>0.9</version>
+                        <configuration>
+                            <allowSnapshots>false</allowSnapshots>
+                            <dryRun>false</dryRun>
+                            <uploads>
+                                <upload>
+                                    <extensions>jar</extensions>
+                                </upload>
+                                <upload>
+                                    <extensions>jar</extensions>
+                                    <postfix>standalone</postfix>
+                                    <labels>Type-Executable,OpSys-All,Featured</labels>
+                                </upload>
+                                <upload>
+                                    <postfix>src</postfix>
+                                    <extensions>tar.gz,zip</extensions>
+                                    <labels>Type-Source</labels>
+                                </upload>
+                            </uploads>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.0-beta-8</version>
+                        <configuration>
+                            <tagBase>https://whatswrong.googlecode.com/svn/tags</tagBase>
+                            <goals>deploy assembly:assembly gcupload:gcupload site-deploy</goals>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -100,6 +144,11 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>repository.riedelcastro.org</id>
+            <url>http://repository.riedelcastro.org</url>
+        </repository>
+
     </repositories>
 
     <build>
@@ -152,6 +201,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+
         </plugins>
         <extensions>
             <extension>
