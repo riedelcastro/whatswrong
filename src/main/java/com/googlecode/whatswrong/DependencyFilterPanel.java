@@ -36,7 +36,7 @@ public class DependencyFilterPanel extends ControllerPanel {
         add(new JLabel("Label:"), c);
 
         //setBorder(new TitledBorder(new EtchedBorder(), "Filter By Label"));
-        final JTextField labelField = new FilterTextField("text,2-5,...");
+        final JTextField labelField = new FilterTextField("text,text,...");
         labelField.setColumns(10);
         c.weightx = 1.0;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -66,13 +66,13 @@ public class DependencyFilterPanel extends ControllerPanel {
         c.weightx = 1.0;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
-        final JTextField textField = new FilterTextField("text1,text2,...");
-        textField.setColumns(10);
-        add(textField, c);
-        textField.addKeyListener(new KeyAdapter() {
+        final JTextField tokenTextField = new FilterTextField("text1,2-5,...");
+        tokenTextField.setColumns(10);
+        add(tokenTextField, c);
+        tokenTextField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 edgeTokenFilter.clear();
-                String[] split = textField.getText().split("[,]");
+                String[] split = tokenTextField.getText().split("[,]");
                 for (String property : split)
                     edgeTokenFilter.addAllowedProperty(property);
                 nlpCanvas.updateNLPGraphics();

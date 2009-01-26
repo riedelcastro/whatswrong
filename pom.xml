@@ -44,7 +44,7 @@
                         <configuration>
                             <allowSnapshots>false</allowSnapshots>
                             <dryRun>false</dryRun>
-                            <uploads>
+                                <uploads>
                                 <upload>
                                     <extensions>jar</extensions>
                                 </upload>
