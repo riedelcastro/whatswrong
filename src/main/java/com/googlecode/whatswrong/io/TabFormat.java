@@ -7,10 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -32,6 +29,7 @@ public class TabFormat implements CorpusFormat {
 
 
     public TabFormat() {
+        addProcessor("CoNLL 2009", new CoNLL2009());
         addProcessor("CoNLL 2008", new CoNLL2008());
         addProcessor("CoNLL 2006", new CoNLL2006());
         //addProcessor("CoNLL 2005", new CoNLL2005());
@@ -100,11 +98,11 @@ public class TabFormat implements CorpusFormat {
 
     public java.util.List<NLPInstance> load(File file, int from, int to) throws IOException {
         TabProcessor processor = (TabProcessor) type.getSelectedItem();
-        java.util.List<NLPInstance> result = loadCoNLL08(file, from, to, processor, false);
+        java.util.List<NLPInstance> result = loadTabs(file, from, to, processor, false);
         if (open.isSelected()) {
             String filename = file.getName().substring(0, file.getName().lastIndexOf('.')) + ".open";
             File openFile = new File(file.getParent() + "/" + filename);
-            java.util.List<NLPInstance> openCorpus = loadCoNLL08(openFile, from, to, processor, true);
+            java.util.List<NLPInstance> openCorpus = loadTabs(openFile, from, to, processor, true);
             for (int i = 0; i < openCorpus.size(); ++i) {
                 result.get(i).merge(openCorpus.get(i));
             }
@@ -113,8 +111,9 @@ public class TabFormat implements CorpusFormat {
         return result;
     }
 
-    private java.util.List<NLPInstance> loadCoNLL08(File file, int from, int to, TabProcessor processor, boolean open) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+    private java.util.List<NLPInstance> loadTabs(File file, int from, int to, TabProcessor processor, boolean open)
+        throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
         ArrayList<NLPInstance> corpus = new ArrayList<NLPInstance>();
         ArrayList<ArrayList<String>> rows = new ArrayList<ArrayList<String>>();
         int instanceNr = 0;

@@ -327,15 +327,7 @@ public class CorpusLoader extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
 
 
-        TabFormat tabFormat = new TabFormat();
-        TheBeastFormat theBeastFormat = new TheBeastFormat();
-
-
-        addFormat(tabFormat);
-        addFormat(theBeastFormat);
-        addFormat(new LispSExprFormat());
-        addFormat(new GaleAlignmentFormat());
-        addFormat(new BioNLP2009SharedTaskFormat());
+        setUpFormats();
 
         corpora = new ArrayList<List<NLPInstance>>();
         c.gridx = 0;
@@ -448,6 +440,17 @@ public class CorpusLoader extends JPanel {
 
         //setSize(new Dimension(50, 200));
         //setMinimumSize(new Dimension(150, 10));
+    }
+
+    private void setUpFormats() {
+        TabFormat tabFormat = new TabFormat();
+        TheBeastFormat theBeastFormat = new TheBeastFormat();
+        addFormat(tabFormat);
+        addFormat(theBeastFormat);
+        addFormat(new LispSExprFormat());
+        addFormat(new GaleAlignmentFormat());
+        addFormat(new BioNLP2009SharedTaskFormat());
+        addFormat(new BioNLP2009SharedTaskFormat());
     }
 
 
