@@ -260,25 +260,24 @@ public class NLPCanvas extends JPanel {
     public void updateNLPGraphics() {
         NLPInstance filtered = filterInstance();
 
-        Graphics2D gTokens = image.createGraphics();
+        Graphics2D graphics = image.createGraphics();
 
         renderer = renderers.get(filtered.getRenderType());
 
-        Dimension dim = renderer.render(filtered, gTokens);
+        Dimension dim = renderer.render(filtered, graphics);
 
         image = new BufferedImage((int) dim.getWidth(),
             (int) dim.getHeight(),
             BufferedImage.TYPE_4BYTE_ABGR);
 
-        gTokens = image.createGraphics();
+        graphics = image.createGraphics();
 
-        renderer.render(filtered, gTokens);
+        renderer.render(filtered, graphics);
         setPreferredSize(dim);
         setMinimumSize(dim);
         setSize(new Dimension(dim.width, getHeight()));
         repaint();
         invalidate();
-        //invalidate();
         fireChanged();
         fireRedrawn();
     }

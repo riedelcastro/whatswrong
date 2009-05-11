@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * A TabFormat loads data from text files where token properties are represented as white-space/tab separated values.
@@ -115,7 +116,7 @@ public class TabFormat implements CorpusFormat {
         throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
         ArrayList<NLPInstance> corpus = new ArrayList<NLPInstance>();
-        ArrayList<ArrayList<String>> rows = new ArrayList<ArrayList<String>>();
+        ArrayList<List<String>> rows = new ArrayList<List<String>>();
         int instanceNr = 0;
         for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
             line = line.trim();
@@ -127,10 +128,7 @@ public class TabFormat implements CorpusFormat {
                 rows.clear();
             } else {
                 if (instanceNr < from) continue;
-                StringTokenizer tokenizer = new StringTokenizer(line, "[ \t]");
-                ArrayList<String> row = new ArrayList<String>();
-                while (tokenizer.hasMoreElements()) row.add(tokenizer.nextToken());
-                rows.add(row);
+                rows.add(Arrays.asList(line.split("\\s+")));
             }
 
         }
