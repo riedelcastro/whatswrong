@@ -3,7 +3,7 @@
     <groupId>org.riedelcastro</groupId>
     <artifactId>whatswrong</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.2</version>
+    <version>0.2.3-SNAPSHOT</version>
     <name>What's Wrong With My NLP?</name>
     <url>http://whatswrong.googlecode.com</url>
 
@@ -27,9 +27,9 @@
         <url>http://code.google.com/p/whatswrong/issues/list</url>
     </issueManagement>
     <scm>
-        <connection>scm:svn:http://whatswrong.googlecode.com/svn/tags/whatswrong-0.2.2</connection>
-        <developerConnection>scm:svn:https://whatswrong.googlecode.com/svn/tags/whatswrong-0.2.2</developerConnection>
-        <url>http://code.google.com/p/whatswrong/source/browse/tags/whatswrong-0.2.2</url>
+        <connection>scm:svn:http://whatswrong.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://whatswrong.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/whatswrong/source/browse/</url>
     </scm>
 
     <profiles>
