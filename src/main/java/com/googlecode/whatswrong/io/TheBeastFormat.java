@@ -146,7 +146,7 @@ public class TheBeastFormat implements CorpusFormat {
             } else {
                 line = line.trim();
                 if (!line.equals("") && instanceNr > from) {
-                    StringTokenizer tokenizer = new StringTokenizer(line, "[ \t]");
+                    StringTokenizer tokenizer = new StringTokenizer(line, " \t");
                     ArrayList<String> row = new ArrayList<String>();
                     while (tokenizer.hasMoreElements()) row.add(tokenizer.nextToken());
                     if (asToken != null) rows.get(asToken).add(row);
