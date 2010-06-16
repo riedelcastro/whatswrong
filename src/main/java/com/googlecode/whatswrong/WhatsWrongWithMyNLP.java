@@ -271,6 +271,18 @@ public class WhatsWrongWithMyNLP extends JPanel {
         appearance.setVisible(USE_SYSTEM_UI);
         window.add(new WindowMenuItem(appearance));
 
+        //description
+        ControllerDialog description = new ControllerDialog("Description", true);
+        //description.getContentPane().setLayout(new BoxLayout(appearance.getContentPane(), BoxLayout.Y_AXIS));
+        JTextArea text = new JTextArea(15,40);
+        description.getContentPane().add(new JScrollPane(text));
+        description.pack();
+        description.setLocation(canvasX + 700, canvasBottom + 25);
+        description.setVisible(USE_SYSTEM_UI);
+        canvas.setTextArea(text);
+        window.add(new WindowMenuItem(description));
+
+
         //navigator
         ControllerDialog navigatorWindow = new ControllerDialog("Search Corpus", USE_SYSTEM_UI);
         navigatorWindow.getContentPane().setLayout(new BoxLayout(navigatorWindow.getContentPane(), BoxLayout.Y_AXIS));

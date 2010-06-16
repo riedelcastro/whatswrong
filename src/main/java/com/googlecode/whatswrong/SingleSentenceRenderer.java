@@ -1,6 +1,7 @@
 package com.googlecode.whatswrong;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,16 @@ public class SingleSentenceRenderer implements NLPCanvasRenderer {
      */
     private boolean antiAliasing = true;
 
+    /**
+     * Y coordinates where token layout starts
+     */
+    private int startOfTokens = 0;
+
+    /**
+     * Y coordinate where span layout starts
+     */
+    private int startOfSpans = 0;
+
 
     /**
      * Renders the given instance as a single sentence with spans drawn below tokens, and dependencies above tokens.
@@ -43,23 +54,23 @@ public class SingleSentenceRenderer implements NLPCanvasRenderer {
      */
     public Dimension render(NLPInstance instance, Graphics2D graphics2D) {
         List<Token> tokens =
-            new ArrayList<Token>(instance.getTokens());
+                new ArrayList<Token>(instance.getTokens());
         Collection<Edge> dependencies =
-            new ArrayList<Edge>(instance.getEdges(Edge.RenderType.dependency));
+                new ArrayList<Edge>(instance.getEdges(Edge.RenderType.dependency));
         Collection<Edge> spans =
-            new ArrayList<Edge>(instance.getEdges(Edge.RenderType.span));
+                new ArrayList<Edge>(instance.getEdges(Edge.RenderType.span));
 
         //get span required token widths
         Map<Token, Integer> widths =
-            spanLayout.estimateRequiredTokenWidths(spans, graphics2D);
+                spanLayout.estimateRequiredTokenWidths(spans, graphics2D);
 
         //find token bounds
         Map<Token, Bounds1D> tokenXBounds =
-            tokenLayout.estimateTokenBounds(instance, widths, graphics2D);
+                tokenLayout.estimateTokenBounds(instance, widths, graphics2D);
 
         if (antiAliasing) {
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+                    RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
 
@@ -70,12 +81,14 @@ public class SingleSentenceRenderer implements NLPCanvasRenderer {
         //place dependencies on top
         dim = dependencyLayout.layoutEdges(dependencies, tokenXBounds, graphics2D);
         height += dim.height;
+        startOfTokens = height;
         width = dim.width > width ? dim.width : width;
 
         //add tokens
         graphics2D.translate(0, dim.height);
         dim = tokenLayout.layout(instance, widths, graphics2D);
         height += dim.height;
+        startOfSpans = height;
         width = dim.width > width ? dim.width : width;
 
         //add spans
@@ -113,6 +126,22 @@ public class SingleSentenceRenderer implements NLPCanvasRenderer {
      */
     public int getMargin() {
         return tokenLayout.getMargin();
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public Edge getEdgeAt(Point2D p, int radius) {
+        System.out.println("dependencyLayout height = " + dependencyLayout.getHeight());    
+        if (p.getY() < startOfTokens) {
+            return dependencyLayout.getEdgeAt(p, radius);
+        }
+        else {
+            Point2D shifted = new Point2D.Double(p.getX(),
+                    p.getY() - startOfSpans);
+            return spanLayout.getEdgeAt(shifted,radius);
+        }
     }
 
     /**
@@ -184,4 +213,6 @@ public class SingleSentenceRenderer implements NLPCanvasRenderer {
     public boolean isAntiAliasing() {
         return antiAliasing;
     }
+
+
 }

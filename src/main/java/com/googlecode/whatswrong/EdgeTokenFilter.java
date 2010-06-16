@@ -357,7 +357,7 @@ public class EdgeTokenFilter implements NLPInstanceFilter {
             for (Edge e : edges) {
                 updatedEdges.add(new Edge(old2new.get(e.getFrom()),
                     old2new.get(e.getTo()), e.getLabel(), e.getNote(), e.getType(),
-                    e.getRenderType()));
+                    e.getRenderType(),e.getDescription()));
             }
             //find new split points
             ArrayList<Integer> splitPoints = new ArrayList<Integer>();

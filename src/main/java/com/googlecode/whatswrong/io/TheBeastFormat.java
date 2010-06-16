@@ -146,7 +146,7 @@ public class TheBeastFormat implements CorpusFormat {
             } else {
                 line = line.trim();
                 if (!line.equals("") && instanceNr > from) {
-                    StringTokenizer tokenizer = new StringTokenizer(line, " \t");
+                    StringTokenizer tokenizer = new StringTokenizer(line, "\t");
                     ArrayList<String> row = new ArrayList<String>();
                     while (tokenizer.hasMoreElements()) row.add(tokenizer.nextToken());
                     if (asToken != null) rows.get(asToken).add(row);
@@ -172,8 +172,16 @@ public class TheBeastFormat implements CorpusFormat {
     }
 
     private void addDeps(List<List<String>> rows, String type, NLPInstance instance) {
-        for (List<String> row : rows)
-            instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), unquote(row.get(2)), type);
+        for (List<String> row : rows) {
+            if (row.size() == 4)
+                instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
+                        unquote(row.get(2)), type, unquote(row.get(3)));
+            else {
+                instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
+                        unquote(row.get(2)), type);
+            }
+
+        }
     }
 
     private void addSpans(List<List<String>> rows, String type, NLPInstance instance) {
@@ -183,7 +191,11 @@ public class TheBeastFormat implements CorpusFormat {
             else if (row.size() == 2) {
                 int token = Integer.parseInt(row.get(0));
                 instance.addSpan(token, token, unquote(row.get(1)), type);
+            } else if (row.size() == 4) {
+                instance.addSpan(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), 
+                        unquote(row.get(2)), type,unquote(row.get(3)));
             }
+
     }
 
 

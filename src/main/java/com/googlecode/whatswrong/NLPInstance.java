@@ -137,7 +137,8 @@ public class NLPInstance {
      */
     public void addEdge(final Edge edge) {
         edges.add(new Edge(map.get(edge.getFrom().getIndex()),
-            map.get(edge.getTo().getIndex()), edge.getLabel(), edge.getNote(), edge.getType(), edge.getRenderType()));
+                map.get(edge.getTo().getIndex()), edge.getLabel(), edge.getNote(), edge.getType(),
+                edge.getRenderType(),edge.getDescription()));
     }
 
     /**
@@ -154,7 +155,28 @@ public class NLPInstance {
     public void addSpan(final int from, final int to,
                         final String label, final String type) {
         edges.add(new Edge(map.get(from), map.get(to), label, type,
-            Edge.RenderType.span));
+                Edge.RenderType.span));
+    }
+
+    /**
+     * Creates and adds an edge with rendertype {@link com.googlecode.whatswrong.Edge.RenderType#span}
+     *
+     * @param from  index of the token the edge should start at. The token at the given index must already exist in the
+     *              sentence.
+     * @param to    index of the token edge should end at. The token at the given index must already exist in the
+     *              sentence.
+     * @param label the label of the edge.
+     * @param type  the type of edge.
+     * @param description the description of the span.
+     * @see com.googlecode.whatswrong.Edge
+     */
+    public void addSpan(final int from, final int to,
+                        final String label, final String type,
+                        final String description) {
+        Edge edge = new Edge(map.get(from), map.get(to), label, type,
+                Edge.RenderType.span);
+        edge.setDescription(description);
+        edges.add(edge);
     }
 
     /**
@@ -171,8 +193,30 @@ public class NLPInstance {
     public void addDependency(final int from, final int to,
                               final String label, final String type) {
         edges.add(new Edge(map.get(from), map.get(to), label, type,
-            Edge.RenderType.dependency));
+                Edge.RenderType.dependency));
     }
+
+
+    /**
+     * Creates and adds an edge with rendertype {@link com.googlecode.whatswrong.Edge.RenderType#dependency}
+     *
+     * @param from        index of the token the edge should start at. The token at the given index must already exist in the
+     *                    sentence.
+     * @param to          index of the token edge should end at. The token at the given index must already exist in the
+     *                    sentence.
+     * @param label       the label of the edge.
+     * @param type        the type of edge.
+     * @param description description of the edge
+     * @see com.googlecode.whatswrong.Edge
+     */
+    public void addDependency(final int from, final int to,
+                              final String label, final String type, final String description) {
+        Edge edge = new Edge(map.get(from), map.get(to), label, type,
+                Edge.RenderType.dependency);
+        edge.setDescription(description);
+        edges.add(edge);
+    }
+
 
     /**
      * Creates and adds an edge with the given properties. It will have the default render type.
@@ -244,7 +288,7 @@ public class NLPInstance {
         }
         for (Edge edge : nlp.edges) {
             addEdge(edge.getFrom().getIndex(), edge.getTo().getIndex(),
-                edge.getLabel(), edge.getType(), edge.getRenderType());
+                    edge.getLabel(), edge.getType(), edge.getRenderType());
         }
     }
 

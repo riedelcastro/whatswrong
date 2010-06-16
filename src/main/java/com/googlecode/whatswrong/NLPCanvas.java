@@ -35,7 +35,12 @@ public class NLPCanvas extends JPanel {
      * Renderers for different render types.
      */
     private final HashMap<NLPInstance.RenderType, NLPCanvasRenderer>
-        renderers = new HashMap<NLPInstance.RenderType, NLPCanvasRenderer>();
+            renderers = new HashMap<NLPInstance.RenderType, NLPCanvasRenderer>();
+
+    /**
+     * the text area to print messages to.
+     */
+    private JTextArea textArea = null;
 
     /**
      * All tokens.
@@ -50,7 +55,7 @@ public class NLPCanvas extends JPanel {
      * The image we render to.
      */
     private BufferedImage
-        image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+            image = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
     /**
      * A collection of all edge types used in the current nlp instance.
@@ -60,13 +65,13 @@ public class NLPCanvas extends JPanel {
      * A collection of all token properties used in the current nlp instance.
      */
     private Set<TokenProperty>
-        usedProperties = new java.util.HashSet<TokenProperty>();
+            usedProperties = new java.util.HashSet<TokenProperty>();
 
     /**
      * The list of change listeners of this canvas.
      */
     private ArrayList<ChangeListener>
-        changeListeners = new ArrayList<ChangeListener>();
+            changeListeners = new ArrayList<ChangeListener>();
 
     private NLPInstance instance;
 
@@ -110,6 +115,15 @@ public class NLPCanvas extends JPanel {
     }
 
     /**
+     * Sets the text area to print messages to.
+     *
+     * @param textArea text area to print to.
+     */
+    public void setTextArea(JTextArea textArea) {
+        this.textArea = textArea;
+    }
+
+    /**
      * Creates a new canvas with default size.
      */
     public NLPCanvas() {
@@ -123,19 +137,15 @@ public class NLPCanvas extends JPanel {
              * @param e the event.
              */
             public void mousePressed(MouseEvent e) {
-//        Point point = e.getPoint();
-//        point.translate(0, -(getHeight() - tokenLayout.getHeight() -
-//          dependencyLayout.getHeight() - spanLayout.getHeight()));
-//        Edge edge = dependencyLayout.getEdgeAt(point, 5);
-//        //System.out.println("edge = " + edge);
-//        if (edge != null) {
-//          if (e.isMetaDown())
-//            dependencyLayout.toggleSelection(edge);
-//          else
-//            dependencyLayout.select(edge);
-//
-//          updateNLPGraphics();
-//        }
+
+                Point point = e.getPoint();
+                int offset = getHeight() - image.getHeight();
+                point.translate(0, -offset);
+                Edge edge = renderer.getEdgeAt(point, 5);
+//                System.out.println("edge = " + edge + " at " + point);
+                if (edge != null) {
+                    textArea.append(edge + ": " + edge.getDescription() + "\n");
+                }
             }
         });
     }
@@ -251,7 +261,7 @@ public class NLPCanvas extends JPanel {
      */
     private NLPInstance filterInstance() {
         return filter.filter(new NLPInstance(tokens, dependencies,
-            instance.getRenderType(), instance.getSplitPoints()));
+                instance.getRenderType(), instance.getSplitPoints()));
     }
 
     /**
@@ -267,8 +277,8 @@ public class NLPCanvas extends JPanel {
         Dimension dim = renderer.render(filtered, graphics);
 
         image = new BufferedImage((int) dim.getWidth(),
-            (int) dim.getHeight(),
-            BufferedImage.TYPE_4BYTE_ABGR);
+                (int) dim.getHeight(),
+                BufferedImage.TYPE_4BYTE_ABGR);
 
         graphics = image.createGraphics();
 
@@ -319,14 +329,14 @@ public class NLPCanvas extends JPanel {
     public void exportToEPS(File file) throws IOException {
 
         EpsGraphics dummy = new EpsGraphics("Title", new ByteArrayOutputStream(),
-            0, 0, 1, 1, ColorMode.BLACK_AND_WHITE);
+                0, 0, 1, 1, ColorMode.BLACK_AND_WHITE);
 
         NLPInstance filtered = filterInstance();
 
         Dimension dim = renderer.render(filtered, dummy);
 
         EpsGraphics g = new EpsGraphics("Title", new FileOutputStream(file), 0, 0,
-            (int) dim.getWidth() + 2, (int) dim.getHeight(), ColorMode.COLOR_RGB);
+                (int) dim.getWidth() + 2, (int) dim.getHeight(), ColorMode.COLOR_RGB);
 
         renderer.render(filtered, g);
 

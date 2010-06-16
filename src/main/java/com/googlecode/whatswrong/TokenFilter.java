@@ -168,7 +168,8 @@ public class TokenFilter implements NLPInstanceFilter {
                 Token newFrom = old2new.get(e.getFrom());
                 Token newTo = old2new.get(e.getTo());
                 if (newFrom == null || newTo == null) continue;
-                edges.add(new Edge(newFrom, newTo, e.getLabel(), e.getNote(), e.getType(), e.getRenderType()));
+                edges.add(new Edge(newFrom, newTo, e.getLabel(), e.getNote(),
+                        e.getType(), e.getRenderType(),e.getDescription()));
             }
             //find new split points (have to be changed because new instance
             //has new token sequence

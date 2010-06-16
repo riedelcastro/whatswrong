@@ -1,6 +1,7 @@
 package com.googlecode.whatswrong;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 
 /**
  * An NLPCanvasRenderer renders a given NLPInstance to a Graphics object and returns the dimension of the created
@@ -40,6 +41,16 @@ public interface NLPCanvasRenderer {
      * @return the margin between tokens.
      */
     public int getMargin();
+
+    /**
+     * Get the Edge at a given location.
+     *
+     * @param p      the location of the edge.
+     * @param radius the radius around the point which the edge should cross.
+     * @return the edge that crosses circle around the given point with the given radius.
+     */
+    public Edge getEdgeAt(Point2D p, int radius);
+
 
     /**
      * Controls the height of the graph.

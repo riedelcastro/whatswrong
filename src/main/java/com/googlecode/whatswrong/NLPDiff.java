@@ -82,18 +82,18 @@ public class NLPDiff {
             Edge edge = edgeid.edge;
             String type = edge.getType() + ":FN";
             diff.addEdge(new Edge(edge.getFrom(), edge.getTo(), edge.getLabel(),
-                edge.getNote(), type, edge.getRenderType()));
+                edge.getNote(), type, edge.getRenderType(), edge.getDescription()));
         }
         for (EdgeIdentity edgeId : fp) {
             Edge edge = edgeId.edge;
             String type = edge.getType() + ":FP";
             diff.addEdge(new Edge(edge.getFrom(), edge.getTo(), edge.getLabel(),
-                edge.getNote(), type, edge.getRenderType()));
+                edge.getNote(), type, edge.getRenderType(), edge.getDescription()));
         }
         for (EdgeIdentity edgeId : matches) {
             Edge edge = edgeId.edge;
             diff.addEdge(new Edge(edge.getFrom(), edge.getTo(), edge.getLabel(),
-                edge.getNote(), edge.getType() + ":Match", edge.getRenderType()));
+                edge.getNote(), edge.getType() + ":Match", edge.getRenderType(),edge.getDescription()));
         }
         return diff;
 

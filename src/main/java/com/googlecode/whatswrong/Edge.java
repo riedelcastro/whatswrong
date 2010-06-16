@@ -42,6 +42,11 @@ public class Edge {
     private String label;
 
     /**
+     * A description of the edge to be printed when edge is clicked on
+     */
+    private String description = "No Description";
+
+    /**
      * A note that is added to the label but which does not have an effect on the identity of the edge when compared
      * with another edge in the {@link com.googlecode.whatswrong.NLPDiff#diff(NLPInstance, NLPInstance)} method.
      */
@@ -98,6 +103,29 @@ public class Edge {
     }
 
     /**
+     * Create new edge.
+     *
+     * @param from        from token.
+     * @param to          to token
+     * @param label       the label of the edge
+     * @param note        the note to add to the edge
+     * @param type        the type of the edge (say, 'semantic role').
+     * @param renderType  the render type.
+     * @param description a description of the edge.
+     */
+    public Edge(Token from, Token to, String label, String note,
+                String type, RenderType renderType, String description) {
+        this.from = from;
+        this.to = to;
+        this.label = label;
+        this.type = type;
+        this.renderType = renderType;
+        this.note = note;
+        this.description = description;
+    }
+
+
+    /**
      * Creates a new edge with default render type (dependency).
      *
      * @param from  from token.
@@ -132,6 +160,15 @@ public class Edge {
     public String getTypePostfix() {
         int index = type.indexOf(':');
         return index == -1 ? "" : type.substring(index + 1);
+    }
+
+    /**
+     * A description of the edge
+     *
+     * @return edge description
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -179,6 +216,15 @@ public class Edge {
      */
     public Token getFrom() {
         return from;
+    }
+
+    /**
+     * Sets the description of this edge
+     *
+     * @param description a text describing this edge.
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -252,7 +298,7 @@ public class Edge {
      */
     public boolean leftOf(Token token) {
         return from.getIndex() <= token.getIndex()
-            && to.getIndex() <= token.getIndex();
+                && to.getIndex() <= token.getIndex();
     }
 
     /**
@@ -263,7 +309,7 @@ public class Edge {
      */
     public boolean rightOf(Token token) {
         return from.getIndex() >= token.getIndex()
-            && to.getIndex() >= token.getIndex();
+                && to.getIndex() >= token.getIndex();
     }
 
     /**
@@ -283,7 +329,7 @@ public class Edge {
      */
     public boolean covers(Edge edge) {
         return getMinIndex() < edge.getMinIndex()
-            && getMaxIndex() > edge.getMaxIndex();
+                && getMaxIndex() > edge.getMaxIndex();
     }
 
     /**
@@ -294,7 +340,7 @@ public class Edge {
      */
     public boolean coversExactly(Edge edge) {
         return getMinIndex() == edge.getMinIndex()
-            && getMaxIndex() == edge.getMaxIndex();
+                && getMaxIndex() == edge.getMaxIndex();
     }
 
     /**
@@ -305,8 +351,8 @@ public class Edge {
      */
     public boolean coversSemi(Edge edge) {
         return
-            getMinIndex() < edge.getMinIndex() && getMaxIndex() == edge.getMaxIndex() ||
-                getMinIndex() == edge.getMinIndex() && getMaxIndex() > edge.getMaxIndex();
+                getMinIndex() < edge.getMinIndex() && getMaxIndex() == edge.getMaxIndex() ||
+                        getMinIndex() == edge.getMinIndex() && getMaxIndex() > edge.getMaxIndex();
     }
 
     /**
@@ -317,11 +363,11 @@ public class Edge {
      */
     public boolean overlaps(Edge edge) {
         return getMinIndex() <= edge.getMinIndex() &&
-            getMaxIndex() <= edge.getMaxIndex() &&
-            getMaxIndex() >= edge.getMinIndex() ||
-            getMinIndex() >= edge.getMinIndex() &&
                 getMaxIndex() <= edge.getMaxIndex() &&
-                getMaxIndex() <= edge.getMinIndex();
+                getMaxIndex() >= edge.getMinIndex() ||
+                getMinIndex() >= edge.getMinIndex() &&
+                        getMaxIndex() <= edge.getMaxIndex() &&
+                        getMaxIndex() <= edge.getMinIndex();
     }
 
 
@@ -333,7 +379,7 @@ public class Edge {
      */
     public boolean strictlyCovers(Edge edge) {
         return getMinIndex() < edge.getMinIndex() && getMaxIndex() >= edge.getMaxIndex() ||
-            getMinIndex() <= edge.getMinIndex() && getMaxIndex() > edge.getMaxIndex();
+                getMinIndex() <= edge.getMinIndex() && getMaxIndex() > edge.getMaxIndex();
     }
 
 
@@ -354,11 +400,11 @@ public class Edge {
      */
     public boolean crosses(Edge edge) {
         return getMinIndex() > edge.getMinIndex()
-            && getMinIndex() < edge.getMaxIndex()
-            && getMaxIndex() > edge.getMaxIndex() ||
-            edge.getMinIndex() > getMinIndex()
-                && edge.getMinIndex() < getMaxIndex()
-                && edge.getMaxIndex() > getMaxIndex();
+                && getMinIndex() < edge.getMaxIndex()
+                && getMaxIndex() > edge.getMaxIndex() ||
+                edge.getMinIndex() > getMinIndex()
+                        && edge.getMinIndex() < getMaxIndex()
+                        && edge.getMaxIndex() > getMaxIndex();
 
     }
 
@@ -406,5 +452,4 @@ public class Edge {
     }
 
 
-   
 }

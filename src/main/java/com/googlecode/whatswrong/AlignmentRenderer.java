@@ -2,6 +2,7 @@ package com.googlecode.whatswrong;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.util.Collections;
 import java.util.Map;
 
@@ -133,6 +134,10 @@ public class AlignmentRenderer implements NLPCanvasRenderer {
      */
     public int getMargin() {
         return tokenLayout1.getMargin();
+    }
+
+    public Edge getEdgeAt(Point2D p, int radius) {
+        return null;  
     }
 
     /**
