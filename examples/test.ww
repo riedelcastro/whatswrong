@@ -1,0 +1,34 @@
+>>
+>Word
+0	"The"
+1	"man"
+2	"likes"
+3	"football"
+4	"."
+
+>Mentions
+0	1	"Person"
+3	3	"Concept"
+
+>Relations
+2	1	"Agent"
+2	3	"Theme"
+
+>>
+>Word
+0	"The"
+1	"man"
+2	"likes"
+3	"football"
+4	"."
+
+>Mentions
+0	1	"Person"
+3	3	"Concept"
+
+>Relations
+2	1	"Agent"
+2	3	"Theme"
+
+
+
