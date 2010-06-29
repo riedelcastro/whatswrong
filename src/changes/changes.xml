@@ -4,7 +4,25 @@
         <author email="blah@gmail.com">Sebastian Riedel</author>
     </properties>
     <body>
+      <release version="0.2.3" date="2009-16-05" description="add">
+            <action dev="seb" type="add">
+                Users can now click on spans and edges and see some information about these edges in an additional window. This
+		is particularly useful for presenting features and their weights for spans and edges. The best of providing this
+		information is via the thebeast format.  
+            </action>
+            <action dev="seb" type="fix">
+               Square brackets in thebeast files files now don't cause any more problems.
+            </action>
+        </release>
 
+      <release version="0.2.2" date="2009-16-05" description="Bug fixes">
+            <action dev="seb" type="fix">
+                UTF-8 files are better supported now..
+            </action>
+            <action dev="seb" type="fix">
+               Square brackets in tab files now don't cause any more problems.
+            </action>
+        </release>
         <release version="0.2.1" date="2009-16-01" description="Bug fixes">
             <action dev="seb" type="fix">
                 When a format loader finishes before reaching the upper limit of instance index the progress bar

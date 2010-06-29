@@ -175,7 +175,7 @@ public class TheBeastFormat implements CorpusFormat {
         for (List<String> row : rows) {
             if (row.size() == 4)
                 instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
-                        unquote(row.get(2)), type, unquote(row.get(3)));
+                        unquote(row.get(2)), type, unquote(row.get(3)).replaceAll("-BR-","\n\t"));
             else {
                 instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
                         unquote(row.get(2)), type);
@@ -193,7 +193,7 @@ public class TheBeastFormat implements CorpusFormat {
                 instance.addSpan(token, token, unquote(row.get(1)), type);
             } else if (row.size() == 4) {
                 instance.addSpan(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), 
-                        unquote(row.get(2)), type,unquote(row.get(3)));
+                        unquote(row.get(2)), type,unquote(row.get(3)).replaceAll("-BR-","\n\t"));
             }
 
     }
