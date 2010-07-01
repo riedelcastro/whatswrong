@@ -133,6 +133,10 @@
 
 
     <repositories>
+	<repository>
+            <id>maven</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
         <repository>
             <id>thirdparty.repository.riedelcastro.org</id>
             <url>http://thirdparty.repository.riedelcastro.org</url>
