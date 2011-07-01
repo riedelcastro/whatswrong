@@ -40,7 +40,7 @@
                     <plugin>
                         <groupId>org.riedelcastro</groupId>
                         <artifactId>gcupload-maven-plugin</artifactId>
-                        <version>0.9.1-SNAPSHOT</version>
+                        <version>0.9</version>
                         <configuration>
                             <allowSnapshots>false</allowSnapshots>
                             <dryRun>false</dryRun>
@@ -117,7 +117,7 @@
     <distributionManagement>
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>freehostia</id>
+            <id>q</id>
             <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/repo/releases</url>
         </repository>
         <snapshotRepository>
@@ -138,6 +138,10 @@
             <url>http://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
+            <id>repository.riedelcastro.org</id>
+            <url>http://repository.riedelcastro.org</url>
+        </repository>
+        <repository>
             <id>thirdparty.repository.riedelcastro.org</id>
             <url>http://thirdparty.repository.riedelcastro.org</url>
             <releases>
@@ -147,12 +151,20 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>repository.riedelcastro.org</id>
-            <url>http://repository.riedelcastro.org</url>
-        </repository>
 
     </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>repository.riedelcastro.org</id>
+            <url>http://repository.riedelcastro.org</url>
+        </pluginRepository>
+    
+    </pluginRepositories>
 
     <build>
         <plugins>
