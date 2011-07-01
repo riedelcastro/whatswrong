@@ -451,6 +451,7 @@ public class CorpusLoader extends JPanel {
         addFormat(new GaleAlignmentFormat());
         addFormat(new BioNLP2009SharedTaskFormat());
         addFormat(new BioNLP2009SharedTaskFormat());
+	addFormat(new GizaAlignmentFormat());
     }
 
 
