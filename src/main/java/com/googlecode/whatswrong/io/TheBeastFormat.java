@@ -167,15 +167,22 @@ public class TheBeastFormat implements CorpusFormat {
     }
 
     private void addTokens(List<List<String>> rows, String type, NLPInstance instance) {
+
         for (List<String> row : rows)
-            instance.addToken(Integer.parseInt(row.get(0))).addProperty(type, unquote(row.get(1)));
+            try {
+                instance.addToken(Integer.parseInt(row.get(0))).addProperty(type, unquote(row.get(1)));
+            } catch (Exception e) {
+                System.out.println("Could not load tokens from row " + row + " of rows " + rows + ", skipping this row.");
+//                throw new RuntimeException("Could not load tokens from row " + row + " of rows " + rows, e);
+            }
+
     }
 
     private void addDeps(List<List<String>> rows, String type, NLPInstance instance) {
         for (List<String> row : rows) {
             if (row.size() == 4)
                 instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
-                        unquote(row.get(2)), type, unquote(row.get(3)).replaceAll("-BR-","\n\t"));
+                        unquote(row.get(2)), type, unquote(row.get(3)).replaceAll("-BR-", "\n\t"));
             else {
                 instance.addDependency(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
                         unquote(row.get(2)), type);
@@ -192,8 +199,8 @@ public class TheBeastFormat implements CorpusFormat {
                 int token = Integer.parseInt(row.get(0));
                 instance.addSpan(token, token, unquote(row.get(1)), type);
             } else if (row.size() == 4) {
-                instance.addSpan(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)), 
-                        unquote(row.get(2)), type,unquote(row.get(3)).replaceAll("-BR-","\n\t"));
+                instance.addSpan(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)),
+                        unquote(row.get(2)), type, unquote(row.get(3)).replaceAll("-BR-", "\n\t"));
             }
 
     }

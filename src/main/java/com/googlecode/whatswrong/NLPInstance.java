@@ -109,7 +109,7 @@ public class NLPInstance {
      */
     public void addEdge(final int from, final int to,
                         final String label, final String type) {
-
+        if (isInvalidEdge(from,to)) return;
         edges.add(new Edge(map.get(from), map.get(to), label, type));
     }
 
@@ -127,6 +127,7 @@ public class NLPInstance {
      */
     public void addEdge(final int from, final int to, final String label,
                         final String type, final Edge.RenderType renderType) {
+        if (isInvalidEdge(from,to)) return;
         edges.add(new Edge(map.get(from), map.get(to), label, type, renderType));
     }
 
@@ -138,7 +139,7 @@ public class NLPInstance {
     public void addEdge(final Edge edge) {
         edges.add(new Edge(map.get(edge.getFrom().getIndex()),
                 map.get(edge.getTo().getIndex()), edge.getLabel(), edge.getNote(), edge.getType(),
-                edge.getRenderType(),edge.getDescription()));
+                edge.getRenderType(), edge.getDescription()));
     }
 
     /**
@@ -154,25 +155,39 @@ public class NLPInstance {
      */
     public void addSpan(final int from, final int to,
                         final String label, final String type) {
+        if (isInvalidEdge(from,to)) return;
         edges.add(new Edge(map.get(from), map.get(to), label, type,
                 Edge.RenderType.span));
+    }
+    
+    private boolean isInvalidEdge(int from, int to) {
+        Token fromToken = map.get(from);
+        Token toToken = map.get(to);
+        if (fromToken == null) {
+            System.out.println("There is no token at index " + from + " for tokens " + map);
+        }
+        if (toToken == null) {
+            System.out.println("There is no token at index " + to + " for tokens " + map);
+        }
+        return toToken == null || fromToken == null;
     }
 
     /**
      * Creates and adds an edge with rendertype {@link com.googlecode.whatswrong.Edge.RenderType#span}
      *
-     * @param from  index of the token the edge should start at. The token at the given index must already exist in the
-     *              sentence.
-     * @param to    index of the token edge should end at. The token at the given index must already exist in the
-     *              sentence.
-     * @param label the label of the edge.
-     * @param type  the type of edge.
+     * @param from        index of the token the edge should start at. The token at the given index must already exist in the
+     *                    sentence.
+     * @param to          index of the token edge should end at. The token at the given index must already exist in the
+     *                    sentence.
+     * @param label       the label of the edge.
+     * @param type        the type of edge.
      * @param description the description of the span.
      * @see com.googlecode.whatswrong.Edge
      */
     public void addSpan(final int from, final int to,
                         final String label, final String type,
                         final String description) {
+        if (isInvalidEdge(from,to)) return;
         Edge edge = new Edge(map.get(from), map.get(to), label, type,
                 Edge.RenderType.span);
         edge.setDescription(description);
@@ -192,6 +207,7 @@ public class NLPInstance {
      */
     public void addDependency(final int from, final int to,
                               final String label, final String type) {
+        if (isInvalidEdge(from,to)) return;
         edges.add(new Edge(map.get(from), map.get(to), label, type,
                 Edge.RenderType.dependency));
     }
@@ -211,8 +227,10 @@ public class NLPInstance {
      */
     public void addDependency(final int from, final int to,
                               final String label, final String type, final String description) {
-        Edge edge = new Edge(map.get(from), map.get(to), label, type,
-                Edge.RenderType.dependency);
+        if (isInvalidEdge(from,to)) return;
+        Token fromToken = map.get(from);
+        Token toToken = map.get(to);
+        Edge edge = new Edge(fromToken, toToken, label, type, Edge.RenderType.dependency);
         edge.setDescription(description);
         edges.add(edge);
     }
