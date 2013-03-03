@@ -4,7 +4,7 @@ import com.googlecode.whatswrong.Edge;
 import com.googlecode.whatswrong.NLPInstance;
 import com.googlecode.whatswrong.SimpleGridBagConstraints;
 import com.googlecode.whatswrong.Token;
-import gnu.trove.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
