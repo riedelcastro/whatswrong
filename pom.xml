@@ -6,6 +6,7 @@
     <version>0.2.5-SNAPSHOT</version>
     <name>What's Wrong With My NLP?</name>
     <url>http://whatswrong.googlecode.com</url>
+    <description>A visualizer for NLP problems.</description>
 
     <developers>
         <developer>
@@ -133,7 +134,21 @@
 
     <build>
         <plugins>
-            <plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin> 
+           <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -164,14 +179,25 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>verify</phase>
+                        <!-- <phase>verify</phase> -->
                         <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                          <execution>
+                          <id>attach-javadocs</id>
+                          <goals>
+                                <goal>jar</goal>
+                          </goals>
+                          </execution>
+                </executions>
+            </plugin>
 
         </plugins>
         <extensions>
