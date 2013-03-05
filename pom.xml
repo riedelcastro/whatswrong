@@ -67,7 +67,7 @@
                         <version>2.0-beta-8</version>
                         <configuration>
                             <tagBase>https://whatswrong.googlecode.com/svn/tags</tagBase>
-                            <goals>deploy assembly:assembly gcupload:gcupload site-deploy</goals>
+                            <goals>deploy assembly:assembly gcupload:gcupload</goals>
                         </configuration>
                     </plugin>
 
@@ -117,13 +117,13 @@
     <distributionManagement>
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>q</id>
-            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/repo/releases</url>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
-            <id>freehostia</id>
-            <url>ftp://sebrie.freehostia.com/riedelcastro.org/maven/repo/snapshots</url>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <site>
             <id>freehostia</id>
