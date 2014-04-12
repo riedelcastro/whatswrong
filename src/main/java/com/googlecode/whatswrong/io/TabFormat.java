@@ -30,6 +30,7 @@ public class TabFormat implements CorpusFormat {
 
 
     public TabFormat() {
+        addProcessor("CCG", new CCG());
         addProcessor("CoNLL 2009", new CoNLL2009());
         addProcessor("CoNLL 2008", new CoNLL2008());
         addProcessor("CoNLL 2006", new CoNLL2006());
@@ -120,7 +121,7 @@ public class TabFormat implements CorpusFormat {
         int instanceNr = 0;
         for (String line = reader.readLine(); line != null && instanceNr < to; line = reader.readLine()) {
             line = line.trim();
-            if (line.equals("")) {
+            if (line.equals("") || line.split("\\s")[0].equals("<\\s>")) {
                 monitor.progressed(instanceNr);
                 if (instanceNr++ < from) continue;
                 NLPInstance instance = open ? processor.createOpen(rows) : processor.create(rows);

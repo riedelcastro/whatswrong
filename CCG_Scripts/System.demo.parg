@@ -1,0 +1,19 @@
+<s> 5	No|RB|S/S ,|,|, it|PRP|NP was|VBD|(S[dcl]\NP)/NP n't|RB|(S\NP)\(S\NP) Black|NNP|N/N Monday|NNP|N .|.|. 
+2 	 3 	 S\N 	 1 	 it was
+3 	 0 	 S/S 	 1 	 was No
+3 	 4 	 (S\S)/N 	 1 	 was n't
+6 	 4 	 (S\S)/N 	 2 	 monday n't
+6 	 5 	 N/N 	 1 	 Monday Black
+<\s>
+<s> 4	The|DT|NP[nb]/N finger-pointing|NN|N has|VBZ|(S[dcl]\NP)/(S[pt]\NP) already|RB|(S\NP)\(S\NP) begun|VBN|S[pt]\NP .|.|. 
+1 	 0 	 N/N 	 1 	 finger-pointing the
+1 	 2 	 S\N 	 1 	 finger-pointing has
+2 	 3 	 S\S 	 1 	 has already
+2 	 4 	 S\S 	 1 	 has begun
+<\s>
+<s> 4	The|DT|NP[nb]/N equity|NN|N/N market|NN|N was|VBD|(S[dcl]\NP)/(S[adj]\NP) illiquid|JJ|S[adj]\NP .|.|. 
+3 	 1 	 N/N 	 1 	 market the
+3 	 2 	 N/N 	 1 	 market equity
+3 	 4 	 S\N 	 1 	 market was
+4 	 5 	 S\S 	 1 	 was illiquid
+<\s>
