@@ -45,7 +45,7 @@ Starting the application
 
 execute
 
-$ java -java whatswrong-x.y.z-standalone.jar
+$ java -jar whatswrong-x.y.z-standalone.jar
 
 
 
