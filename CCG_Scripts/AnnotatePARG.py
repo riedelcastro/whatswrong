@@ -29,10 +29,11 @@ for root,dirs,files in os.walk("PARG/"):
     PARG = open(parg_f, 'r')
     ANNO = open(anno_f, 'w')
     for line in PARG:
-      if line.split()[0] == "<s>" and line.split()[1] != "0":
+      if line.split()[0] == "<s>" and \
+          (line.split()[1] != "0" or \
+          (len(sents) > 0 and len(sents[0].split()) == 1)):
         ANNO.write("<s> " + line.split()[1] + "\t" + sents.pop(0) + "\n")
       else:
         ANNO.write(line)
     PARG.close()
     ANNO.close()
-        

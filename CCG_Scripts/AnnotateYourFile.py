@@ -1,6 +1,7 @@
 # When run with a reference to your evaluation section of CCGBank and file to
 # evaluate, annotates your file with:
 # <s> #parses word1|tag1|cat1 word2|tag2|cat2 ....
+# This assumes you only parsed sentences that are in CCGbank, with is not the full PTB
 # Author:  Yonatan Bisk (bisk1@illinois.edu)
 import os,sys
 
@@ -33,7 +34,7 @@ ANNO = open(Input_File + ".anno",'w')
 count = 0
 for line in PARG:
   try:
-    if line.split()[0] == "<s>" and line.split()[1] != "0":
+    if line[:2] == "<s":
       ANNO.write("<s> " + line.split()[1] + "\t" + sents.pop(0) + "\n")
     else:
       ANNO.write(line)
